@@ -1,0 +1,1 @@
+name = "Machine Learning From Zero"
