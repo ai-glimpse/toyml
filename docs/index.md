@@ -1,16 +1,12 @@
-<p align="center" style="font-size:40px; margin:0px 10px 0px 10px">
-    <em>ToyML</em>
-</p>
-<p align="center">
-    <em>ToyML: Machine Learning from Scratch</em>
-
-
-# About
+## About
 There are some machine learning algorithms implemented from scratch!
 Let's learn machine learning with toy code.
 
-# Overview
+## Overview
 
 - [x] Clustering: DBSCAN, Hierarchical(Agnes&Diana), Kmeans
 - [x] Classification: KNN
 - [x] Ensemble: Boosting(AdaBoost)
+- [ ] Classification: NaiveBayes, DecisionTree, SVM
+- [ ] Association Analysis: Apriori
+- [ ] Ensemble: GBDT

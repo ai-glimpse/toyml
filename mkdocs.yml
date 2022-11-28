@@ -1,0 +1,72 @@
+site_name: ToyML
+repo_url: https://github.com/shenxiangzhuang/ToyML
+repo_name: shenxiangzhuang/ToyML
+edit_uri: ""
+site_description: Machine Learning from Scratch
+site_author: Xiangzhuang Shen
+copyright: Copyright &copy; 2022 Xiangzhuang Shen
+
+nav:
+  - ToyML: index.md
+  - Quick Start: quickstart.md
+  - User Guide:
+      - Read First: user-guide/1-read-first.md
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.top
+
+docs_dir: docs
+
+extra_css:
+  - css/extra.css
+
+extra_javascript:
+  - js/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/shenxiangzhuang/ToyML
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/xiangzhuang-shen-a81825157/
+
+markdown_extensions:
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      linenums_style: pymdownx.inline
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.details
+  - pymdownx.snippets
+  - pymdownx.tabbed
+  - abbr
+  - admonition
+  - attr_list
+
+plugins:
+  - search
