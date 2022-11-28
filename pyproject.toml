@@ -92,7 +92,8 @@ disable = [
 max-line-length = 88
 
 [tool.pytest.ini_options]
-addopts = "-v --cov=toyml --cov-report=term --cov-report=xml --cov-report=html"
+# TODO: change cov percent from 0 to 90
+addopts = "-v --cov=toyml --cov-fail-under 0 --cov-report=term --cov-report=xml --cov-report=html"
 testpaths = [
     "tests",
 ]
