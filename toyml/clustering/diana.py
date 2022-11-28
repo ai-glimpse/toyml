@@ -31,10 +31,10 @@ class BisectingKmeans:
 
     def fit(self) -> Clusters:
         while len(self._clusters) < self._k:
-            totoal_error = sum(
+            total_error = sum(
                 self._get_sse_error_from_cluster(cluster) for cluster in self._clusters
             )
-            min_error = totoal_error
+            min_error = total_error
             split_cluster_index = -1
             split_cluster_into = [[] for i in range(2)]
             for cluster_index, cluster in enumerate(self._clusters):
@@ -48,7 +48,7 @@ class BisectingKmeans:
                     cluster1
                 ) + self._get_sse_error_from_cluster(cluster2)
                 new_total_error = (
-                    totoal_error - cluster_unsplit_error + cluster_split_error
+                    total_error - cluster_unsplit_error + cluster_split_error
                 )
                 if new_total_error < min_error:
                     min_error = new_total_error
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     dataset = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
     k = 2
     # Bisecting K-means testing
-    diana = BisecingKmeans(dataset, k)
+    diana = BisectingKmeans(dataset, k)
     diana.fit()
     diana.print_cluster()
     diana.print_labels()
