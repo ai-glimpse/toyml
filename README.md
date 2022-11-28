@@ -2,7 +2,7 @@
     <em>ToyML</em>
 </p>
 <p align="center">
-    <em>ToyML: Machine Learning from Scratch</em>
+    <em>Machine Learning from Scratch</em>
 </p>
 
 <p align="center">
@@ -15,10 +15,10 @@
 </p>
 
 # About
-There are some machine learning algorithms implemented from scratch!
-Let's learn machine learning with toy code.
+There are some machine learning algorithms implemented from scratch, 
+let's learn machine learning with toy code.
 
-# Overview
+# RoadMap
 
 - [x] Clustering: DBSCAN, Hierarchical(Agnes&Diana), Kmeans
 - [x] Classification: KNN
