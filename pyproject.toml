@@ -2,7 +2,7 @@
 name = "toyml"
 version = "0.1.0"
 description = "ToyML: Machine Learning from Scratch"
-license = "LGPL-3.0-or-later"
+license = "LGPL v3"
 authors = ["Xiangzhuang Shen <datahonor@gmail.com>"]
 readme = "README.md"
 homepage = "https://shenxiangzhuang.github.io/ToyML"
@@ -16,7 +16,7 @@ classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: LGPL-3.0-or-later License",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
