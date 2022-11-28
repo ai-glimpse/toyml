@@ -97,7 +97,7 @@ disable = [
 max-line-length = 88
 
 [tool.pytest.ini_options]
-addopts = "-v --cov=pyextremes --cov-report=term --cov-report=xml --cov-report=html"
+addopts = "-v --cov=toyml --cov-report=term --cov-report=xml --cov-report=html"
 testpaths = [
     "tests",
 ]

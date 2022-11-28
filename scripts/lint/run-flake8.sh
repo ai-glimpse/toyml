@@ -2,7 +2,7 @@
 
 if [[ $(poetry config virtualenvs.create) = true ]]
 then
-    poetry run flake8 src/
+    poetry run flake8 ./
 else
-    flake8 src/
+    flake8 ./
 fi

@@ -1,17 +1,9 @@
-from toyml.utils.types import Cluster, Clusters, Vector, DataSet
+from toyml.clustering.kmeans_clustering import Kmeans
 from toyml.utils.linear_algebra import sse
-from toyml.clustering.kmeans import Kmeans
-import math
-
-"""
-TODO:
-1. MST
-2. Plot
-3. Test
-"""
+from toyml.utils.types import Cluster, Clusters, DataSet
 
 
-class BisecingKmeans:
+class BisectingKmeans:
     """
     Bisecting K-means algorithm.
     Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)
@@ -20,6 +12,7 @@ class BisecingKmeans:
     1. Harrington
     2. Tan
     """
+
     def __init__(self, dataset: DataSet, k: int) -> None:
         """
         dataset: the set of data points for clustering
@@ -38,8 +31,9 @@ class BisecingKmeans:
 
     def fit(self) -> Clusters:
         while len(self._clusters) < self._k:
-            totoal_error = sum(self._get_sse_error_from_cluster(cluster)
-                               for cluster in self._clusters)
+            totoal_error = sum(
+                self._get_sse_error_from_cluster(cluster) for cluster in self._clusters
+            )
             min_error = totoal_error
             split_cluster_index = -1
             split_cluster_into = [[] for i in range(2)]
@@ -49,13 +43,13 @@ class BisecingKmeans:
                 kmeans = Kmeans(cluster_data, 2)
                 cluster1, cluster2 = kmeans.fit()[1]
                 # error calc
-                cluster_unsplit_error = \
-                    self._get_sse_error_from_cluster(cluster)
-                cluster_split_error = \
-                    self._get_sse_error_from_cluster(cluster1) \
-                    + self._get_sse_error_from_cluster(cluster2)
-                new_total_error = totoal_error - cluster_unsplit_error \
-                    + cluster_split_error
+                cluster_unsplit_error = self._get_sse_error_from_cluster(cluster)
+                cluster_split_error = self._get_sse_error_from_cluster(
+                    cluster1
+                ) + self._get_sse_error_from_cluster(cluster2)
+                new_total_error = (
+                    totoal_error - cluster_unsplit_error + cluster_split_error
+                )
                 if new_total_error < min_error:
                     min_error = new_total_error
                     split_cluster_index = cluster_index
@@ -81,12 +75,11 @@ class BisecingKmeans:
         for cluster_label, cluster in enumerate(self._clusters):
             for sample_index in cluster:
                 y_pred[sample_index] = cluster_label
-        print('Sample labels: ', y_pred)
+        print("Sample labels: ", y_pred)
 
 
-if __name__ == '__main__':
-    dataset = [[1.0, 2], [1, 5], [1, 0],
-               [10, 2], [10, 5], [10, 0]]
+if __name__ == "__main__":
+    dataset = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
     k = 2
     # Bisecting K-means testing
     diana = BisecingKmeans(dataset, k)

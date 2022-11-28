@@ -41,8 +41,7 @@ def vectors_std(vectors: Vectors) -> Vector:
     means = vectors_mean(vectors)
     v = [0.0] * d
     for i in range(d):
-        v[i] = math.sqrt(sum((vector[i] - means[i])**2
-                         for vector in vectors) / n)
+        v[i] = math.sqrt(sum((vector[i] - means[i]) ** 2 for vector in vectors) / n)
     return v
 
 
@@ -91,9 +90,7 @@ def sse(c: Vectors) -> float:
 
 
 # data transformation
-def standarlization(dataset: DataSet,
-                    means: Vector,
-                    stds: Vector) -> None:
+def standarlization(dataset: DataSet, means: Vector, stds: Vector) -> None:
     """
     The standarlization of numerical dataset.
     """

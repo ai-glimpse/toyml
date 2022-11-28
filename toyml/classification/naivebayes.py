@@ -1,4 +1,4 @@
-from toyml.utils.types import Vector, DataSet, Label, Labels
+from toyml.utils.types import DataSet, Labels
 
 
 class NaiveBayesClassifier:
@@ -9,6 +9,7 @@ class NaiveBayesClassifier:
     2. Alan Ritter
     3. Murphy
     """
+
     def __init__(self, dataset: DataSet, labels: Labels) -> None:
         self._dataset = dataset
         self._labels = labels
@@ -32,7 +33,7 @@ class NaiveBayesClassifier:
         # calc conditional prob: P(Xj=ajl | Y=Ck)
         # we use a matrix of dim (k, n) with element {aj1:xxx, ..., ajSj:xxx}
         # to save the result
-        self.condProb = [[{} for col in range(self._n)]
-                         for row in range(self._k)]
+        self.condProb = [[{} for col in range(self._n)] for row in range(self._k)]
         # calc with "sorted" samples
         indexes = sorted(range(self._N), key=lambda i: self._labels[i])
+        return indexes

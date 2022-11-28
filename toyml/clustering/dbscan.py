@@ -1,8 +1,10 @@
-import random
 import math
+import random
+
 from collections import deque
+
 from toyml.utils.linear_algebra import distance_matrix, euclidean_distance
-from toyml.utils.types import List, Vector, DataSet, Clusters
+from toyml.utils.types import Clusters, DataSet, List, Vector
 
 """
 TODO:
@@ -21,8 +23,8 @@ class DbScan:
     3. Kassambara
     4. Wikipedia
     """
-    def __init__(self, dataset: DataSet, eps: float,
-                 MinPts: int = 3) -> None:
+
+    def __init__(self, dataset: DataSet, eps: float, MinPts: int = 3) -> None:
         self._dataset = dataset
         self._n = len(self._dataset)
         # distance matrix
@@ -106,12 +108,11 @@ class DbScan:
             for sample_index in self._clusters[i]:
                 labels[sample_index] = i
         # we leave the label of noise data to None
-        print('Sample labels: ', labels)
+        print("Sample labels: ", labels)
 
 
-if __name__ == '__main__':
-    dataset = [[1.0, 2], [2, 2], [2, 3],
-               [8, 7], [8, 8], [25, 80]]
+if __name__ == "__main__":
+    dataset = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
     dbscan = DbScan(dataset, 3, 2)
     print(dbscan._getCoreObjects())
     print(dbscan.fit())

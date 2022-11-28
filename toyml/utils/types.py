@@ -1,5 +1,4 @@
-from typing import Optional, List, Tuple, Any, Callable, Union
-
+from typing import List
 
 """DataSet"""
 # float vectors
@@ -21,7 +20,6 @@ Clusters = List[Cluster]
 
 # distance matrix
 DistMat = List[List[float]]
-
 
 """classification"""
 # classifier with sample weight considered

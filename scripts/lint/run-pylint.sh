@@ -2,7 +2,7 @@
 
 if [[ $(poetry config virtualenvs.create) = true ]]
 then
-    poetry run pylint src/ --rcfile=pyproject.toml
+    poetry run pylint ./ --rcfile=pyproject.toml
 else
-    pylint src/ --rcfile=pyproject.toml
+    pylint ./ --rcfile=pyproject.toml
 fi

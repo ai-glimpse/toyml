@@ -1,10 +1,12 @@
 from collections import Counter
-from toyml.utils.types import Vector, DataSet, Label, Labels
-from toyml.utils.linear_algebra import (euclidean_distance,
-                                        manhattan_distance,
-                                        standarlization,
-                                        vectors_mean,
-                                        vectors_std)
+
+from toyml.utils.linear_algebra import (
+    euclidean_distance,
+    standarlization,
+    vectors_mean,
+    vectors_std,
+)
+from toyml.utils.types import DataSet, Label, Labels, Vector
 
 
 class KNeighborsClassifier:
@@ -18,8 +20,15 @@ class KNeighborsClassifier:
     4. Murphy
     5. Harrington
     """
-    def __init__(self, dataset: DataSet, labels: Labels, k: int,
-                 dist=euclidean_distance, std=True) -> None:
+
+    def __init__(
+        self,
+        dataset: DataSet,
+        labels: Labels,
+        k: int,
+        dist=euclidean_distance,
+        std=True,
+    ) -> None:
         self._dataset = dataset
         self._labels = labels
         self._k = k
@@ -43,11 +52,11 @@ class KNeighborsClassifier:
             v[i] = (x[i] - self._means[i]) / self._stds[i]
         dists = [self._dist(v, point) for point in self._dataset]
         # get k-nearest neighbors' label
-        labels = [x for _, x in sorted(zip(dists, self._labels))][::self._k]
+        labels = [x for _, x in sorted(zip(dists, self._labels))][:: self._k]
         return Counter(labels).most_common(1)[0][0]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     dataset = [[0.0], [1], [2], [3]]
     labels = [0, 0, 1, 1]
     knn = KNeighborsClassifier(dataset, labels, 3)

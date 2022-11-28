@@ -1,8 +1,9 @@
-from toyml.utils.types import Tuple, DataSet, \
-    Cluster, Clusters, DistMat, Vector
-from toyml.utils.linear_algebra import euclidean_distance
 import math
 
+from typing import Tuple
+
+from toyml.utils.linear_algebra import euclidean_distance
+from toyml.utils.types import Cluster, Clusters, DataSet, DistMat, Vector
 
 """
 TODO:
@@ -19,6 +20,7 @@ class Agnes:
     1. Zhou Zhihua
     2. Tan
     """
+
     def __init__(self, dataset: DataSet, k: int) -> None:
         """
         dataset: the set of data points for clustering
@@ -28,8 +30,7 @@ class Agnes:
         self._k = k
         self._n = len(dataset)
         self._clusters = [[i] for i in range(self._n)]
-        self._dist_mat = [[0.0 for i in range(self._n)]
-                          for j in range(self._n)]
+        self._dist_mat = [[0.0 for i in range(self._n)] for j in range(self._n)]
 
     def _get_dist(self, c1: Cluster, c2: Cluster, measure=min) -> float:
         """
@@ -88,8 +89,9 @@ class Agnes:
                 raw.pop(j)
             # calc new dist
             for j in range(len(self._clusters)):
-                self._dist_mat[i][j] = self._get_dist(self._clusters[i],
-                                                      self._clusters[j])
+                self._dist_mat[i][j] = self._get_dist(
+                    self._clusters[i], self._clusters[j]
+                )
                 self._dist_mat[j][i] = self._dist_mat[i][j]
 
         return self._clusters
@@ -101,8 +103,7 @@ class Agnes:
         min_dist = math.inf
         label = -1
         for cluster_label, cluster in enumerate(self._clusters):
-            dist = min([euclidean_distance(point, self._dataset[i])
-                        for i in cluster])
+            dist = min([euclidean_distance(point, self._dataset[i]) for i in cluster])
             if dist < min_dist:
                 min_dist = dist
                 label = cluster_label
@@ -123,15 +124,14 @@ class Agnes:
         for cluster_label, cluster in enumerate(self._clusters):
             for sample_index in cluster:
                 y_pred[sample_index] = cluster_label
-        print('Sample labels: ', y_pred)
+        print("Sample labels: ", y_pred)
 
 
-if __name__ == '__main__':
-    dataset = [[1.0, 2], [1, 5], [1, 0],
-               [10, 2], [10, 5], [10, 0]]
+if __name__ == "__main__":
+    dataset = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
     k = 2
     agnes = Agnes(dataset, k)
     agnes.fit()
     agnes.print_cluster()
     agnes.print_labels()
-    print('Prediction of [0, 0]: ', agnes.predict([0.0, 0.0]))
+    print("Prediction of [0, 0]: ", agnes.predict([0.0, 0.0]))
