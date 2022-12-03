@@ -14,11 +14,20 @@
 </a>
 </p>
 
-# About
-There are some machine learning algorithms implemented from scratch,
-let's learn machine learning with toy code.
+There are some machine learning algorithms implemented from scratch.
+Let's learn machine learning with simple toy code.
 
-# Documentation
+
+# Installation
+```bash
+pip install toyml
+```
+
+
+# Links
+- Documentation: [https://datahonor.com/toyml/](https://datahonor.com/toyml)
+- PyPi: [https://pypi.org/project/toyml/](https://pypi.org/project/toyml/)
+- Changelog: [https://datahonor.com/toyml/CHANGELOG/](https://datahonor.com/toyml/CHANGELOG)
 
 
 # RoadMap
@@ -29,6 +38,3 @@ let's learn machine learning with toy code.
 - [ ] Classification: NaiveBayes, DecisionTree, SVM
 - [ ] Association Analysis: Apriori
 - [ ] Ensemble: GBDT
-
-
-# CHANGELOG
