@@ -1,6 +1,5 @@
 import pytest
 
-
 from toyml.classification.knn import KNeighborsClassifier
 
 

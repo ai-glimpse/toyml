@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        command: [black, pylint, flake8, isort]
+        command: [black, flake8, isort]  # remove pylint
     steps:
       - name: Checkout
         uses: actions/checkout@v3

@@ -15,7 +15,7 @@
 </p>
 
 # About
-There are some machine learning algorithms implemented from scratch, 
+There are some machine learning algorithms implemented from scratch,
 let's learn machine learning with toy code.
 
 # RoadMap

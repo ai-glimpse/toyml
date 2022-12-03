@@ -1,5 +1,6 @@
 import math
-from .types import Vector, Vectors, DataSet
+
+from .types import DataSet, Vector, Vectors
 
 
 # Vector operations
@@ -7,7 +8,9 @@ def vectors_minus(v1: Vector, v2: Vector) -> Vector:
     """
     v1 - v2
     """
-    assert len(v1) == len(v2), """Can not minus \
+    assert len(v1) == len(
+        v2
+    ), """Can not minus \
     (vectors have different dimensions)"""
     d = len(v1)
     v = [0.0] * d
