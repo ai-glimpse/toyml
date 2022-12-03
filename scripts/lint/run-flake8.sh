@@ -2,7 +2,7 @@
 ls
 if [[ $(poetry config virtualenvs.create) = true ]]
 then
-    poetry run flake8 .
+    poetry run flake8 ./toyml
 else
-    flake8 .
+    flake8 ./toyml
 fi
