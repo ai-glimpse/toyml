@@ -6,11 +6,14 @@ site_description: Machine Learning from Scratch
 site_author: Xiangzhuang Shen
 copyright: Copyright &copy; 2022 Xiangzhuang Shen
 
+# Page tree
 nav:
-  - ToyML: index.md
-  - Quick Start: quickstart.md
-  - User Guide:
-      - Read First: user-guide/1-read-first.md
+  - Home: index.md
+  - Getting started:
+      - Quick Start: quickstart.md
+      - User Guide:
+          - Read First: user-guide/1-read-first.md
+  - Changelog: CHANGELOG.md
 
 theme:
   name: material
@@ -29,8 +32,25 @@ theme:
         icon: material/lightbulb
         name: Switch to light mode
   features:
-    - navigation.instant
+    # - announce.dismiss
+    - content.code.annotate
+    # - content.tabs.link
+    - content.tooltips
+    # - header.autohide
+    # - navigation.expand
+    - navigation.indexes
+    # - navigation.instant
+    # - navigation.prune
+    - navigation.sections
+    - navigation.tabs
+    # - navigation.tabs.sticky
     - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    # - toc.integrate
 
 docs_dir: docs
 

@@ -18,6 +18,9 @@
 There are some machine learning algorithms implemented from scratch,
 let's learn machine learning with toy code.
 
+# Documentation
+
+
 # RoadMap
 
 - [x] Clustering: DBSCAN, Hierarchical(Agnes&Diana), Kmeans
@@ -26,3 +29,6 @@ let's learn machine learning with toy code.
 - [ ] Classification: NaiveBayes, DecisionTree, SVM
 - [ ] Association Analysis: Apriori
 - [ ] Ensemble: GBDT
+
+
+# CHANGELOG
