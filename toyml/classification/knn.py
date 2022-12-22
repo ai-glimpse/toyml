@@ -61,8 +61,8 @@ class KNeighborsClassifier:
 
 
 if __name__ == "__main__":
-    dataset = [[0.0], [1], [2], [3]]
-    labels = [0, 0, 1, 1]
+    dataset: DataSet = [[0.0], [1], [2], [3]]
+    labels: Labels = [0, 0, 1, 1]
     knn = KNeighborsClassifier(dataset, labels, 3)
     knn.fit()
     print(knn.predict([1.1]))

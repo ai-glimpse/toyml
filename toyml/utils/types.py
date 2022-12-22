@@ -1,4 +1,7 @@
-from typing import List
+from typing import List, Union
+
+"""General"""
+Number = Union[float, int]
 
 """DataSet"""
 # float vectors
@@ -23,7 +26,7 @@ DistMat = List[List[float]]
 
 """classification"""
 # classifier with sample weight considered
-Weights = List[float]
+Weights = List[Number]
 
 """Special"""
 
