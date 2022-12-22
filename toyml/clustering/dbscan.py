@@ -30,14 +30,14 @@ class DbScan:
         # distance matrix
         self._dist_matrix = distance_matrix(self._dataset)
         self._eps = eps
-        # we does not include the point i itself as a neighbor
+        # we do not include the point i itself as a neighbor
         # as the algorithm does, so we minus one here to convert
         self._MinPts = MinPts - 1
-        self._coreObjects = []
-        self._noises = []
+        self._coreObjects: List[int] = []
+        self._noises: List[int] = []
         # the number of clusters
         self._k = 0
-        self._clusters = []
+        self._clusters: Clusters = []
 
     def _getNeighbors(self, i: int) -> List[int]:
         neighbors = []
@@ -64,7 +64,7 @@ class DbScan:
         while Omg:
             F_old = F.copy()
             o = Omg.pop()
-            Q = deque()
+            Q: deque = deque()
             Q.append(o)
             F.remove(o)
             while len(Q) > 0:
@@ -78,7 +78,7 @@ class DbScan:
                         F.remove(point)
             self._k += 1
             C_k = F_old.difference(F)
-            self._clusters.append(C_k)
+            self._clusters.append(list(C_k))
             Omg = Omg.difference(C_k)
         return self._clusters
 
@@ -112,7 +112,7 @@ class DbScan:
 
 
 if __name__ == "__main__":
-    dataset = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
+    dataset: DataSet = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
     dbscan = DbScan(dataset, 3, 2)
     print(dbscan._getCoreObjects())
     print(dbscan.fit())

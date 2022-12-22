@@ -1,6 +1,6 @@
 import math
 
-from typing import Any
+from typing import Any, Callable, List
 
 from toyml.utils.types import DataSet, Label, Labels, Weights
 
@@ -15,7 +15,11 @@ class AdaBoost:
     """
 
     def __init__(
-        self, dataset: DataSet, labels: Labels, base_clf, clf_num: int = 5
+        self,
+        dataset: DataSet,
+        labels: Labels,
+        base_clf: Callable,  # TODO: change to clf class type
+        clf_num: int = 5,
     ) -> None:
         self._dataset = dataset
         self._labels = labels
@@ -28,7 +32,7 @@ class AdaBoost:
         # such as multi-classes(0, 1, 2, ...) and binary classes(-1, 1)
         self._base_clf_results = [[-2] * self._n for _ in range(self._clf_num)]
         # base clf models
-        self._sub_clf_models = []
+        self._sub_clf_models: List[Callable] = []
         self._alphas: Any = [0] * self._clf_num
 
     def fit(self) -> None:
@@ -101,12 +105,12 @@ class OneDimClf:
         min_x_int = math.floor(min(self._xs))
         max_x_int = math.ceil(max(self._xs))
         # search for the best cut point
-        best_cut = min_x_int
+        best_cut: float = min_x_int
         best_error_rate = math.inf
         # pos-neg: 1, -1(default)
         for i in range(min_x_int, max_x_int):
             cut = i + 0.5
-            error_rate = 0
+            error_rate: float = 0
             for j, x in enumerate(self._xs):
                 if x <= cut and self._labels[j] != 1:
                     error_rate += self._weights[j]
@@ -153,9 +157,9 @@ class OneDimClf:
 
 
 if __name__ == "__main__":
-    dataset = [[0.0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
-    labels = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
-    M = 3
+    dataset: DataSet = [[0.0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
+    labels: Labels = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
+    M: int = 3
     ada = AdaBoost(dataset, labels, OneDimClf, M)
     ada.fit()
     ada.get_training_result()

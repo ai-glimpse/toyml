@@ -50,7 +50,7 @@ class Kmeans:
         return distances.index(min(distances))
 
     def _get_clusters(self, centroids: DataSet) -> Clusters:
-        clusters = [[] for i in range(self._k)]
+        clusters: Clusters = [[] for i in range(self._k)]
         for i, point in enumerate(self._dataset):
             centroid_label = self._get_centroid_label(point, centroids)
             clusters[centroid_label].append(i)
@@ -59,7 +59,9 @@ class Kmeans:
     def _get_centroids(self, clusters: Clusters) -> DataSet:
         # clusters: indexes -> data points
         points_clusters = [[self._dataset[i] for i in cluster] for cluster in clusters]
-        centroids = [[] for i in range(self._k)]
+        centroids: DataSet = [
+            [] for i in range(self._k)
+        ]  # TODO: DataSet type or newer type name with save type comb
         for i, cluster in enumerate(points_clusters):
             centroid = [sum(t) / self._k for t in zip(*cluster)]
             centroids[i] = centroid
@@ -122,8 +124,8 @@ class KmeansPlus(Kmeans):
 
 
 if __name__ == "__main__":
-    dataset = [[1.0, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]]
-    k = 2
+    dataset: DataSet = [[1.0, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]]
+    k: int = 2
     # kmeans
     print("Test K-means...")
     kmeans = Kmeans(dataset, k)

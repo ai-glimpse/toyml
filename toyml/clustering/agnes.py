@@ -128,8 +128,8 @@ class Agnes:
 
 
 if __name__ == "__main__":
-    dataset = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
-    k = 2
+    dataset: DataSet = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
+    k: int = 2
     agnes = Agnes(dataset, k)
     agnes.fit()
     agnes.print_cluster()
