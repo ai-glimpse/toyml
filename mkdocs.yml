@@ -13,6 +13,11 @@ nav:
       - Quick Start: quickstart.md
       - User Guide:
           - Read First: user-guide/1-read-first.md
+  - Algorithm:
+      - Classification:
+          - KNN: algorithm/classification/knn.md
+      - EVT:
+          - SPOT: algorithm/evt/spot.md
   - Changelog: CHANGELOG.md
 
 theme:
@@ -87,6 +92,11 @@ markdown_extensions:
   - abbr
   - admonition
   - attr_list
+  - footnotes
 
 plugins:
   - search
+  - bibtex:
+      bib_file: "docs/references.bib"
+      csl_file: "https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl"
+      cite_inline: false

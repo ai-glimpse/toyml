@@ -59,6 +59,7 @@ pytest-cov = "^4.0.0"
 mkdocs = "^1.4.0"
 mkdocs-material = "^8.5.3"
 mkdocs-material-extensions = "^1.0.3"
+mkdocs-bibtex = "^2.8.10"
 
 [[tool.poetry.source]]
 name = "tsinghua"

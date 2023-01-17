@@ -21,7 +21,7 @@ class Kmeans:
     1. Zhou Zhihua
     2. Murphy
 
-    Note: Here we just code the naive K-means and K-means++ algorithms.
+    Note: Here we just code the naive K-means and K-means++ algorithm.
     We implement the Bisecting K-means algorithm in toyml.hierarchical.Diana.
     """
 
