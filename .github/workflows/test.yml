@@ -57,3 +57,24 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: true
           verbose: true
+
+  sonarcloud:
+    runs-on: ubuntu-latest
+    environment: Sonar  # set env to use env secret
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.organization=shenxiangzhuang
+            -Dsonar.projectKey=shenxiangzhuang_toyml
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.tests=tests/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
