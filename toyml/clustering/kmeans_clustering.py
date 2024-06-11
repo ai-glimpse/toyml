@@ -27,9 +27,9 @@ class Kmeans:
 
     def __init__(self, dataset: DataSet, k: int, max_iter: int = 500) -> None:
         """
-        dataset: the set of data points for clustering
-        k: the number of clusters, specified by user
-        max_iter: The number of iterations the algorithm will run
+        :param dataset: the set of data points for clustering
+        :param k: the number of clusters, specified by user
+        :param max_iter: The number of iterations the algorithm will run
         for if it does not converge before that.
         """
         self._dataset: DataSet = dataset

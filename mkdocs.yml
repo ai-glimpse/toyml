@@ -18,6 +18,12 @@ nav:
           - KNN: algorithm/classification/knn.md
       - EVT:
           - SPOT: algorithm/evt/spot.md
+  - API References:
+      - Kmeans: api/clustering/kmeans.md
+      - DBSCAN: api/clustering/dbscan.md
+      - DIANA: api/clustering/diana.md
+      - AGNES: api/clustering/agnes.md
+
   - Changelog: CHANGELOG.md
 
 theme:
@@ -28,13 +34,17 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: teal
+      accent: deep purple
       toggle:
-        icon: material/lightbulb-outline
+        icon: material/weather-sunny
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: cyan
+      accent: deep purple
       toggle:
-        icon: material/lightbulb
+        icon: material/weather-night
         name: Switch to light mode
   features:
     # - announce.dismiss
@@ -100,3 +110,29 @@ plugins:
       bib_file: "docs/references.bib"
       csl_file: "https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl"
       cite_inline: false
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+          - https://docs.python.org/3/objects.inv
+          - https://mkdocstrings.github.io/objects.inv
+          - https://mkdocstrings.github.io/griffe/objects.inv
+          - https://python-markdown.github.io/objects.inv
+          options:
+            docstring_style: sphinx
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: table
+            show_docstring_classes: true
+            show_docstring_attributes: true
+            heading_level: 2
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: false
+            show_root_full_path: true
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+#            show_symbol_type_toc: true
+            signature_crossrefs: true
+            show_root_members_full_path: true
+            show_root_toc_entry: false
