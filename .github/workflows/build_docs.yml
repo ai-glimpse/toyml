@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  pull_request:
 
 jobs:
   deploy:
@@ -17,12 +18,32 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install dependencies
+      - name: Setup pandoc
         run: |
           wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb && sudo dpkg -i pandoc-2.18-1-amd64.deb
           sudo apt-get install pandoc-citeproc
-          python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-material-extensions mkdocs-bibtex
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install library
+        run: poetry install --no-interaction
 
       - name: Build docs
-        run: mkdocs gh-deploy --force
+        run: poetry run mkdocs gh-deploy --force
