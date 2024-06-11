@@ -2,24 +2,27 @@
 name = "toyml"
 version = "0.2.0"
 description = "ToyML: Machine Learning from Scratch"
-license = "LGPL v3"
+license = "Apache 2.0"
 authors = ["Xiangzhuang Shen <datahonor@gmail.com>"]
 readme = "README.md"
-homepage = "https://shenxiangzhuang.github.io/ToyML"
-repository = "https://github.com/shenxiangzhuang/ToyML"
+homepage = "https://ai-glimpse.github.io/toyml/"
+repository = "https://github.com/ai-glimpse/toyml"
 keywords=[
     "machine learning",
     "statistics",
     "engineering",
 ]
 classifiers=[
-    "Development Status :: 5 - Production/Stable",
+#    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Hydrology",
     "Topic :: Scientific/Engineering :: Mathematics",
@@ -46,10 +49,10 @@ ipython = "^8.7.0"
 
 [tool.poetry.group.lint.dependencies]
 black = "^22.8.0"
-pylint = "^2.15.3"
 flake8 = "^5.0.4"
 mypy = "^0.981"
 isort = "^5.10.1"
+ruff = "^0.4.8"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.1.3"
