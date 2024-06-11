@@ -63,6 +63,8 @@ mkdocs = "^1.4.0"
 mkdocs-material = "^8.5.3"
 mkdocs-material-extensions = "^1.0.3"
 mkdocs-bibtex = "^2.8.10"
+mkdocstrings-python = "^1.10.3"
+
 
 [[tool.poetry.source]]
 name = "tsinghua"
@@ -78,26 +80,10 @@ build-backend = "poetry.core.masonry.api"
 
 # Development tool configuration
 
-[tool.black]
-line-length = 88
-
 [tool.isort]
 profile = "black"
 lines_between_types = 1
 
-[tool.pylint.'MASTER']
-fail-under = 8.0
-
-[tool.pylint.'MESSAGES CONTROL']
-disable = [
-    "missing-module-docstring",
-    "missing-class-docstring",
-    "too-few-public-methods",
-    "useless-super-delegation",
-]
-
-[tool.pylint.'FORMAT']
-max-line-length = 88
 
 [tool.pytest.ini_options]
 # TODO: change cov percent from 0 to 90
