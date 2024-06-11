@@ -1,11 +1,4 @@
-<p align="center" style="font-size:40px; margin:0px 10px 0px 10px">
-    <em>ToyML</em>
-</p>
-<p align="center">
-    <em>Machine Learning from Scratch</em>
-</p>
-
-
+# ToyML: Machine Learning from Scratch
 
 <p align="center">
     <a href="https://codecov.io/gh/shenxiangzhuang/ToyML" target="_blank">
@@ -28,19 +21,19 @@ There are some machine learning algorithms implemented from scratch.
 Let's learn machine learning with simple toy code.
 
 
-# Installation
+## Installation
 ```bash
 pip install toyml
 ```
 
 
-# Links
+## Links
 - Documentation: [https://datahonor.com/toyml/](https://datahonor.com/toyml)
 - PyPi: [https://pypi.org/project/toyml/](https://pypi.org/project/toyml/)
 - Changelog: [https://datahonor.com/toyml/CHANGELOG/](https://datahonor.com/toyml/CHANGELOG)
 
 
-# RoadMap
+## RoadMap
 
 - [x] Clustering: DBSCAN, Hierarchical(Agnes&Diana), Kmeans
 - [x] Classification: KNN
