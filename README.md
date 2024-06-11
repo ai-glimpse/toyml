@@ -28,9 +28,9 @@ pip install toyml
 
 
 ## Links
-- Documentation: [https://datahonor.com/toyml/](https://datahonor.com/toyml)
+- Documentation: [https://ai-glimpse.github.io/toyml/](https://ai-glimpse.github.io/toyml/)
 - PyPi: [https://pypi.org/project/toyml/](https://pypi.org/project/toyml/)
-- Changelog: [https://datahonor.com/toyml/CHANGELOG/](https://datahonor.com/toyml/CHANGELOG)
+- Changelog: [https://ai-glimpse.github.io/toyml/CHANGELOG/](https://ai-glimpse.github.io/toyml/CHANGELOG/)
 
 
 ## RoadMap
