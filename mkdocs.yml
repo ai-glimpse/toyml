@@ -1,10 +1,10 @@
 site_name: ToyML
-repo_url: https://github.com/shenxiangzhuang/toyml
-repo_name: shenxiangzhuang/toyml
+repo_url: https://github.com/ai-glimpse/toyml
+repo_name: ai-glimpse/toyml
 edit_uri: ""
 site_description: Machine Learning from Scratch
 site_author: Xiangzhuang Shen
-copyright: Copyright &copy; 2022 Xiangzhuang Shen
+copyright: Copyright &copy; 2017 Xiangzhuang Shen
 
 # Page tree
 nav:

@@ -2,7 +2,7 @@ from collections import Counter
 
 from toyml.utils.linear_algebra import (
     euclidean_distance,
-    standarlization,
+    standardization,
     vectors_mean,
     vectors_std,
 )
@@ -44,7 +44,7 @@ class KNeighborsClassifier:
 
     def fit(self) -> None:
         if self._is_std:
-            standarlization(self._dataset, self._means, self._stds)
+            standardization(self._dataset, self._means, self._stds)
         else:
             pass
 

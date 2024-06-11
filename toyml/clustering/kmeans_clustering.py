@@ -17,7 +17,7 @@ class Kmeans:
     """
     K-means algorithm.
 
-    Refrences:
+    References:
     1. Zhou Zhihua
     2. Murphy
 
@@ -36,7 +36,7 @@ class Kmeans:
         self._k: int = k
         self._max_iter: int = max_iter
         # results
-        self._centroids: Any = [[] for i in range(self._k)]
+        self._centroids: Any = [[] for _ in range(self._k)]
         self._clusters: Clusters = [[]]
 
     def _get_initial_centroids(self) -> DataSet:
@@ -45,12 +45,13 @@ class Kmeans:
         """
         return random.sample(self._dataset, self._k)
 
-    def _get_centroid_label(self, point: Vector, centroids: DataSet) -> int:
+    @staticmethod
+    def _get_centroid_label(point: Vector, centroids: DataSet) -> int:
         distances = [euclidean_distance(point, centroid) for centroid in centroids]
         return distances.index(min(distances))
 
     def _get_clusters(self, centroids: DataSet) -> Clusters:
-        clusters: Clusters = [[] for i in range(self._k)]
+        clusters: Clusters = [[] for _ in range(self._k)]
         for i, point in enumerate(self._dataset):
             centroid_label = self._get_centroid_label(point, centroids)
             clusters[centroid_label].append(i)
@@ -60,7 +61,7 @@ class Kmeans:
         # clusters: indexes -> data points
         points_clusters = [[self._dataset[i] for i in cluster] for cluster in clusters]
         centroids: DataSet = [
-            [] for i in range(self._k)
+            [] for _ in range(self._k)
         ]  # TODO: DataSet type or newer type name with save type comb
         for i, cluster in enumerate(points_clusters):
             centroid = [sum(t) / self._k for t in zip(*cluster)]
@@ -80,7 +81,7 @@ class Kmeans:
                 break
         self._centroids = centroids
         self._clusters = clusters
-        return (centroids, clusters)
+        return centroids, clusters
 
     def predict(self, point: Vector) -> int:
         return self._get_centroid_label(point, self._centroids)
@@ -134,7 +135,7 @@ if __name__ == "__main__":
     kmeans.predict([0.0, 0.0])
     # kmeans++
     print("Test K-means++...")
-    kmeansplus = KmeansPlus(dataset, k)
-    kmeansplus.fit()
-    kmeansplus.print_cluster()
-    kmeansplus.predict([0.0, 0.0])
+    kmeans_plus = KmeansPlus(dataset, k)
+    kmeans_plus.fit()
+    kmeans_plus.print_cluster()
+    kmeans_plus.predict([0.0, 0.0])

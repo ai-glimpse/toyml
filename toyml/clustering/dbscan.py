@@ -24,7 +24,7 @@ class DbScan:
     4. Wikipedia
     """
 
-    def __init__(self, dataset: DataSet, eps: float, MinPts: int = 3) -> None:
+    def __init__(self, dataset: DataSet, eps: float, min_pts: int = 3) -> None:
         self._dataset = dataset
         self._n = len(self._dataset)
         # distance matrix
@@ -32,7 +32,7 @@ class DbScan:
         self._eps = eps
         # we do not include the point i itself as a neighbor
         # as the algorithm does, so we minus one here to convert
-        self._MinPts = MinPts - 1
+        self._min_pts = min_pts - 1
         self._coreObjects: List[int] = []
         self._noises: List[int] = []
         # the number of clusters
@@ -49,14 +49,14 @@ class DbScan:
     def _getCoreObjects(self) -> List[int]:
         for i in range(self._n):
             neighbors = self._getNeighbors(i)
-            if len(neighbors) >= self._MinPts:
+            if len(neighbors) >= self._min_pts:
                 self._coreObjects.append(i)
             else:
                 self._noises.append(i)
         return self._coreObjects
 
     def fit(self) -> Clusters:
-        # initialize the unvisit set
+        # initialize the unvisited set
         F = set(range(self._n))
         # core objects used for training
         random.shuffle(self._coreObjects)
@@ -70,9 +70,9 @@ class DbScan:
             while len(Q) > 0:
                 q = Q.popleft()
                 neighbors = self._getNeighbors(q)
-                if len(neighbors) >= self._MinPts:
+                if len(neighbors) >= self._min_pts:
                     delta = set(neighbors) & F
-                    # remove from unvisit
+                    # remove from unvisited
                     for point in delta:
                         Q.append(point)
                         F.remove(point)

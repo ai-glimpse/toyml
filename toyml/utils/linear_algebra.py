@@ -8,9 +8,7 @@ def vectors_minus(v1: Vector, v2: Vector) -> Vector:
     """
     v1 - v2
     """
-    assert len(v1) == len(
-        v2
-    ), """Can not minus \
+    assert len(v1) == len(v2), """Can not minus \
     (vectors have different dimensions)"""
     d = len(v1)
     v = [0.0] * d
@@ -93,9 +91,9 @@ def sse(c: Vectors) -> float:
 
 
 # data transformation
-def standarlization(dataset: DataSet, means: Vector, stds: Vector) -> None:
+def standardization(dataset: DataSet, means: Vector, stds: Vector) -> None:
     """
-    The standarlization of numerical dataset.
+    The standardization of numerical dataset.
     """
     d = len(means)
     n = len(dataset)

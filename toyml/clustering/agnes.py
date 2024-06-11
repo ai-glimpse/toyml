@@ -14,7 +14,7 @@ TODO:
 
 class Agnes:
     """
-    Agglomerative clustering(nesting) algorithm.(Bottom-up)
+    Agglomerate clustering(nesting) algorithm.(Bottom-up)
 
     REF:
     1. Zhou Zhihua
@@ -30,11 +30,11 @@ class Agnes:
         self._k = k
         self._n = len(dataset)
         self._clusters = [[i] for i in range(self._n)]
-        self._dist_mat = [[0.0 for i in range(self._n)] for j in range(self._n)]
+        self._dist_mat = [[0.0 for _ in range(self._n)] for _ in range(self._n)]
 
     def _get_dist(self, c1: Cluster, c2: Cluster, measure=min) -> float:
         """
-        Get the distance between to cluster c1 and c2 with euclidean distance.
+        Get the distance between to cluster c1 and c2 with Euclidean distance.
         Using the min function as default measure(single link).
         """
         distances = []

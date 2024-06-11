@@ -36,7 +36,7 @@ class BisectingKmeans:
             )
             min_error = total_error
             split_cluster_index = -1
-            split_cluster_into: Clusters = [[] for i in range(2)]
+            split_cluster_into: Clusters = [[] for _ in range(2)]
             for cluster_index, cluster in enumerate(self._clusters):
                 # perform K-means with k=2
                 cluster_data = [self._dataset[i] for i in cluster]
