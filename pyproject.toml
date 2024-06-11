@@ -2,7 +2,7 @@
 name = "toyml"
 version = "0.2.0"
 description = "ToyML: Machine Learning from Scratch"
-license = "Apache 2.0"
+license = "Apache-2.0"
 authors = ["Xiangzhuang Shen <datahonor@gmail.com>"]
 readme = "README.md"
 homepage = "https://ai-glimpse.github.io/toyml/"
