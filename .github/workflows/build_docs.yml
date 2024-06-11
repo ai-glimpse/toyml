@@ -35,7 +35,7 @@ jobs:
           path: ./.venv
           key: venv-${{ hashFiles('poetry.lock') }}
       - name: Install the project dependencies
-        run: poetry install --no-root
+        run: poetry install
 
       - name: Build docs
         env: # As an environment variable
