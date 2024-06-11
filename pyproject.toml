@@ -63,6 +63,7 @@ mkdocs = "^1.4.0"
 mkdocs-material = "^8.5.3"
 mkdocs-material-extensions = "^1.0.3"
 mkdocs-bibtex = "^2.8.10"
+mkdocstrings-python = "^1.10.3"
 
 
 [tool.poetry.group.doc.dependencies]
