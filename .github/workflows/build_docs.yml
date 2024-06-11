@@ -4,25 +4,40 @@ on:
   push:
     branches:
       - master
+  pull_request:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
         with:
-          python-version: "3.9"
-
-      - name: Install dependencies
+          fetch-depth: 0
+          sparse-checkout: |
+            docs
+      - name: AutoCorrect
+        uses: huacnlee/autocorrect-action@main
+      - name: Install Python
+        uses: actions/setup-python@v4
+      - name: Setup pandoc
         run: |
           wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb && sudo dpkg -i pandoc-2.18-1-amd64.deb
           sudo apt-get install pandoc-citeproc
-          python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-material-extensions mkdocs-bibtex
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Setup a local virtual environment (if no poetry.toml file)
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      - uses: actions/cache@v3
+        name: Define a cache for the virtual environment based on the dependencies lock file
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: Install the project dependencies
+        run: poetry install --no-root
 
       - name: Build docs
-        run: mkdocs gh-deploy --force
+        env: # As an environment variable
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.MKDOCS_GIT_COMMITTERS_APIKEY }}
+        run: poetry run mkdocs gh-deploy --force
