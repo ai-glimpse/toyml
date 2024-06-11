@@ -50,9 +50,7 @@ class AdaBoost:
             # update the weights
             weights = [0] * self._n
             for i in range(self._n):
-                weights[i] = self._weights[i] * math.exp(
-                    -alpha * self._labels[i] * self._base_clf_results[m][i]
-                )
+                weights[i] = self._weights[i] * math.exp(-alpha * self._labels[i] * self._base_clf_results[m][i])
             self._weights = [weight / sum(weights) for weight in weights]
 
     def get_training_result(self) -> Labels:
@@ -65,9 +63,7 @@ class AdaBoost:
                 predictions[i] = 1
             else:
                 predictions[i] = -1
-        training_error = (
-            sum(predictions[i] != self._labels[i] for i in range(self._n)) / self._n
-        )
+        training_error = sum(predictions[i] != self._labels[i] for i in range(self._n)) / self._n
         print("Training Error: ", training_error)
         print("Predictions: ", predictions)
         return predictions

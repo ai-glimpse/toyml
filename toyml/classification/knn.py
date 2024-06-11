@@ -30,9 +30,7 @@ class KNeighborsClassifier:
         std=True,
     ) -> None:
         if not isinstance(dataset, list):
-            raise TypeError(
-                f"invalid type in {type(dataset)} for the 'dataset' argument"
-            )
+            raise TypeError(f"invalid type in {type(dataset)} for the 'dataset' argument")
         self._dataset = dataset
         self._labels = labels
         self._k = k

@@ -31,9 +31,7 @@ class BisectingKmeans:
 
     def fit(self) -> Clusters:
         while len(self._clusters) < self._k:
-            total_error = sum(
-                self._get_sse_error_from_cluster(cluster) for cluster in self._clusters
-            )
+            total_error = sum(self._get_sse_error_from_cluster(cluster) for cluster in self._clusters)
             min_error = total_error
             split_cluster_index = -1
             split_cluster_into: Clusters = [[] for _ in range(2)]
@@ -44,12 +42,10 @@ class BisectingKmeans:
                 cluster1, cluster2 = kmeans.fit()[1]
                 # error calc
                 cluster_unsplit_error = self._get_sse_error_from_cluster(cluster)
-                cluster_split_error = self._get_sse_error_from_cluster(
-                    cluster1
-                ) + self._get_sse_error_from_cluster(cluster2)
-                new_total_error = (
-                    total_error - cluster_unsplit_error + cluster_split_error
+                cluster_split_error = self._get_sse_error_from_cluster(cluster1) + self._get_sse_error_from_cluster(
+                    cluster2
                 )
+                new_total_error = total_error - cluster_unsplit_error + cluster_split_error
                 if new_total_error < min_error:
                     min_error = new_total_error
                     split_cluster_index = cluster_index
