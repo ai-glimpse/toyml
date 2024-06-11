@@ -60,9 +60,7 @@ class Kmeans:
     def _get_centroids(self, clusters: Clusters) -> DataSet:
         # clusters: indexes -> data points
         points_clusters = [[self._dataset[i] for i in cluster] for cluster in clusters]
-        centroids: DataSet = [
-            [] for _ in range(self._k)
-        ]  # TODO: DataSet type or newer type name with save type comb
+        centroids: DataSet = [[] for _ in range(self._k)]  # TODO: DataSet type or newer type name with save type comb
         for i, cluster in enumerate(points_clusters):
             centroid = [sum(t) / self._k for t in zip(*cluster)]
             centroids[i] = centroid

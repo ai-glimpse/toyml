@@ -89,9 +89,7 @@ class Agnes:
                 raw.pop(j)
             # calc new dist
             for j in range(len(self._clusters)):
-                self._dist_mat[i][j] = self._get_dist(
-                    self._clusters[i], self._clusters[j]
-                )
+                self._dist_mat[i][j] = self._get_dist(self._clusters[i], self._clusters[j])
                 self._dist_mat[j][i] = self._dist_mat[i][j]
 
         return self._clusters
