@@ -13,16 +13,17 @@ nav:
       - Quick Start: quickstart.md
       - User Guide:
           - Read First: user-guide/1-read-first.md
-  - Algorithm:
+  - Algorithms:
+      - Clustering:
+          - Kmeans: algorithms/clustering/kmeans.md
+          - DBSCAN: algorithms/clustering/dbscan.md
+          - DIANA: algorithms/clustering/diana.md
+          - AGNES: algorithms/clustering/agnes.md
       - Classification:
-          - KNN: algorithm/classification/knn.md
+          - KNN: algorithms/classification/knn.md
       - EVT:
-          - SPOT: algorithm/evt/spot.md
-  - API References:
-      - Kmeans: api/clustering/kmeans.md
-      - DBSCAN: api/clustering/dbscan.md
-      - DIANA: api/clustering/diana.md
-      - AGNES: api/clustering/agnes.md
+          - SPOT: algorithms/evt/spot.md
+
 
   - Changelog: CHANGELOG.md
 

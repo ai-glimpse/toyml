@@ -1,8 +1,15 @@
-# ToyML: Machine Learning from Scratch
+[//]: # (# ToyML: Machine Learning from Scratch)
+
+<p align="center" style="font-size:60px; margin:0px 1px 0px 1px">
+    <em>ToyML</em>
+</p>
+<p align="center" style="font-size: 30px">
+    <em>Machine Learning from Scratch</em>
+</p>
 
 <p align="center">
-    <a href="https://codecov.io/gh/shenxiangzhuang/ToyML" target="_blank">
-        <img src="https://codecov.io/gh/shenxiangzhuang/ToyML/branch/master/graph/badge.svg" alt="Coverage">
+    <a href="https://codecov.io/gh/ai-glimpse/toyml" target="_blank">
+        <img src="https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg" alt="Coverage">
     </a>
     <a href="https://pypi.org/project/toyml" target="_blank">
         <img src="https://badge.fury.io/py/toyml.svg" alt="PyPI Package">
