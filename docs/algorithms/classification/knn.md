@@ -1,0 +1,3 @@
+# KNN
+
+::: toyml.classification.knn
