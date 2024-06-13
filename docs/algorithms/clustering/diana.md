@@ -1,3 +1,0 @@
-# DIANA
-
-::: toyml.clustering.diana

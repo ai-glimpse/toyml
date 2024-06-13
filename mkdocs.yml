@@ -17,7 +17,6 @@ nav:
       - Clustering:
           - Kmeans: algorithms/clustering/kmeans.md
           - DBSCAN: algorithms/clustering/dbscan.md
-          - DIANA: algorithms/clustering/diana.md
           - AGNES: algorithms/clustering/agnes.md
       - Classification:
           - KNN: algorithms/classification/knn.md
