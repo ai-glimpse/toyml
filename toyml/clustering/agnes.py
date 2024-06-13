@@ -22,9 +22,11 @@ class Agnes:
     """
 
     def __init__(self, dataset: DataSet, k: int) -> None:
-        """
-        dataset: the set of data points for clustering
-        k: the number of clusters, specified by user
+        """Initialize the Agglomerate clustering algorithm.
+
+        Args:
+            dataset:  the set of data points for clustering
+            k: the number of clusters, specified by user
         """
         self._dataset = dataset
         self._k = k

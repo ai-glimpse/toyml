@@ -15,7 +15,7 @@ TODO:
 
 class Kmeans:
     """
-    K-means algorithm.
+    Naive K-means algorithm.
 
     References:
     1. Zhou Zhihua

@@ -1,6 +1,6 @@
 import math
 
-from .types import DataSet, Vector, Vectors
+from toyml.utils.types import DataSet, Vector, Vectors
 
 
 # Vector operations
@@ -22,7 +22,7 @@ def vectors_mean(vectors: Vectors) -> Vector:
     Calculate vectors mean
 
     Example1:
-    >>> vectors_means([[1.0, 2.0], [3.0, 4.0]])
+    >>> vectors_mean([[1.0, 2.0], [3.0, 4.0]])
     [2.0, 3.0]
     """
     d = len(vectors[0])

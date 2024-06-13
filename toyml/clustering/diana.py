@@ -14,7 +14,8 @@ class BisectingKmeans:
     """
 
     def __init__(self, dataset: DataSet, k: int) -> None:
-        """
+        """Initialize the Bisecting K-means algorithm.
+
         Args:
             dataset: the set of data points for clustering
             k: he number of clusters, specified by user
