@@ -15,22 +15,25 @@ TODO:
 
 class Kmeans:
     """
-    K-means algorithm.
+    Naive K-means algorithm.
 
     References:
     1. Zhou Zhihua
     2. Murphy
 
-    Note: Here we just code the naive K-means and K-means++ algorithm.
-    We implement the Bisecting K-means algorithm in toyml.hierarchical.Diana.
+    Note:
+        Here we just code the naive K-means and K-means++ algorithm.
+        We implement the Bisecting K-means algorithm in `toyml.clustering.diana`.
     """
 
     def __init__(self, dataset: DataSet, k: int, max_iter: int = 500) -> None:
-        """
-        :param dataset: the set of data points for clustering
-        :param k: the number of clusters, specified by user
-        :param max_iter: The number of iterations the algorithm will run
-        for if it does not converge before that.
+        """Initialize the K-means algorithm
+
+        Args:
+            dataset: the set of data points for clustering
+            k: the number of clusters, specified by user
+            max_iter: The number of iterations the algorithm will run for if it does not converge before that.
+
         """
         self._dataset: DataSet = dataset
         self._k: int = k
@@ -82,6 +85,14 @@ class Kmeans:
         return centroids, clusters
 
     def predict(self, point: Vector) -> int:
+        """
+        Predict the label of the point
+        Args:
+            point: the data point to predict
+
+        Returns: the label of the point
+
+        """
         return self._get_centroid_label(point, self._centroids)
 
     def print_cluster(self) -> None:

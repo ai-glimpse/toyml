@@ -35,7 +35,7 @@ class KNeighborsClassifier:
         self._labels = labels
         self._k = k
         self._dist = dist
-        # for standarlizarion
+        # for standardization
         self._is_std = std
         self._means = vectors_mean(dataset)
         self._stds = vectors_std(dataset)
@@ -47,7 +47,7 @@ class KNeighborsClassifier:
             pass
 
     def predict(self, x: Vector) -> Label:
-        # x -> standarlization -> v
+        # x -> standardization -> v
         d = len(x)
         v = [0.0] * d
         for i in range(d):
