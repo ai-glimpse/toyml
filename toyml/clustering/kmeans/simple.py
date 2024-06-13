@@ -15,8 +15,12 @@ class Kmeans:
     2. Murphy
 
     Note:
-        Here we just code the naive K-means and K-means++ algorithm.
-        We implement the Bisecting K-means algorithm in `toyml.clustering.diana`.
+        Here we just code the naive K-means.
+        See also:
+
+          - K-means++ algorithm: [`toyml.clustering.kmeans.plus`][kmeans-plus]
+          - Bisecting K-means algorithm: [`toyml.clustering.kmeans.bisect`][kmeans-bisect]
+
     """
 
     def __init__(self, dataset: DataSet, k: int, max_iter: int = 500) -> None:
