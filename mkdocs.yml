@@ -17,7 +17,6 @@ nav:
       - Clustering:
           - Kmeans: algorithms/clustering/kmeans.md
           - DBSCAN: algorithms/clustering/dbscan.md
-          - DIANA: algorithms/clustering/diana.md
           - AGNES: algorithms/clustering/agnes.md
       - Classification:
           - KNN: algorithms/classification/knn.md
@@ -107,6 +106,7 @@ markdown_extensions:
 
 plugins:
   - search
+  - autorefs
   - bibtex:
       bib_file: "docs/references.bib"
       csl_file: "https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl"

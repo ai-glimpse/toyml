@@ -64,6 +64,7 @@ mkdocs-material = "^8.5.3"
 mkdocs-material-extensions = "^1.0.3"
 mkdocs-bibtex = "^2.8.10"
 mkdocstrings-python = "^1.10.3"
+mkdocs-autorefs = "^1.0.1"
 
 
 [[tool.poetry.source]]
