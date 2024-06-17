@@ -115,6 +115,7 @@ plugins:
       handlers:
         python:
           import:
+          - https://docs.python-requests.org/en/master/objects.inv
           - https://docs.python.org/3/objects.inv
           - https://mkdocstrings.github.io/objects.inv
           - https://mkdocstrings.github.io/griffe/objects.inv

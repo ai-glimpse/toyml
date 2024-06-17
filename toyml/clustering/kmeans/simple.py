@@ -16,11 +16,10 @@ class Kmeans:
 
     Note:
         Here we just code the naive K-means.
-        See also:
 
-          - K-means++ algorithm: [`toyml.clustering.kmeans.plus`][kmeans-plus]
-          - Bisecting K-means algorithm: [`toyml.clustering.kmeans.bisect`][kmeans-bisect]
-
+    See Also:
+      - K-means++ algorithm: [toyml.clustering.kmeans.plus.KmeansPlus][]
+      - Bisecting K-means algorithm: [`toyml.clustering.kmeans.bisect`][kmeans-bisect]
     """
 
     def __init__(self, dataset: DataSet, k: int, max_iter: int = 500) -> None:
