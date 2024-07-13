@@ -49,6 +49,4 @@ class Vector:
 
     def __check_length(self, other: Vector) -> None:
         if len(self._data) != len(other._data):
-            raise ValueError(
-                f"Length of vectors does not match: " f"one is {len(self._data)}, other is {len(other._data)}"
-            )
+            raise ValueError(f"Length of vectors does not match: one is {len(self._data)}, other is {len(other._data)}")
