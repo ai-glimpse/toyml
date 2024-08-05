@@ -1,4 +1,4 @@
-from .bisect import BisectingKmeans
+from .bisecting import BisectingKmeans
 from .plus import KmeansPlus
 from .simple import Kmeans
 

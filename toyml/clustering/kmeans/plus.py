@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import random
 
@@ -13,23 +15,25 @@ class KmeansPlus(Kmeans):
 
     def _get_min_sq_dist(self, point: Vector) -> float:
         min_sq_dist = math.inf
-        for centroid in self._centroids:
+        assert self.centroids_ is not None
+        for centroid in self.centroids_:
             if centroid != []:
                 sq_dist = euclidean_distance(point, centroid) ** 2
                 if sq_dist < min_sq_dist:
                     min_sq_dist = sq_dist
         return min_sq_dist
 
-    def _get_initial_centroids(self) -> DataSet:
+    def get_initial_centroids(self, dataset: list[list[float]]) -> DataSet:
         # get initial centroids by k-means++ algorithm
         # the first centroid
-        self._centroids[0] = random.choice(self._dataset)
-        for i in range(1, self._k):
-            min_distances = [self._get_min_sq_dist(point) for point in self._dataset]
+        self.centroids_ = [[] for _ in range(self.k)]
+        self.centroids_[0] = random.choice(dataset)
+        for i in range(1, self.k):
+            min_distances = [self._get_min_sq_dist(point) for point in dataset]
             total_dist = sum(min_distances)
             weights = [dist / total_dist for dist in min_distances]
-            self._centroids[i] = random.choices(self._dataset, weights)[0]
-        return self._centroids
+            self.centroids_[i] = random.choices(dataset, weights)[0]
+        return self.centroids_
 
 
 if __name__ == "__main__":
@@ -37,7 +41,6 @@ if __name__ == "__main__":
     k: int = 2
     # kmeans++
     print("Test K-means++...")
-    kmeans_plus = KmeansPlus(dataset, k)
-    kmeans_plus.fit()
-    kmeans_plus.print_cluster()
-    kmeans_plus.predict([0.0, 0.0])
+    kmeans_plus = KmeansPlus(k)
+    kmeans_plus.fit(dataset)
+    print(kmeans_plus.predict([0.0, 0.0]))
