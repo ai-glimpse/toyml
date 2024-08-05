@@ -24,7 +24,7 @@ nav:
           - SPOT: algorithms/evt/spot.md
 
 
-  - Changelog: CHANGELOG.md
+  - Changelog: changelog.md
 
 theme:
   name: material
