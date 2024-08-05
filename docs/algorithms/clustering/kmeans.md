@@ -7,4 +7,4 @@
 ::: toyml.clustering.kmeans.plus
 
 [](){#kmeans-bisect}
-::: toyml.clustering.kmeans.bisect
+::: toyml.clustering.kmeans.bisecting
