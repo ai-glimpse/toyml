@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 import random
 
-from typing import Any, Tuple
+from dataclasses import dataclass
+from typing import Optional
 
 from toyml.utils.linear_algebra import euclidean_distance
-from toyml.utils.types import Clusters, DataSet, Vector
 
 
+@dataclass
 class Kmeans:
     """
     Naive K-means algorithm.
@@ -15,100 +18,107 @@ class Kmeans:
     2. Murphy
 
     Note:
-        Here we just code the naive K-means.
+        Here we just implement the naive K-means algorithm.
 
     See Also:
       - K-means++ algorithm: [toyml.clustering.kmeans.plus.KmeansPlus][]
       - Bisecting K-means algorithm: [`toyml.clustering.kmeans.bisect`][kmeans-bisect]
     """
 
-    def __init__(self, dataset: DataSet, k: int, max_iter: int = 500) -> None:
-        """Initialize the K-means algorithm
+    k: int
+    """The number of clusters, specified by user."""
+    max_iter: int = 500
+    """The number of iterations the algorithm will run for if it does not converge before that."""
+    clusters_: Optional[list[list[int]]] = None
+    """The clusters of the dataset."""
+    centroids_: Optional[list[list[float]]] = None
+    """The centroids of the clusters."""
 
-        Args:
-            dataset: the set of data points for clustering
-            k: the number of clusters, specified by user
-            max_iter: The number of iterations the algorithm will run for if it does not converge before that.
-
-        """
-        self._dataset: DataSet = dataset
-        self._k: int = k
-        self._max_iter: int = max_iter
-        # results
-        self._centroids: Any = [[] for _ in range(self._k)]
-        self._clusters: Clusters = [[]]
-
-    def _get_initial_centroids(self) -> DataSet:
+    def get_initial_centroids(self, dataset: list[list[float]]) -> list[list[float]]:
         """
         get initial centroids by a simple random selection
         """
-        return random.sample(self._dataset, self._k)
+        return random.sample(dataset, self.k)
 
     @staticmethod
-    def _get_centroid_label(point: Vector, centroids: DataSet) -> int:
+    def get_centroid_label(point: list[float], centroids: list[list[float]]) -> int:
+        """
+        Get the label of the centroid which is closest to the point
+        """
         distances = [euclidean_distance(point, centroid) for centroid in centroids]
         return distances.index(min(distances))
 
-    def _get_clusters(self, centroids: DataSet) -> Clusters:
-        clusters: Clusters = [[] for _ in range(self._k)]
-        for i, point in enumerate(self._dataset):
-            centroid_label = self._get_centroid_label(point, centroids)
+    def _get_clusters(self, dataset: list[list[float]], centroids: list[list[float]]) -> list[list[int]]:
+        clusters: list[list[int]] = [[] for _ in range(self.k)]
+        for i, point in enumerate(dataset):
+            centroid_label = self.get_centroid_label(point, centroids)
             clusters[centroid_label].append(i)
         return clusters
 
-    def _get_centroids(self, clusters: Clusters) -> DataSet:
+    def _get_centroids(self, dataset: list[list[float]], clusters: list[list[int]]) -> list[list[float]]:
         # clusters: indexes -> data points
-        points_clusters = [[self._dataset[i] for i in cluster] for cluster in clusters]
-        centroids: DataSet = [[] for _ in range(self._k)]  # TODO: DataSet type or newer type name with save type comb
+        points_clusters = [[dataset[i] for i in cluster] for cluster in clusters]
+        centroids: list[list[float]] = [[] for _ in range(self.k)]
         for i, cluster in enumerate(points_clusters):
-            centroid = [sum(t) / self._k for t in zip(*cluster)]
+            centroid = [sum(t) / self.k for t in zip(*cluster)]  # TODO: Why?
             centroids[i] = centroid
         return centroids
 
-    def fit(self) -> Tuple[DataSet, Clusters]:
-        centroids = self._get_initial_centroids()
-        clusters = self._get_clusters(centroids)  # just for unbound error
-        for _ in range(self._max_iter):
-            clusters = self._get_clusters(centroids)
+    def fit(self, dataset: list[list[float]]) -> "Kmeans":
+        """
+        Args:
+            dataset: the set of data points for clustering
+
+        Returns:
+
+        """
+        centroids = self.get_initial_centroids(dataset)
+        for _ in range(self.max_iter):
+            clusters = self._get_clusters(dataset, centroids)
             prev_centroids = centroids
-            centroids = self._get_centroids(clusters)
+            centroids = self._get_centroids(dataset, clusters)
             # If no centroids change, the algorithm is convergent
+            # TODO: better convergence criteria
             if prev_centroids == centroids:
                 print("Training Converged")
                 break
-        self._centroids = centroids
-        self._clusters = clusters
-        return centroids, clusters
 
-    def predict(self, point: Vector) -> int:
+        self.clusters_ = clusters
+        self.centroids_ = centroids
+        return self
+
+    def predict(self, point: list[float]) -> int:
         """
         Predict the label of the point
+
         Args:
             point: the data point to predict
 
         Returns: the label of the point
 
         """
-        return self._get_centroid_label(point, self._centroids)
-
-    def print_cluster(self) -> None:
-        for i in range(self._k):
-            print(f"label({i}) -> {self._centroids[i]}: {self._clusters[i]}")
-
-    def print_labels(self) -> None:
-        y_pred = [0] * len(self._dataset)
-        for cluster_index in range(self._k):
-            for sample_index in self._clusters[cluster_index]:
-                y_pred[sample_index] = cluster_index
-        print("Sample labels: ", y_pred)
+        if self.centroids_ is None:
+            raise ValueError("The model is not fitted yet")
+        return self.get_centroid_label(point, self.centroids_)
 
 
 if __name__ == "__main__":
-    dataset: DataSet = [[1.0, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]]
+    dataset: list[list[float]] = [[1.0, 2], [1, 4], [1, 0], [10, 2], [10, 4], [10, 0]]
     k: int = 2
     # kmeans
     print("Test K-means...")
-    kmeans = Kmeans(dataset, k)
-    kmeans.fit()
-    kmeans.print_cluster()
-    kmeans.predict([0.0, 0.0])
+    kmeans = Kmeans(k)
+    kmeans.fit(dataset)
+    # TODO: move to tests
+    # label
+    assert kmeans.clusters_ is not None
+    assert kmeans.centroids_ is not None
+    for i in range(kmeans.k):
+        print(f"label({i}) -> {kmeans.centroids_[i]}: {kmeans.clusters_[i]}")
+
+    # pred
+    y_pred = [0] * len(dataset)
+    for cluster_index in range(kmeans.k):
+        for sample_index in kmeans.clusters_[cluster_index]:
+            y_pred[sample_index] = cluster_index
+    print("Sample labels: ", y_pred)

@@ -40,8 +40,9 @@ class BisectingKmeans:
             for cluster_index, cluster in enumerate(self._clusters):
                 # perform K-means with k=2
                 cluster_data = [self._dataset[i] for i in cluster]
-                kmeans = Kmeans(cluster_data, 2)
-                cluster1, cluster2 = kmeans.fit()[1]
+                kmeans = Kmeans(k=2).fit(cluster_data)
+                assert kmeans.clusters_ is not None
+                cluster1, cluster2 = kmeans.clusters_
                 # error calc
                 cluster_unsplit_error = self._get_sse_error_from_cluster(cluster)
                 cluster_split_error = self._get_sse_error_from_cluster(cluster1) + self._get_sse_error_from_cluster(
