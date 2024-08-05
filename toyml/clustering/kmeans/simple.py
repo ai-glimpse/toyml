@@ -43,7 +43,7 @@ class Kmeans:
     @staticmethod
     def get_centroid_label(point: list[float], centroids: list[list[float]]) -> int:
         """
-        Get the label of the centroid which is closest to the point
+        Get the label of the centroid, which is closest to the point
         """
         distances = [euclidean_distance(point, centroid) for centroid in centroids]
         return distances.index(min(distances))
@@ -60,7 +60,7 @@ class Kmeans:
         points_clusters = [[dataset[i] for i in cluster] for cluster in clusters]
         centroids: list[list[float]] = [[] for _ in range(self.k)]
         for i, cluster in enumerate(points_clusters):
-            centroid = [sum(t) / self.k for t in zip(*cluster)]  # TODO: Why?
+            centroid = [sum(t) / len(cluster) for t in zip(*cluster)]
             centroids[i] = centroid
         return centroids
 
@@ -109,16 +109,4 @@ if __name__ == "__main__":
     print("Test K-means...")
     kmeans = Kmeans(k)
     kmeans.fit(dataset)
-    # TODO: move to tests
-    # label
-    assert kmeans.clusters_ is not None
-    assert kmeans.centroids_ is not None
-    for i in range(kmeans.k):
-        print(f"label({i}) -> {kmeans.centroids_[i]}: {kmeans.clusters_[i]}")
-
-    # pred
-    y_pred = [0] * len(dataset)
-    for cluster_index in range(kmeans.k):
-        for sample_index in kmeans.clusters_[cluster_index]:
-            y_pred[sample_index] = cluster_index
-    print("Sample labels: ", y_pred)
+    print(kmeans.clusters_)
