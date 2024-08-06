@@ -22,7 +22,7 @@ class Kmeans:
 
     See Also:
       - K-means++ algorithm: [toyml.clustering.kmeans.plus.KmeansPlus][]
-      - Bisecting K-means algorithm: [`toyml.clustering.kmeans.bisect`][kmeans-bisect]
+      - Bisecting K-means algorithm: [toyml.clustering.kmeans.bisecting][kmeans-bisect]
     """
 
     k: int
@@ -73,6 +73,7 @@ class Kmeans:
 
         """
         centroids = self.get_initial_centroids(dataset)
+        clusters = []
         for _ in range(self.max_iter):
             clusters = self._get_clusters(dataset, centroids)
             prev_centroids = centroids
@@ -89,12 +90,13 @@ class Kmeans:
 
     def predict(self, point: list[float]) -> int:
         """
-        Predict the label of the point
+        Predict the label of the point.
 
         Args:
-            point: the data point to predict
+            point: The data point to predict.
 
-        Returns: the label of the point
+        Returns:
+            The label of the point.
 
         """
         if self.centroids_ is None:
