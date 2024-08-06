@@ -9,7 +9,8 @@ from toyml.utils.linear_algebra import euclidean_distance
 
 class KmeansPlus(Kmeans):
     """
-    The implementation of k-means++ algorithm
+    The implementation of k-means++ algorithm, which is an improved version of k-means algorithm.
+    It is used to solve the problem of choosing the initial centroids in k-means algorithm.
     """
 
     def get_initial_centroids(self, dataset: list[list[float]]) -> list[list[float]]:
@@ -42,14 +43,10 @@ class KmeansPlus(Kmeans):
         Returns:
             The minimum square distance
         """
-        min_square_distance = math.inf
         assert self.centroids_ is not None
-        for centroid in self.centroids_:
-            if len(centroid) > 0:
-                square_distance = euclidean_distance(point, centroid) ** 2
-                if square_distance < min_square_distance:
-                    min_square_distance = square_distance
-        return min_square_distance
+        return min(
+            (euclidean_distance(point, centroid) ** 2 for centroid in self.centroids_ if centroid), default=math.inf
+        )
 
 
 if __name__ == "__main__":

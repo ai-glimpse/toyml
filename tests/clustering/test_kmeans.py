@@ -4,6 +4,10 @@ from toyml.clustering import Kmeans
 
 
 class TestKMeansSimple:
+    """
+    Test the k-means algorithm completely.
+    """
+
     def test_fit(
         self,
         simple_dataset: list[list[float]],
