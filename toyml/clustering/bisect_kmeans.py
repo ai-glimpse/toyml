@@ -1,4 +1,4 @@
-from toyml.clustering.kmeans.simple import Kmeans
+from toyml.clustering.kmeans import Kmeans
 from toyml.utils.linear_algebra import sse
 from toyml.utils.types import Cluster, Clusters, DataSet
 

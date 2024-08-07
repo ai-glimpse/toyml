@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from typing import Literal
+
+import pytest
+
 from toyml.clustering import Kmeans
 
 
@@ -8,15 +12,17 @@ class TestKMeansSimple:
     Test the k-means algorithm completely.
     """
 
+    @pytest.mark.parametrize("centroids_init_method,", ["random", "kmeans++"])
     def test_fit(
         self,
+        centroids_init_method: Literal["random", "kmeans++"],
         simple_dataset: list[list[float]],
     ) -> None:
         k = 2
         max_iter = 10
         dataset = simple_dataset
 
-        kmeans = Kmeans(k, max_iter)
+        kmeans = Kmeans(k, max_iter, centroids_init_method)
         assert kmeans.clusters_ is None
         assert kmeans.centroids_ is None
         kmeans.fit(dataset)
