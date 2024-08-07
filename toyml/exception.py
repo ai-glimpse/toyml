@@ -1,0 +1,2 @@
+class ToyMLException(Exception):
+    pass

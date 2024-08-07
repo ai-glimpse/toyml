@@ -1,10 +1,7 @@
 # Kmeans
 
 [](){#kmeans-simple}
-::: toyml.clustering.kmeans.simple
-
-[](){#kmeans-plus}
-::: toyml.clustering.kmeans.plus
+::: toyml.clustering.kmeans
 
 [](){#kmeans-bisect}
-::: toyml.clustering.kmeans.bisect
+::: toyml.clustering.bisect_kmeans
