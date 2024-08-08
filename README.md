@@ -6,7 +6,8 @@
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
 [![Build Docs](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml)
 [![Test](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml)
-![GitHub License](https://img.shields.io/github/license/ai-glimpse/toyml)
+
+[//]: # (![GitHub License]&#40;https://img.shields.io/github/license/ai-glimpse/toyml&#41;)
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
