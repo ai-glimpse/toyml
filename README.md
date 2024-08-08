@@ -1,7 +1,7 @@
 # ToyML: Machine Learning from Scratch
 
 
-[![Python](https://img.shields.io/badge/Python-3.8,%203.9,%203.10,%203.11,%203.12,%203.13-blue)]()
+[![Python](https://img.shields.io/badge/Python-3.8,%203.9,%203.10,%203.11,%203.12,%203.13-blue)](https://devguide.python.org/versions/)
 [![PyPI](https://badge.fury.io/py/toyml.svg)](https://pypi.org/project/toyml/)
 ![GitHub License](https://img.shields.io/github/license/ai-glimpse/toyml)
 
