@@ -7,7 +7,7 @@
     <em>Machine Learning from Scratch</em>
 </p>
 
-<center>
+<p align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.8,%203.9,%203.10,%203.11,%203.12,%203.13-blue)]()
 [![PyPI](https://badge.fury.io/py/toyml.svg)](https://pypi.org/project/toyml/)
@@ -24,13 +24,10 @@
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
 
 ![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg)
-</center>
-
-[//]: # (ToyML is a machine learning library implemented from scratch. It is designed to be simple and easy to understand. It is a great tool for learning machine learning algorithms.)
+</p>
 
 
-
-There are some machine learning algorithms implemented from scratch.
+There are machine learning algorithms implemented from scratch.
 Let's learn machine learning with simple toy code.
 
 
