@@ -11,9 +11,8 @@
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
-[![Build Docs](https://github.com/shenxiangzhuang/mppt/actions/workflows/build_docs.yaml/badge.svg)](https://github.com/shenxiangzhuang/mppt/actions/workflows/build_docs.yaml)
-![Test](https://github.com/shenxiangzhuang/mppt/actions/workflows/test.yaml/badge.svg)
-![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
+[![Build Docs](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml)
+[![Test](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml)![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
 ![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg)
 
 
