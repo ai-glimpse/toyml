@@ -1,13 +1,5 @@
-[//]: # (# ToyML: Machine Learning from Scratch)
+# ToyML: Machine Learning from Scratch
 
-<p align="center" style="font-size:60px; margin:0px 1px 0px 1px">
-    <em>ToyML</em>
-</p>
-<p align="center" style="font-size: 30px">
-    <em>Machine Learning from Scratch</em>
-</p>
-
-<p align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.8,%203.9,%203.10,%203.11,%203.12,%203.13-blue)]()
 [![PyPI](https://badge.fury.io/py/toyml.svg)](https://pypi.org/project/toyml/)
@@ -22,9 +14,7 @@
 [![Build Docs](https://github.com/shenxiangzhuang/mppt/actions/workflows/build_docs.yaml/badge.svg)](https://github.com/shenxiangzhuang/mppt/actions/workflows/build_docs.yaml)
 ![Test](https://github.com/shenxiangzhuang/mppt/actions/workflows/test.yaml/badge.svg)
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
-
 ![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg)
-</p>
 
 
 There are machine learning algorithms implemented from scratch.
