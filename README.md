@@ -3,6 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8,%203.9,%203.10,%203.11,%203.12,%203.13-blue)](https://devguide.python.org/versions/)
 [![PyPI](https://badge.fury.io/py/toyml.svg)](https://pypi.org/project/toyml/)
+
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
 [![Build Docs](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml)
 [![Test](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml)
