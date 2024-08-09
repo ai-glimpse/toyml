@@ -14,6 +14,14 @@ class Kmeans:
     """
     Naive K-means algorithm.
 
+    Example:
+        >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
+        >>> kmeans = Kmeans(k=2)
+        >>> kmeans.fit(dataset)
+        >>> kmeans.clusters_
+        >>> kmeans.centroids_
+        >>> kmeans.predict([0, 1])
+
     References:
     1. Zhou Zhihua
     2. Murphy
@@ -156,44 +164,3 @@ class Kmeans:
             centroid = [sum(t) / len(cluster) for t in zip(*cluster)]
             centroids[i] = centroid
         return centroids
-
-
-if __name__ == "__main__":
-    # Create a more diverse dataset with clear clusters
-    dataset: list[list[float]] = [
-        [1, 2],
-        [2, 1],
-        [2, 3],
-        [1, 4],
-        [3, 2],  # Cluster 1
-        [8, 7],
-        [9, 8],
-        [7, 9],
-        [8, 10],
-        [10, 8],  # Cluster 2
-        [15, 15],
-        [16, 14],
-        [14, 16],
-        [15, 17],
-        [17, 15],  # Cluster 3
-    ]
-    k: int = 3
-
-    print("Test K-means...")
-    kmeans = Kmeans(k)
-    kmeans.fit(dataset)
-
-    print("Clusters:")
-    assert kmeans.clusters_ is not None
-    for i, cluster in enumerate(kmeans.clusters_):
-        print(f"Cluster {i + 1}: {cluster}")
-
-    print("\nCentroids:")
-    assert kmeans.centroids_ is not None
-    for i, centroid in enumerate(kmeans.centroids_):
-        print(f"Centroid {i + 1}: {centroid}")
-
-    # Test prediction
-    test_point = [12.0, 13.0]
-    predicted_cluster = kmeans.predict(test_point)
-    print(f"\nPredicted cluster for point {test_point}: {predicted_cluster + 1}")
