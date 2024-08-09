@@ -109,6 +109,12 @@ markdown_extensions:
 plugins:
   - search
   - autorefs
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - git-committers:
+      repository: ai-glimpse/toyml
+      branch: master
+      token: !ENV [ "ORG_MKDOCS_GIT_COMMITTERS_APIKEY" ]
   - bibtex:
       bib_file: "docs/references.bib"
       csl_file: "https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl"
