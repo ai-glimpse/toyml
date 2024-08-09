@@ -12,19 +12,22 @@ from toyml.utils.linear_algebra import euclidean_distance
 @dataclass
 class Kmeans:
     """
-    Naive K-means algorithm.
+    K-means algorithm(with Kmeans++ initialization as option).
 
-    Example:
+    Examples:
+        >>> from toyml.clustering import Kmeans
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
-        >>> kmeans = Kmeans(k=2)
-        >>> kmeans.fit(dataset)
+        >>> kmeans = Kmeans(k=2).fit(dataset)
         >>> kmeans.clusters_
+        [[3, 4, 5], [0, 1, 2]]
         >>> kmeans.centroids_
+        [[10.0, 1.0], [1.0, 1.0]]
         >>> kmeans.predict([0, 1])
+        1
 
-    References:
-    1. Zhou Zhihua
-    2. Murphy
+    Tip: References
+        1. Zhou Zhihua
+        2. Murphy
 
     Note:
         Here we just implement the naive K-means algorithm.
@@ -53,7 +56,7 @@ class Kmeans:
         elif self.centroids_init_method == "kmeans++":
             return self._get_initial_centroids_kmeans_plus(dataset)
         else:
-            raise ValueError(f"Invalid centroids initialization method: " f"{self.centroids_init_method}")
+            raise ValueError(f"Invalid centroids initialization method: {self.centroids_init_method}")
 
     def fit(self, dataset: list[list[float]]) -> "Kmeans":
         """
