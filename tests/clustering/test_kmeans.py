@@ -22,7 +22,7 @@ class TestKMeansSimple:
         max_iter = 10
         dataset = simple_dataset
 
-        kmeans = Kmeans(k, max_iter, centroids_init_method)
+        kmeans = Kmeans(k, max_iter, 1e-5, centroids_init_method)
         assert kmeans.clusters_ is None
         assert kmeans.centroids_ is None
         kmeans.fit(dataset)

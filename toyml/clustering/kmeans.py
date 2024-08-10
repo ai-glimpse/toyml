@@ -12,7 +12,7 @@ from toyml.utils.linear_algebra import euclidean_distance
 @dataclass
 class Kmeans:
     """
-    K-means algorithm(with Kmeans++ initialization as option).
+    K-means algorithm (with Kmeans++ initialization as option).
 
     Examples:
         >>> from toyml.clustering import Kmeans
@@ -40,8 +40,11 @@ class Kmeans:
     """The number of clusters, specified by user."""
     max_iter: int = 500
     """The number of iterations the algorithm will run for if it does not converge before that."""
+    tol: float = 1e-5
+    """The tolerance for convergence."""
     centroids_init_method: Literal["random", "kmeans++"] = "random"
     """The method to initialize the centroids."""
+    iter_: int = 0
     clusters_: Optional[list[list[int]]] = None
     """The clusters of the dataset."""
     centroids_: Optional[list[list[float]]] = None
@@ -64,18 +67,16 @@ class Kmeans:
             dataset: the set of data points for clustering
 
         Returns:
-
+            self.
         """
         centroids = self.get_initial_centroids(dataset)
         clusters = []
         for _ in range(self.max_iter):
+            self.iter_ += 1
             clusters = self._get_clusters(dataset, centroids)
             prev_centroids = centroids
             centroids = self._get_centroids(dataset, clusters)
-            # If no centroids change, the algorithm is convergent
-            # TODO: better convergence criteria
-            if prev_centroids == centroids:
-                print("Training Converged")
+            if self._is_converged(prev_centroids, centroids):
                 break
 
         self.clusters_ = clusters
@@ -96,6 +97,26 @@ class Kmeans:
         if self.centroids_ is None:
             raise ValueError("The model is not fitted yet")
         return self._get_centroid_label(point, self.centroids_)
+
+    def _is_converged(self, prev_centroids: list[list[float]], centroids: list[list[float]]) -> bool:
+        """
+        Check if the centroids converged.
+
+        Args:
+            prev_centroids: previous centroids
+            centroids: current centroids
+
+        Returns:
+            Whether the centroids converged.
+        """
+        # check every centroid
+        for i, centroid in enumerate(centroids):
+            prev_centroid = prev_centroids[i]
+            # check every dimension
+            for j in range(len(prev_centroid)):
+                if abs(prev_centroid[j] - centroid[j]) > self.tol:
+                    return False
+        return True
 
     def _get_initial_centroids_random(self, dataset: list[list[float]]) -> list[list[float]]:
         """
