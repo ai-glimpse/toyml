@@ -67,6 +67,8 @@ class Kmeans:
 
     def fit(self, dataset: list[list[float]]) -> "Kmeans":
         """
+        Fit the dataset with K-means algorithm.
+
         Args:
             dataset: the set of data points for clustering
 
@@ -91,6 +93,15 @@ class Kmeans:
         self.labels = self._get_dataset_labels(dataset)
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        """
+        Fit and predict the cluster label of the dataset.
+
+        Args:
+            dataset: the set of data points for clustering
+
+        Returns:
+            Cluster labels of the dataset samples.
+        """
         return self.fit(dataset).labels  # type: ignore
 
     def predict(self, point: list[float]) -> int:
