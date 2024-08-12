@@ -30,6 +30,14 @@ class Kmeans:
         >>> kmeans.iter_
         2
 
+    There is a `fit_predict` method that can be used to fit and predict.
+
+    Examples:
+        >>> from toyml.clustering import Kmeans
+        >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
+        >>> Kmeans(k=2).fit_predict(dataset)
+        [0, 0, 0, 1, 1, 1]
+
     Tip: References
         1. Zhou Zhihua
         2. Murphy
@@ -54,6 +62,8 @@ class Kmeans:
     """The clusters of the dataset."""
     centroids: Optional[dict[int, list[float]]] = None
     """The centroids of the clusters."""
+    labels: Optional[list[int]] = None
+    """The cluster labels of the dataset."""
 
     def fit(self, dataset: list[list[float]]) -> "Kmeans":
         """
@@ -78,6 +88,10 @@ class Kmeans:
         """
         self.clusters = self._get_clusters(dataset)
         self.centroids = self._get_centroids(dataset)
+        self.labels = self._get_dataset_labels(dataset)
+
+    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        return self.fit(dataset).labels  # type: ignore
 
     def predict(self, point: list[float]) -> int:
         """
@@ -93,6 +107,13 @@ class Kmeans:
         if self.centroids is None:
             raise ValueError("The model is not fitted yet")
         return self._get_centroid_label(point, self.centroids)
+
+    def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
+        labels = [-1] * len(dataset)
+        for cluster_label, cluster in self.clusters.items():  # type: ignore
+            for data_point_index in cluster:
+                labels[data_point_index] = cluster_label
+        return labels
 
     def _get_initial_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
         """
