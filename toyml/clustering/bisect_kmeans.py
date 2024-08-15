@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
 
 from toyml.clustering.kmeans import Kmeans
 from toyml.utils.linear_algebra import sum_square_error
@@ -23,7 +22,7 @@ class BisectingKmeans:
 
     k: int
     """The number of clusters, specified by user."""
-    clusters: Optional[list[list[int]]] = None
+    clusters: list[list[int]] = field(default_factory=list)
     """The clusters of the dataset."""
 
     def fit(self, dataset: list[list[float]]) -> "BisectingKmeans":
@@ -31,7 +30,7 @@ class BisectingKmeans:
         # check dataset
         if self.k > n:
             raise ValueError(
-                f"Number of clusters(k) cannot be greater than the number of samples(n)," f"not get {k=} > {n=}"
+                f"Number of clusters(k) cannot be greater than the number of samples(n), not get {k=} > {n=}"
             )
         # start with only one cluster which contains all the data points in dataset
         self.clusters = [list(range(n))]
@@ -40,7 +39,7 @@ class BisectingKmeans:
         while len(self.clusters) < self.k:
             # init values for later iteration
             split_cluster_index = -1
-            split_cluster_into: list[list[int]] = [[] for _ in range(2)]
+            split_cluster_into: tuple[list[int], list[int]] = ([], [])
             for cluster_index, cluster in enumerate(self.clusters):
                 # perform K-means with k=2
                 cluster_data = [dataset[i] for i in cluster]
@@ -61,17 +60,23 @@ class BisectingKmeans:
                 if new_total_error < total_error:
                     total_error = new_total_error
                     split_cluster_index = cluster_index
-                    split_cluster_into = [cluster1, cluster2]
-            # TODO: better condition/logic here
-            if split_cluster_index == -1:
+                    split_cluster_into = (cluster1, cluster2)
+
+            if split_cluster_index == -1:  # won't happen normally
                 raise ValueError("Can not split the cluster further")
             else:
-                # commit this split
-                # print(self.clusters[split_cluster_index], '-->', split_cluster_into)
-                self.clusters.pop(split_cluster_index)
-                self.clusters.insert(split_cluster_index, split_cluster_into[0])
-                self.clusters.insert(split_cluster_index, split_cluster_into[1])
+                self._commit_split(split_cluster_index, split_cluster_into)
         return self
+
+    def _commit_split(
+        self,
+        split_cluster_index: int,
+        split_cluster_into: tuple[list[int], list[int]],
+    ):
+        # print(self.clusters[split_cluster_index], '-->', split_cluster_into)
+        self.clusters.pop(split_cluster_index)
+        self.clusters.insert(split_cluster_index, split_cluster_into[0])
+        self.clusters.insert(split_cluster_index, split_cluster_into[1])
 
     def print_cluster(self) -> None:
         """
