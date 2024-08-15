@@ -23,11 +23,11 @@ class TestKMeansSimple:
         dataset = simple_dataset
 
         kmeans = Kmeans(k, max_iter, 1e-5, centroids_init_method)
-        assert kmeans.clusters is None
-        assert kmeans.centroids is None
+        assert len(kmeans.clusters) == 0
+        assert len(kmeans.centroids) == 0
         kmeans.fit(dataset)
-        assert kmeans.clusters is not None
-        assert kmeans.centroids is not None
+        assert len(kmeans.clusters) == 2
+        assert len(kmeans.centroids) == 2
 
         # check clusters
         first_sample_cluster, last_sample_cluster = kmeans.predict(dataset[0]), kmeans.predict(dataset[-1])
@@ -35,5 +35,5 @@ class TestKMeansSimple:
         assert kmeans.clusters[last_sample_cluster] == [3, 4, 5]
 
         # check prediction
-        x_sample = [0] * len(dataset[0])
+        x_sample = [0.0] * len(dataset[0])
         assert kmeans.predict(x_sample) == first_sample_cluster
