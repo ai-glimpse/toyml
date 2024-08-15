@@ -46,7 +46,7 @@ class Kmeans:
         Here we just implement the naive K-means algorithm.
 
     See Also:
-      - Bisecting K-means algorithm: [toyml.clustering.kmeans.bisecting][kmeans-bisect]
+      - Bisecting K-means algorithm: [toyml.clustering.bisect_kmeans][kmeans-bisect]
     """
 
     k: int
