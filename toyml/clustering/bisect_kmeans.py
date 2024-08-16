@@ -24,6 +24,8 @@ class BisectingKmeans:
     """The number of clusters, specified by user."""
     clusters: list[list[int]] = field(default_factory=list)
     """The clusters of the dataset."""
+    labels: list[int] = field(default_factory=list)
+    """The cluster labels of the dataset."""
 
     def fit(self, dataset: list[list[float]]) -> "BisectingKmeans":
         n = len(dataset)
@@ -34,6 +36,7 @@ class BisectingKmeans:
             )
         # start with only one cluster which contains all the data points in dataset
         self.clusters = [list(range(n))]
+        self.labels = self._get_dataset_labels(dataset)
         total_error = sum(sum_square_error([dataset[i] for i in cluster]) for cluster in self.clusters)
         # iterate until got k clusters
         while len(self.clusters) < self.k:
@@ -67,7 +70,20 @@ class BisectingKmeans:
                 raise ValueError("Can not split the cluster further")
             else:
                 self._commit_split(split_cluster_index, split_cluster_into)
+                self.labels = self._get_dataset_labels(dataset)
         return self
+
+    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        """
+        Fit and predict the cluster label of the dataset.
+
+        Args:
+            dataset: the set of data points for clustering
+
+        Returns:
+            Cluster labels of the dataset samples.
+        """
+        return self.fit(dataset).labels
 
     def _commit_split(
         self,
@@ -79,13 +95,12 @@ class BisectingKmeans:
         self.clusters.insert(split_cluster_index, split_cluster_into[0])
         self.clusters.insert(split_cluster_index, split_cluster_into[1])
 
-    def print_cluster(self) -> None:
-        """
-        Show our k clusters.
-        """
-        assert self.clusters is not None
-        for i in range(self.k):
-            print(f"Cluster[{i}]: {self.clusters[i]}")
+    def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
+        labels = [-1] * len(dataset)
+        for cluster_label, cluster in enumerate(self.clusters):  # type: ignore
+            for data_point_index in cluster:
+                labels[data_point_index] = cluster_label
+        return labels
 
 
 if __name__ == "__main__":
@@ -93,4 +108,5 @@ if __name__ == "__main__":
     k = 6
     # Bisecting K-means testing
     diana = BisectingKmeans(k).fit(dataset)
-    diana.print_cluster()
+    print(diana.clusters)
+    print(diana.labels)

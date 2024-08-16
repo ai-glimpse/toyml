@@ -16,14 +16,17 @@ class TestBisectKMeansSimple:
         k: int,
         simple_dataset: list[list[float]],
     ) -> None:
-        kmeans = BisectingKmeans(k)
-        assert len(kmeans.clusters) == 0
+        diana = BisectingKmeans(k)
+        assert len(diana.clusters) == 0
         if k <= len(simple_dataset):
-            kmeans.fit(simple_dataset)
-            assert len(kmeans.clusters) == k
-            cluster_index = [i for cluster in kmeans.clusters for i in cluster]
+            diana = diana.fit(simple_dataset)
+            assert len(diana.clusters) == k
+            assert len(set(diana.labels)) == k
+            assert all(0 <= label <= k for label in diana.labels) is True
+
+            cluster_index = [i for cluster in diana.clusters for i in cluster]
             assert len(cluster_index) == len(simple_dataset)
             assert sorted(cluster_index) == sorted(list(range(len(simple_dataset))))
         else:
             with pytest.raises(ValueError):
-                kmeans.fit(simple_dataset)
+                diana.fit(simple_dataset)
