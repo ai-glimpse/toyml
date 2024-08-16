@@ -30,7 +30,7 @@ class BisectingKmeans:
         # check dataset
         if self.k > n:
             raise ValueError(
-                f"Number of clusters(k) cannot be greater than the number of samples(n), not get {k=} > {n=}"
+                f"Number of clusters(k) cannot be greater than the number of samples(n), not get {self.k=} > {n=}"
             )
         # start with only one cluster which contains all the data points in dataset
         self.clusters = [list(range(n))]
@@ -43,8 +43,9 @@ class BisectingKmeans:
             for cluster_index, cluster in enumerate(self.clusters):
                 # perform K-means with k=2
                 cluster_data = [dataset[i] for i in cluster]
+                # If the cluster cannot be split further, skip it
                 if len(cluster_data) < 2:
-                    break
+                    continue
                 kmeans = Kmeans(k=2).fit(cluster_data)
                 assert kmeans.clusters is not None
                 cluster1, cluster2 = kmeans.clusters[0], kmeans.clusters[1]
@@ -89,7 +90,7 @@ class BisectingKmeans:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
-    k = 4
+    k = 6
     # Bisecting K-means testing
     diana = BisectingKmeans(k).fit(dataset)
     diana.print_cluster()
