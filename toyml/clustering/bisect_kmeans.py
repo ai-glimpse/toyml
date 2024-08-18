@@ -1,9 +1,55 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from toyml.clustering.kmeans import Kmeans
 from toyml.utils.linear_algebra import sum_square_error
+
+
+@dataclass
+class ClusterTree:
+    parent: Optional[ClusterTree] = None
+    left: Optional[ClusterTree] = None
+    right: Optional[ClusterTree] = None
+    cluster: list[int] = field(default_factory=list)
+    """The cluster: dataset sample indices"""
+
+    def is_root(self) -> bool:
+        return self.parent is None
+
+    def is_leaf(self) -> bool:
+        return self.left is None and self.right is None
+
+    def leaf_cluster_nodes(self) -> list[ClusterTree]:
+        """Get all the leaves in the cluster tree, which are the clusters of dataset"""
+        clusters = []
+
+        def dfs(node: ClusterTree):
+            # only collect the leaf nodes
+            if node.is_leaf():
+                clusters.append(node)
+            if node.left:
+                dfs(node.left)
+            if node.right:
+                dfs(node.right)
+
+        dfs(self)
+        return clusters
+
+    def get_clusters(self) -> list[list[int]]:
+        clusters = [cluster_node.cluster for cluster_node in self.leaf_cluster_nodes()]
+        return clusters
+
+    def add_left_child(self, node: ClusterTree) -> ClusterTree:
+        self.left = node
+        node.parent = self
+        return self
+
+    def add_right_child(self, node: ClusterTree) -> ClusterTree:
+        self.right = node
+        node.parent = self
+        return self
 
 
 @dataclass
@@ -22,8 +68,8 @@ class BisectingKmeans:
 
     k: int
     """The number of clusters, specified by user."""
-    clusters: list[list[int]] = field(default_factory=list)
-    """The clusters of the dataset."""
+    cluster_tree: ClusterTree = field(default_factory=ClusterTree)
+    """The cluster tree"""
     labels: list[int] = field(default_factory=list)
     """The cluster labels of the dataset."""
 
@@ -35,17 +81,18 @@ class BisectingKmeans:
                 f"Number of clusters(k) cannot be greater than the number of samples(n), not get {self.k=} > {n=}"
             )
         # start with only one cluster which contains all the data points in dataset
-        self.clusters = [list(range(n))]
+        cluster = list(range(n))
+        self.cluster_tree.cluster = cluster
         self.labels = self._get_dataset_labels(dataset)
-        total_error = sum(sum_square_error([dataset[i] for i in cluster]) for cluster in self.clusters)
+        total_error = sum_square_error([dataset[i] for i in cluster])
         # iterate until got k clusters
-        while len(self.clusters) < self.k:
+        while len(self.cluster_tree.get_clusters()) < self.k:
             # init values for later iteration
-            split_cluster_index = -1
-            split_cluster_into: tuple[list[int], list[int]] = ([], [])
-            for cluster_index, cluster in enumerate(self.clusters):
+            to_splot_cluster_node = None
+            split_cluster_into: tuple[list[int], list[int]] = ()  # type: ignore
+            for cluster_index, cluster_node in enumerate(self.cluster_tree.leaf_cluster_nodes()):
                 # perform K-means with k=2
-                cluster_data = [dataset[i] for i in cluster]
+                cluster_data = [dataset[i] for i in cluster_node.cluster]
                 # If the cluster cannot be split further, skip it
                 if len(cluster_data) < 2:
                     continue
@@ -53,24 +100,23 @@ class BisectingKmeans:
                 assert kmeans.clusters is not None
                 cluster1, cluster2 = kmeans.clusters[0], kmeans.clusters[1]
                 # Note: map the cluster's inner index to the truth index in dataset
-                cluster1 = [cluster[i] for i in cluster1]
-                cluster2 = [cluster[i] for i in cluster2]
+                cluster1 = [cluster_node.cluster[i] for i in cluster1]
+                cluster2 = [cluster_node.cluster[i] for i in cluster2]
                 # split error calculation
-                cluster_unsplit_error = sum_square_error([dataset[i] for i in cluster])
+                cluster_unsplit_error = sum_square_error([dataset[i] for i in cluster_node.cluster])
                 cluster_split_error = sum_square_error([dataset[i] for i in cluster1]) + sum_square_error(
                     [dataset[i] for i in cluster2]
                 )
                 new_total_error = total_error - cluster_unsplit_error + cluster_split_error
                 if new_total_error < total_error:
                     total_error = new_total_error
-                    split_cluster_index = cluster_index
                     split_cluster_into = (cluster1, cluster2)
+                    to_splot_cluster_node = cluster_node
 
-            if split_cluster_index == -1:  # won't happen normally
-                raise ValueError("Can not split the cluster further")
-            else:
-                self._commit_split(split_cluster_index, split_cluster_into)
+            if to_splot_cluster_node is not None:
+                self._commit_split(to_splot_cluster_node, split_cluster_into)
                 self.labels = self._get_dataset_labels(dataset)
+
         return self
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
@@ -85,18 +131,18 @@ class BisectingKmeans:
         """
         return self.fit(dataset).labels
 
+    @staticmethod
     def _commit_split(
-        self,
-        split_cluster_index: int,
+        cluster_node: ClusterTree,
         split_cluster_into: tuple[list[int], list[int]],
     ):
-        self.clusters.pop(split_cluster_index)
-        self.clusters.insert(split_cluster_index, split_cluster_into[0])
-        self.clusters.insert(split_cluster_index, split_cluster_into[1])
+        # cluster tree
+        cluster_node.add_left_child(ClusterTree(cluster=split_cluster_into[0]))
+        cluster_node.add_right_child(ClusterTree(cluster=split_cluster_into[1]))
 
     def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
         labels = [-1] * len(dataset)
-        for cluster_label, cluster in enumerate(self.clusters):
+        for cluster_label, cluster in enumerate(self.cluster_tree.get_clusters()):
             for data_point_index in cluster:
                 labels[data_point_index] = cluster_label
         return labels
@@ -104,8 +150,12 @@ class BisectingKmeans:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
-    k = 6
-    # Bisecting K-means testing
-    diana = BisectingKmeans(k).fit(dataset)
-    print(diana.clusters)
-    print(diana.labels)
+    diana = BisectingKmeans(1)
+    print(diana.cluster_tree)
+    print(diana.cluster_tree.get_clusters())
+
+    # k = 6
+    # # Bisecting K-means testing
+    # diana = BisectingKmeans(k).fit(dataset)
+    # print(diana.cluster_tree.get_clusters())
+    # print(diana.labels)
