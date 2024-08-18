@@ -81,10 +81,9 @@ def distance_matrix(vectors: Vectors) -> Vectors:
     return dist_mat
 
 
-def sse(c: Vectors) -> float:
+def sum_square_error(c: Vectors) -> float:
     """
     Calc the sum of squared errors.
-    Used in bisecting k-means.
     """
     mean_c = vectors_mean(c)
     return sum(euclidean_distance(mean_c, v) ** 2 for v in c)
