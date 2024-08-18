@@ -70,7 +70,7 @@ class ClusterTree:
         node.parent = self
         return self
 
-    def plot(self):
+    def plot(self):  # pragma: no cover
         """
         Plot the cluster tree with adaptive node sizes.
         """
