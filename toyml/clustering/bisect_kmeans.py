@@ -90,14 +90,13 @@ class BisectingKmeans:
         split_cluster_index: int,
         split_cluster_into: tuple[list[int], list[int]],
     ):
-        # print(self.clusters[split_cluster_index], '-->', split_cluster_into)
         self.clusters.pop(split_cluster_index)
         self.clusters.insert(split_cluster_index, split_cluster_into[0])
         self.clusters.insert(split_cluster_index, split_cluster_into[1])
 
     def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
         labels = [-1] * len(dataset)
-        for cluster_label, cluster in enumerate(self.clusters):  # type: ignore
+        for cluster_label, cluster in enumerate(self.clusters):
             for data_point_index in cluster:
                 labels[data_point_index] = cluster_label
         return labels
