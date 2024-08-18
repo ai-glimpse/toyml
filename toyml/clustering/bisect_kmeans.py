@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from toyml.clustering.kmeans import Kmeans
-from toyml.utils.linear_algebra import sum_square_error
+from toyml.utils.linear_algebra import euclidean_distance, sum_square_error
 
 
 @dataclass
@@ -28,6 +28,8 @@ class ClusterTree:
     """Right child node."""
     cluster: list[int] = field(default_factory=list)
     """The cluster: dataset sample indices."""
+    centroid: Optional[list[float]] = None
+    """The centroid of the cluster."""
 
     def is_root(self) -> bool:
         return self.parent is None
@@ -158,6 +160,7 @@ class BisectingKmeans:
         # start with only one cluster which contains all the data points in dataset
         cluster = list(range(n))
         self.cluster_tree.cluster = cluster
+        self.cluster_tree.centroid = self._get_cluster_centroids(dataset, cluster)
         self.labels = self._get_dataset_labels(dataset)
         total_error = sum_square_error([dataset[i] for i in cluster])
         # iterate until got k clusters
@@ -182,7 +185,7 @@ class BisectingKmeans:
                     to_splot_cluster_node = cluster_node
 
             if to_splot_cluster_node is not None and split_cluster_into is not None:
-                self._commit_split(to_splot_cluster_node, split_cluster_into)
+                self._commit_split(to_splot_cluster_node, split_cluster_into, dataset)
                 self.labels = self._get_dataset_labels(dataset)
             else:
                 break
@@ -200,6 +203,39 @@ class BisectingKmeans:
             Cluster labels of the dataset samples.
         """
         return self.fit(dataset).labels
+
+    def predict(self, points: list[list[float]]) -> list[int]:
+        """
+        Predict the cluster label of the given points.
+
+        Args:
+            points: A list of data points to predict.
+
+        Returns:
+            A list of predicted cluster labels for the input points.
+
+        Raises:
+            ValueError: If the model has not been fitted yet.
+        """
+        if self.cluster_tree.centroid is None:
+            raise ValueError("The model has not been fitted yet.")
+
+        clusters = self.cluster_tree.get_clusters()
+        predictions = []
+        for point in points:
+            node = self.cluster_tree
+            while not node.is_leaf():
+                if node.left is None or node.right is None:
+                    raise ValueError("Invalid cluster tree structure.")
+
+                dist_left = euclidean_distance(point, node.left.centroid)  # type: ignore[arg-type]
+                dist_right = euclidean_distance(point, node.right.centroid)  # type: ignore[arg-type]
+
+                node = node.left if dist_left < dist_right else node.right
+            cluster_index = clusters.index(node.cluster)
+            predictions.append(cluster_index)
+
+        return predictions
 
     def _bisect_by_kmeans(
         self,
@@ -220,14 +256,23 @@ class BisectingKmeans:
         )
         return cluster_unsplit_error, cluster_split_error, (cluster1, cluster2)
 
-    @staticmethod
     def _commit_split(
+        self,
         cluster_node: ClusterTree,
         split_cluster_into: tuple[list[int], list[int]],
+        dataset: list[list[float]],
     ):
         # cluster tree
-        cluster_node.add_left_child(ClusterTree(cluster=split_cluster_into[0]))
-        cluster_node.add_right_child(ClusterTree(cluster=split_cluster_into[1]))
+        cluster_node.add_left_child(
+            ClusterTree(
+                cluster=split_cluster_into[0], centroid=self._get_cluster_centroids(dataset, split_cluster_into[0])
+            )
+        )
+        cluster_node.add_right_child(
+            ClusterTree(
+                cluster=split_cluster_into[1], centroid=self._get_cluster_centroids(dataset, split_cluster_into[1])
+            )
+        )
 
     def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
         labels = [-1] * len(dataset)
@@ -235,6 +280,11 @@ class BisectingKmeans:
             for data_point_index in cluster:
                 labels[data_point_index] = cluster_label
         return labels
+
+    def _get_cluster_centroids(self, dataset: list[list[float]], cluster: list[int]) -> list[float]:
+        cluster_points = [dataset[i] for i in cluster]
+        centroid = [sum(t) / len(cluster) for t in zip(*cluster_points)]
+        return centroid
 
 
 if __name__ == "__main__":
@@ -244,4 +294,5 @@ if __name__ == "__main__":
     diana = BisectingKmeans(k).fit(dataset)
     print(diana.cluster_tree.get_clusters())
     print(diana.labels)
-    diana.cluster_tree.plot()
+    # diana.cluster_tree.plot()
+    print(diana.predict(dataset))

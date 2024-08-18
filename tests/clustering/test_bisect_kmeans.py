@@ -32,6 +32,38 @@ class TestBisectKMeansSimple:
             with pytest.raises(ValueError):
                 diana.fit(simple_dataset)
 
+    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6])
+    def test_predict(
+        self,
+        k: int,
+        simple_dataset: list[list[float]],
+    ) -> None:
+        """Test the predict method."""
+        # Fit the model
+        diana = BisectingKmeans(k).fit(simple_dataset)
+
+        # Predict on the same dataset
+        predictions = diana.predict(simple_dataset)
+
+        # Check if the number of predictions matches the dataset size
+        assert len(predictions) == len(simple_dataset)
+
+        # Check if all predicted labels are within the valid range
+        assert all(0 <= label < k for label in predictions)
+
+        # Check if the predictions match the labels from fit
+        assert predictions == diana.labels
+
+        # Test prediction on new points
+        new_points = [[0.5, 0.5], [10.5, 10.5]]
+        new_predictions = diana.predict(new_points)
+
+        # Check if the number of new predictions is correct
+        assert len(new_predictions) == len(new_points)
+
+        # Check if new predictions are within the valid range
+        assert all(0 <= label < k for label in new_predictions)
+
 
 class TestClusterTree:
     def test_init(self) -> None:
