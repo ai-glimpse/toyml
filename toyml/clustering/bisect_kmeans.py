@@ -3,12 +3,23 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
 from toyml.clustering.kmeans import Kmeans
 from toyml.utils.linear_algebra import sum_square_error
 
 
 @dataclass
 class ClusterTree:
+    """
+    Cluster tree node.
+    The cluster tree is a binary tree, each node is a cluster.
+    The root node is the whole dataset, and each node is split into two clusters until the number of clusters is equal to the specified number of clusters.
+    The cluster is represented by the indices of the dataset.
+    The cluster tree is used to store the cluster information and the relationship between clusters.
+    """
+
     parent: Optional[ClusterTree] = None
     """Parent node."""
     left: Optional[ClusterTree] = None
@@ -56,6 +67,54 @@ class ClusterTree:
         self.right = node
         node.parent = self
         return self
+
+    def plot(self):
+        """
+        Plot the cluster tree with adaptive node sizes.
+        """
+
+        def _build_graph(node, G=None, pos=None, x=0, y=0, layer=1):
+            if G is None:
+                G = nx.Graph()
+                pos = {}
+
+            node_id = id(node)
+            G.add_node(node_id)
+            pos[node_id] = (x, y)
+            G.nodes[node_id]["label"] = f"{node.cluster}"
+            G.nodes[node_id]["size"] = len(node.cluster) * 1000  # Adjust node size based on cluster size
+
+            if node.left:
+                left_id = id(node.left)
+                G.add_edge(node_id, left_id)
+                l_x, l_y = x - 1 / 2 ** (layer + 1), y - 0.5
+                _build_graph(node.left, G, pos, l_x, l_y, layer + 1)
+
+            if node.right:
+                right_id = id(node.right)
+                G.add_edge(node_id, right_id)
+                r_x, r_y = x + 1 / 2 ** (layer + 1), y - 0.5
+                _build_graph(node.right, G, pos, r_x, r_y, layer + 1)
+
+            return G, pos
+
+        G, pos = _build_graph(self)
+
+        plt.figure(figsize=(12, 8))
+
+        # Get node sizes
+        node_sizes = [G.nodes[node]["size"] for node in G.nodes()]
+
+        nx.draw(G, pos, with_labels=False, node_color="lightblue", node_size=node_sizes, arrows=False)
+
+        labels = nx.get_node_attributes(G, "label")
+        nx.draw_networkx_labels(G, pos, labels, font_size=8)  # Reduced font size for better fit
+
+        plt.axis("off")
+        plt.title("Cluster Tree")
+        # plt.tight_layout()
+        plt.savefig("cluster_tree.png", dpi=300, bbox_inches="tight")
+        plt.show()
 
 
 @dataclass
@@ -105,7 +164,7 @@ class BisectingKmeans:
         while len(self.cluster_tree.get_clusters()) < self.k:
             # init values for later iteration
             to_splot_cluster_node = None
-            split_cluster_into: tuple[list[int], list[int]] = ()  # type: ignore
+            split_cluster_into: Optional[tuple[list[int], list[int]]] = None
             for cluster_index, cluster_node in enumerate(self.cluster_tree.leaf_cluster_nodes()):
                 # perform K-means with k=2
                 cluster_data = [dataset[i] for i in cluster_node.cluster]
@@ -114,7 +173,7 @@ class BisectingKmeans:
                     continue
                 # Bisect by kmeans with k=2
                 cluster_unsplit_error, cluster_split_error, (cluster1, cluster2) = self._bisect_by_kmeans(
-                    cluster_data, cluster_node
+                    cluster_data, cluster_node, dataset
                 )
                 new_total_error = total_error - cluster_unsplit_error + cluster_split_error
                 if new_total_error < total_error:
@@ -122,9 +181,11 @@ class BisectingKmeans:
                     split_cluster_into = (cluster1, cluster2)
                     to_splot_cluster_node = cluster_node
 
-            if to_splot_cluster_node is not None:
+            if to_splot_cluster_node is not None and split_cluster_into is not None:
                 self._commit_split(to_splot_cluster_node, split_cluster_into)
                 self.labels = self._get_dataset_labels(dataset)
+            else:
+                break
 
         return self
 
@@ -140,10 +201,11 @@ class BisectingKmeans:
         """
         return self.fit(dataset).labels
 
-    @staticmethod
     def _bisect_by_kmeans(
+        self,
         cluster_data: list[list[float]],
         cluster_node: ClusterTree,
+        dataset: list[list[float]],
     ) -> tuple[float, float, tuple[list[int], list[int]]]:
         kmeans = Kmeans(k=2).fit(cluster_data)
         assert kmeans.clusters is not None
@@ -177,8 +239,9 @@ class BisectingKmeans:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 1.0], [1.0, 2.0], [2.0, 1.0], [10.0, 1.0], [10.0, 2.0], [11.0, 1.0]]
-    k = 2
+    k = 6
     # Bisecting K-means testing
     diana = BisectingKmeans(k).fit(dataset)
     print(diana.cluster_tree.get_clusters())
     print(diana.labels)
+    diana.cluster_tree.plot()
