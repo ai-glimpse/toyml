@@ -4,13 +4,7 @@ import random
 from collections import deque
 
 from toyml.utils.linear_algebra import distance_matrix, euclidean_distance
-from toyml.utils.types import Clusters, DataSet, List, Vector
-
-"""
-TODO:
-1. Plot
-2. Test
-"""
+from toyml.utils.types import Clusters
 
 
 class DbScan:
@@ -24,7 +18,7 @@ class DbScan:
     4. Wikipedia
     """
 
-    def __init__(self, dataset: DataSet, eps: float, min_pts: int = 3) -> None:
+    def __init__(self, dataset: list[list[float]], eps: float, min_pts: int = 3) -> None:
         self._dataset = dataset
         self._n = len(self._dataset)
         # distance matrix
@@ -33,56 +27,57 @@ class DbScan:
         # we do not include the point i itself as a neighbor
         # as the algorithm does, so we minus one here to convert
         self._min_pts = min_pts - 1
-        self._coreObjects: List[int] = []
-        self._noises: List[int] = []
+        self._core_objects: list[int] = []
+        self._noises: list[int] = []
         # the number of clusters
         self._k = 0
         self._clusters: Clusters = []
 
-    def _getNeighbors(self, i: int) -> List[int]:
+    def _get_neighbors(self, i: int) -> list[int]:
         neighbors = []
         for j in range(self._n):
             if i != j and self._dist_matrix[i][j] <= self._eps:
                 neighbors.append(j)
         return neighbors
 
-    def _getCoreObjects(self) -> List[int]:
+    def _get_core_objects(self) -> list[int]:
         for i in range(self._n):
-            neighbors = self._getNeighbors(i)
+            neighbors = self._get_neighbors(i)
             if len(neighbors) >= self._min_pts:
-                self._coreObjects.append(i)
+                self._core_objects.append(i)
             else:
                 self._noises.append(i)
-        return self._coreObjects
+        return self._core_objects
 
     def fit(self) -> Clusters:
+        self._get_core_objects()
         # initialize the unvisited set
-        F = set(range(self._n))
+        unvisited = set(range(self._n))
         # core objects used for training
-        random.shuffle(self._coreObjects)
-        Omg = set(self._coreObjects)
-        while Omg:
-            F_old = F.copy()
-            o = Omg.pop()
-            Q: deque = deque()
-            Q.append(o)
-            F.remove(o)
-            while len(Q) > 0:
-                q = Q.popleft()
-                neighbors = self._getNeighbors(q)
+        random.shuffle(self._core_objects)
+        core_object_set = set(self._core_objects)
+        while core_object_set:
+            unvisited_old = unvisited.copy()
+            o = core_object_set.pop()
+            queue: deque = deque()
+            queue.append(o)
+            unvisited.remove(o)
+            while len(queue) > 0:
+                q = queue.popleft()
+                neighbors = self._get_neighbors(q)
                 if len(neighbors) >= self._min_pts:
-                    delta = set(neighbors) & F
+                    delta = set(neighbors) & unvisited
                     # remove from unvisited
                     for point in delta:
-                        Q.append(point)
-                        F.remove(point)
+                        queue.append(point)
+                        unvisited.remove(point)
             self._k += 1
-            C_k = F_old.difference(F)
-            self._clusters.append(list(C_k))
-            Omg = Omg.difference(C_k)
+            cluster = unvisited_old.difference(unvisited)
+            self._clusters.append(list(cluster))
+            core_object_set = core_object_set.difference(cluster)
         return self._clusters
 
-    def predict(self, point: Vector) -> int:
+    def predict(self, point: list[float]) -> int:
         min_dist = math.inf
         best_label = -1
         for i in range(self._k):
@@ -112,9 +107,8 @@ class DbScan:
 
 
 if __name__ == "__main__":
-    dataset: DataSet = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
+    dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
     dbscan = DbScan(dataset, 3, 2)
-    print(dbscan._getCoreObjects())
     print(dbscan.fit())
     dbscan.print_cluster()
     dbscan.print_label()
