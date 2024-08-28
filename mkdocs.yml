@@ -21,9 +21,10 @@ nav:
           - KNN: algorithms/classification/knn.md
       - EVT:
           - SPOT: algorithms/evt/spot.md
-
-
   - Changelog: changelog.md
+
+exclude_docs: |
+    docs/abbreviations.md
 
 theme:
   name: material
@@ -99,7 +100,9 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.details
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      auto_append:
+        - docs/abbreviations.md
   - pymdownx.tabbed
   - abbr
   - admonition
