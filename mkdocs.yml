@@ -120,7 +120,7 @@ plugins:
       token: !ENV [ "ORG_MKDOCS_GIT_COMMITTERS_APIKEY" ]
   - bibtex:
       bib_file: "docs/references.bib"
-      csl_file: "https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl"
+      csl_file: "docs/ieee.csl"
       cite_inline: false
   - mkdocstrings:
       handlers:
