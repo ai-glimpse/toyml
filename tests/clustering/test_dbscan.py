@@ -8,8 +8,8 @@ class TestDbScan(unittest.TestCase):
         self.dataset = [[1.0, 2.0], [2.0, 2.0], [2.0, 3.0], [8.0, 7.0], [8.0, 8.0], [25.0, 80.0]]
 
     def test_dbscan_clustering(self):
-        dbscan = DbScan(self.dataset, eps=3, min_pts=2)
-        clusters = dbscan.fit()
+        dbscan = DbScan(eps=3, min_pts=1)
+        clusters = dbscan.fit(self.dataset)
 
         # Check the number of clusters
         self.assertEqual(len(clusters), 2)
@@ -22,8 +22,8 @@ class TestDbScan(unittest.TestCase):
         self.assertTrue(all(5 not in cluster for cluster in clusters))
 
     def test_dbscan_predict(self):
-        dbscan = DbScan(self.dataset, eps=3, min_pts=2)
-        dbscan.fit()
+        dbscan = DbScan(eps=3, min_pts=1)
+        dbscan.fit(self.dataset)
 
         # Test prediction for a point close to the first cluster
         label = dbscan.predict([1.5, 2.5])
@@ -39,13 +39,13 @@ class TestDbScan(unittest.TestCase):
 
     def test_dbscan_edge_cases(self):
         # Test with all points as noise
-        dbscan = DbScan(self.dataset, eps=0.1, min_pts=2)
-        clusters = dbscan.fit()
+        dbscan = DbScan(eps=0.1, min_pts=1)
+        clusters = dbscan.fit(self.dataset)
         self.assertEqual(len(clusters), 0)
 
         # Test with all points in one cluster
-        dbscan = DbScan(self.dataset, eps=100, min_pts=2)
-        clusters = dbscan.fit()
+        dbscan = DbScan(eps=100, min_pts=1)
+        clusters = dbscan.fit(self.dataset)
         self.assertEqual(len(clusters), 1)
         self.assertEqual(len(clusters[0]), len(self.dataset))
 

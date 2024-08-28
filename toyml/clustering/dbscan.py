@@ -21,7 +21,8 @@ class DbScan:
     """
 
     eps: float
-    min_pts: int = 3
+    min_pts: int
+    """The minimum number of points in a cluster to be considered a core object.(which don't include the core object itself)"""
     k: int = 0
     clusters: Clusters = field(default_factory=list)
     core_objects: list[int] = field(default_factory=list)
@@ -107,7 +108,7 @@ class DbScan:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
-    dbscan = DbScan(eps=3, min_pts=2)
+    dbscan = DbScan(eps=3, min_pts=1)
     print(dbscan.fit(dataset))
     dbscan.print_cluster()
     dbscan.print_label()
