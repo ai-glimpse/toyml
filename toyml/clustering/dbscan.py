@@ -22,11 +22,14 @@ class DbScan:
 
     eps: float
     min_pts: int
-    """The minimum number of points in a cluster to be considered a core object.(which don't include the core object itself)"""
+    """The minimum number of points in a cluster to be considered a core object.
+    (which don't include the core object itself)"""
     k: int = 0
     clusters: Clusters = field(default_factory=list)
     core_objects: list[int] = field(default_factory=list)
     noises: list[int] = field(default_factory=list)
+    _dist_matrix: list[list[float]] = field(default_factory=list)
+    _n: int = 0
 
     def _get_neighbors(self, i: int) -> list[int]:
         neighbors = []
@@ -46,8 +49,7 @@ class DbScan:
 
     def fit(self, dataset: list[list[float]]) -> Clusters:
         self._n = len(dataset)
-        self._dataset = dataset
-        self._dist_matrix = distance_matrix(self._dataset)
+        self._dist_matrix = distance_matrix(dataset)
 
         # get core objects
         self._get_core_objects()
@@ -77,11 +79,11 @@ class DbScan:
             core_object_set = core_object_set.difference(cluster)
         return self.clusters
 
-    def predict(self, point: list[float]) -> int:
+    def predict(self, point: list[float], dataset: list[list[float]]) -> int:
         min_dist = math.inf
         best_label = -1
         for i in range(self.k):
-            cluster_vectors = [self._dataset[j] for j in self.clusters[i]]
+            cluster_vectors = [dataset[j] for j in self.clusters[i]]
             dist = sum(euclidean_distance(point, p) for p in cluster_vectors)
             if dist < min_dist:
                 min_dist = dist
@@ -89,12 +91,12 @@ class DbScan:
         print(f"The label of {point} is {best_label}")
         return best_label
 
-    def print_cluster(self) -> None:
+    def print_cluster(self, dataset: list[list[float]]) -> None:
         for i in range(self.k):
             # the ith clusters
             cluster_i = self.clusters[i]
-            print(f"Cluster[{i}]: {[self._dataset[j] for j in cluster_i]}")
-        print(f"Noise Data: {[self._dataset[j] for j in self.noises]}")
+            print(f"Cluster[{i}]: {[dataset[j] for j in cluster_i]}")
+        print(f"Noise Data: {[dataset[j] for j in self.noises]}")
 
     def print_label(self) -> None:
         # -1 for noise data
@@ -110,6 +112,6 @@ if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
     dbscan = DbScan(eps=3, min_pts=1)
     print(dbscan.fit(dataset))
-    dbscan.print_cluster()
+    dbscan.print_cluster(dataset)
     dbscan.print_label()
-    dbscan.predict([0.0, 0.4])
+    dbscan.predict([0.0, 0.4], dataset)

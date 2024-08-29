@@ -26,15 +26,15 @@ class TestDbScan(unittest.TestCase):
         dbscan.fit(self.dataset)
 
         # Test prediction for a point close to the first cluster
-        label = dbscan.predict([1.5, 2.5])
+        label = dbscan.predict([1.5, 2.5], dataset=self.dataset)
         self.assertEqual(label, 0)
 
         # Test prediction for a point close to the second cluster
-        label = dbscan.predict([7.5, 7.5])
+        label = dbscan.predict([7.5, 7.5], dataset=self.dataset)
         self.assertEqual(label, 1)
 
         # Test prediction for a point far from all clusters
-        label = dbscan.predict([50.0, 50.0])
+        label = dbscan.predict([50.0, 50.0], dataset=self.dataset)
         self.assertNotEqual(label, -1)  # It should assign to the closest cluster, not noise
 
     def test_dbscan_edge_cases(self):
