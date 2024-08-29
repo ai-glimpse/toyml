@@ -24,22 +24,22 @@ class DbScan:
     min_pts: int
     """The minimum number of points in a cluster to be considered a core object.
     (which don't include the core object itself)"""
-    k: int = 0
     clusters: Clusters = field(default_factory=list)
     core_objects: list[int] = field(default_factory=list)
     noises: list[int] = field(default_factory=list)
-    _dist_matrix: list[list[float]] = field(default_factory=list)
-    _n: int = 0
+    distance_matrix_: list[list[float]] = field(default_factory=list)
+    k_: int = 0
+    n_: int = 0
 
     def _get_neighbors(self, i: int) -> list[int]:
         neighbors = []
-        for j in range(self._n):
-            if i != j and self._dist_matrix[i][j] <= self.eps:
+        for j in range(self.n_):
+            if i != j and self.distance_matrix_[i][j] <= self.eps:
                 neighbors.append(j)
         return neighbors
 
     def _get_core_objects(self) -> list[int]:
-        for i in range(self._n):
+        for i in range(self.n_):
             neighbors = self._get_neighbors(i)
             if len(neighbors) >= self.min_pts:
                 self.core_objects.append(i)
@@ -48,13 +48,13 @@ class DbScan:
         return self.core_objects
 
     def fit(self, dataset: list[list[float]]) -> Clusters:
-        self._n = len(dataset)
-        self._dist_matrix = distance_matrix(dataset)
+        self.n_ = len(dataset)
+        self.distance_matrix_ = distance_matrix(dataset)
 
         # get core objects
         self._get_core_objects()
         # initialize the unvisited set
-        unvisited = set(range(self._n))
+        unvisited = set(range(self.n_))
         # core objects used for training
         random.shuffle(self.core_objects)
         core_object_set = set(self.core_objects)
@@ -73,7 +73,7 @@ class DbScan:
                     for point in delta:
                         queue.append(point)
                         unvisited.remove(point)
-            self.k += 1
+            self.k_ += 1
             cluster = unvisited_old.difference(unvisited)
             self.clusters.append(list(cluster))
             core_object_set = core_object_set.difference(cluster)
@@ -82,7 +82,7 @@ class DbScan:
     def predict(self, point: list[float], dataset: list[list[float]]) -> int:
         min_dist = math.inf
         best_label = -1
-        for i in range(self.k):
+        for i in range(self.k_):
             cluster_vectors = [dataset[j] for j in self.clusters[i]]
             dist = sum(euclidean_distance(point, p) for p in cluster_vectors)
             if dist < min_dist:
@@ -92,7 +92,7 @@ class DbScan:
         return best_label
 
     def print_cluster(self, dataset: list[list[float]]) -> None:
-        for i in range(self.k):
+        for i in range(self.k_):
             # the ith clusters
             cluster_i = self.clusters[i]
             print(f"Cluster[{i}]: {[dataset[j] for j in cluster_i]}")
@@ -100,8 +100,8 @@ class DbScan:
 
     def print_label(self) -> None:
         # -1 for noise data
-        labels = [-1] * self._n
-        for i in range(self.k):
+        labels = [-1] * self.n_
+        for i in range(self.k_):
             for sample_index in self.clusters[i]:
                 labels[sample_index] = i
         # we leave the label of noise data to None
