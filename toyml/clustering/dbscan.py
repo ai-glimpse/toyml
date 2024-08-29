@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import random
 
@@ -5,19 +7,18 @@ from collections import deque
 from dataclasses import dataclass, field
 
 from toyml.utils.linear_algebra import distance_matrix, euclidean_distance
-from toyml.utils.types import Clusters
 
 
 @dataclass
-class DbScan:
+class DBSCAN:
     """
-    dbscan algorithm.
+    DBSCAN algorithm.
 
-    Ref:
-    1. Zhou
-    2. Han
-    3. Kassambara
-    4. Wikipedia
+    Tip: References
+        1. Zhou Zhihua
+        2. Han
+        3. Kassambara
+        4. Wikipedia
     """
 
     eps: float = 0.5
@@ -32,9 +33,10 @@ class DbScan:
     DBSCAN will find denser clusters, whereas if it is set to a lower value, the found clusters will be more sparse.
     (same as sklearn)
     """
-    clusters: Clusters = field(default_factory=list)
+    clusters: list[list[int]] = field(default_factory=list)
     core_objects: list[int] = field(default_factory=list)
     noises: list[int] = field(default_factory=list)
+
     distance_matrix_: list[list[float]] = field(default_factory=list)
     k_: int = 0
     n_: int = 0
@@ -54,7 +56,7 @@ class DbScan:
                 self.noises.append(i)
         return self.core_objects
 
-    def fit(self, dataset: list[list[float]]) -> Clusters:
+    def fit(self, dataset: list[list[float]]) -> "DBSCAN":
         self.n_ = len(dataset)
         self.distance_matrix_ = distance_matrix(dataset)
 
@@ -84,7 +86,7 @@ class DbScan:
             cluster = unvisited_old.difference(unvisited)
             self.clusters.append(list(cluster))
             core_object_set = core_object_set.difference(cluster)
-        return self.clusters
+        return self
 
     def _is_core_object(self, i: int, neighbors: None | list[int] = None) -> bool:
         if neighbors is None:
@@ -125,7 +127,7 @@ class DbScan:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
-    dbscan = DbScan(eps=3, min_samples=2)
+    dbscan = DBSCAN(eps=3, min_samples=2)
     print(dbscan.fit(dataset))
     dbscan.print_cluster(dataset)
     dbscan.print_label()
