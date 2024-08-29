@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-import math
+import logging
 import random
 
 from collections import deque
 from dataclasses import dataclass, field
 
-from toyml.utils.linear_algebra import distance_matrix, euclidean_distance
+from toyml.utils.linear_algebra import distance_matrix
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -34,8 +36,8 @@ class DBSCAN:
     (same as sklearn)
     """
     clusters: list[list[int]] = field(default_factory=list)
-    core_objects: list[int] = field(default_factory=list)
-    noises: list[int] = field(default_factory=list)
+    core_objects_: list[int] = field(default_factory=list)
+    noises_: list[int] = field(default_factory=list)
 
     distance_matrix_: list[list[float]] = field(default_factory=list)
     k_: int = 0
@@ -48,31 +50,35 @@ class DBSCAN:
                 neighbors.append(j)
         return neighbors
 
-    def _get_core_objects(self) -> list[int]:
+    def _get_core_objects(self) -> tuple[list[int], list[int]]:
+        core_objects, noises = [], []
         for i in range(self.n_):
             if self._is_core_object(i):
-                self.core_objects.append(i)
+                core_objects.append(i)
             else:
-                self.noises.append(i)
-        return self.core_objects
+                noises.append(i)
+        return core_objects, noises
 
     def fit(self, dataset: list[list[float]]) -> "DBSCAN":
         self.n_ = len(dataset)
         self.distance_matrix_ = distance_matrix(dataset)
 
-        # get core objects
-        self._get_core_objects()
         # initialize the unvisited set
         unvisited = set(range(self.n_))
+        # get core objects
+        self.core_objects_, self.noises_ = self._get_core_objects()
         # core objects used for training
-        random.shuffle(self.core_objects)
-        core_object_set = set(self.core_objects)
+        if len(self.core_objects_) == 0:
+            logger.warning("No core objects found, all data points are noise. " "Try to adjust the hyperparameters.")
+            return self
+        random.shuffle(self.core_objects_)
+        core_object_set = set(self.core_objects_)
         while core_object_set:
             unvisited_old = unvisited.copy()
-            o = core_object_set.pop()
+            core_object = core_object_set.pop()
             queue: deque = deque()
-            queue.append(o)
-            unvisited.remove(o)
+            queue.append(core_object)
+            unvisited.remove(core_object)
             while len(queue) > 0:
                 q = queue.popleft()
                 neighbors = self._get_neighbors(q)
@@ -96,39 +102,17 @@ class DBSCAN:
             return True
         return False
 
-    def predict(self, point: list[float], dataset: list[list[float]]) -> int:
-        min_dist = math.inf
-        best_label = -1
-        for i in range(self.k_):
-            cluster_vectors = [dataset[j] for j in self.clusters[i]]
-            dist = sum(euclidean_distance(point, p) for p in cluster_vectors)
-            if dist < min_dist:
-                min_dist = dist
-                best_label = i
-        print(f"The label of {point} is {best_label}")
-        return best_label
-
-    def print_cluster(self, dataset: list[list[float]]) -> None:
-        for i in range(self.k_):
-            # the ith clusters
-            cluster_i = self.clusters[i]
-            print(f"Cluster[{i}]: {[dataset[j] for j in cluster_i]}")
-        print(f"Noise Data: {[dataset[j] for j in self.noises]}")
-
-    def print_label(self) -> None:
-        # -1 for noise data
-        labels = [-1] * self.n_
-        for i in range(self.k_):
-            for sample_index in self.clusters[i]:
-                labels[sample_index] = i
-        # we leave the label of noise data to None
-        print("Sample labels: ", labels)
+    def predict(self):
+        """
+        Don't implement this method, because DBSCAN is kind of different from KMeans and AGNES.
+        Ref: https://stackoverflow.com/questions/27822752/scikit-learn-predicting-new-points-with-dbscan
+        """
+        pass
 
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
-    dbscan = DBSCAN(eps=3, min_samples=2)
-    print(dbscan.fit(dataset))
-    dbscan.print_cluster(dataset)
-    dbscan.print_label()
-    dbscan.predict([0.0, 0.4], dataset)
+    dbscan = DBSCAN(eps=3, min_samples=2).fit(dataset)
+    for i, cluster in enumerate(dbscan.clusters):
+        print(f"cluster {i}: {[dataset[i] for i in cluster]}")
+    print("noise: ", [dataset[i] for i in dbscan.noises_])
