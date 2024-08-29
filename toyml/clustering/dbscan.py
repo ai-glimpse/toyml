@@ -20,10 +20,18 @@ class DbScan:
     4. Wikipedia
     """
 
-    eps: float
-    min_pts: int
-    """The minimum number of points in a cluster to be considered a core object.
-    (which don't include the core object itself)"""
+    eps: float = 0.5
+    """The maximum distance between two samples for one to be considered as in the neighborhood of the other.
+    This is not a maximum bound on the distances of points within a cluster.
+    This is the most important DBSCAN parameter to choose appropriately for your data set and distance function.
+    (same as sklearn)
+    """
+    min_samples: int = 5
+    """The number of samples (or total weight) in a neighborhood for a point to be considered as a core point.
+    This includes the point itself. If min_samples is set to a higher value,
+    DBSCAN will find denser clusters, whereas if it is set to a lower value, the found clusters will be more sparse.
+    (same as sklearn)
+    """
     clusters: Clusters = field(default_factory=list)
     core_objects: list[int] = field(default_factory=list)
     noises: list[int] = field(default_factory=list)
@@ -40,8 +48,7 @@ class DbScan:
 
     def _get_core_objects(self) -> list[int]:
         for i in range(self.n_):
-            neighbors = self._get_neighbors(i)
-            if len(neighbors) >= self.min_pts:
+            if self._is_core_object(i):
                 self.core_objects.append(i)
             else:
                 self.noises.append(i)
@@ -67,7 +74,7 @@ class DbScan:
             while len(queue) > 0:
                 q = queue.popleft()
                 neighbors = self._get_neighbors(q)
-                if len(neighbors) >= self.min_pts:
+                if self._is_core_object(q, neighbors):
                     delta = set(neighbors) & unvisited
                     # remove from unvisited
                     for point in delta:
@@ -78,6 +85,14 @@ class DbScan:
             self.clusters.append(list(cluster))
             core_object_set = core_object_set.difference(cluster)
         return self.clusters
+
+    def _is_core_object(self, i: int, neighbors: None | list[int] = None) -> bool:
+        if neighbors is None:
+            neighbors = self._get_neighbors(i)
+        # `+ 1` here to include the point itself
+        if len(neighbors) + 1 >= self.min_samples:
+            return True
+        return False
 
     def predict(self, point: list[float], dataset: list[list[float]]) -> int:
         min_dist = math.inf
@@ -110,7 +125,7 @@ class DbScan:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
-    dbscan = DbScan(eps=3, min_pts=1)
+    dbscan = DbScan(eps=3, min_samples=2)
     print(dbscan.fit(dataset))
     dbscan.print_cluster(dataset)
     dbscan.print_label()
