@@ -16,6 +16,15 @@ class DBSCAN:
     """
     DBSCAN algorithm.
 
+    Examples:
+        >>> from toyml.clustering import DBSCAN
+        >>> dataset = [[1, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
+        >>> dbscan = DBSCAN(eps=3, min_samples=2).fit(dataset)
+        >>> dbscan.clusters
+        [[0, 1, 2], [3, 4]]
+        >>> dbscan.noises_
+        [5]
+
     Tip: References
         1. Zhou Zhihua
         2. Han
