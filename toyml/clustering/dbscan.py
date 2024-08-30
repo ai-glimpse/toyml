@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import random
 
 from collections import deque
 from dataclasses import dataclass, field
@@ -9,6 +8,39 @@ from dataclasses import dataclass, field
 from toyml.utils.linear_algebra import euclidean_distance
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class Dataset:
+    data: list[list[float]]
+    n: int = field(init=False)
+    distance_matrix_: list[list[float]] = field(init=False)
+
+    def __post_init__(self):
+        self.n = len(self.data)
+        self.distance_matrix_ = self._calculate_distance_matrix()
+
+    def _calculate_distance_matrix(self) -> list[list[float]]:
+        dist_mat = [[0.0 for _ in range(self.n)] for _ in range(self.n)]
+        for i in range(self.n):
+            for j in range(i, self.n):
+                dist_mat[i][j] = euclidean_distance(self.data[i], self.data[j])
+                dist_mat[j][i] = dist_mat[i][j]
+        return dist_mat
+
+    def get_neighbors(self, i: int, eps: float) -> list[int]:
+        return [j for j in range(self.n) if i != j and self.distance_matrix_[i][j] <= eps]
+
+    def get_core_objects(self, eps: float, min_samples: int) -> tuple[set[int], list[int]]:
+        core_objects = set()
+        noises = []
+        for i in range(self.n):
+            neighbors = self.get_neighbors(i, eps)
+            if len(neighbors) + 1 >= min_samples:  # +1 to include the point itself
+                core_objects.add(i)
+            else:
+                noises.append(i)
+        return core_objects, noises
 
 
 @dataclass
@@ -45,82 +77,44 @@ class DBSCAN:
     (same as sklearn)
     """
     clusters_: list[list[int]] = field(default_factory=list)
-    core_objects_: list[int] = field(default_factory=list)
+    core_objects_: set[int] = field(default_factory=set)
     noises_: list[int] = field(default_factory=list)
 
-    distance_matrix_: list[list[float]] = field(default_factory=list)
-    n_: int = 0
-
-    def _get_neighbors(self, i: int) -> list[int]:
-        neighbors = []
-        for j in range(self.n_):
-            if i != j and self.distance_matrix_[i][j] <= self.eps:
-                neighbors.append(j)
-        return neighbors
-
-    def _get_core_objects(self) -> tuple[list[int], list[int]]:
-        core_objects, noises = [], []
-        for i in range(self.n_):
-            if self._is_core_object(i):
-                core_objects.append(i)
-            else:
-                noises.append(i)
-        return core_objects, noises
-
-    def fit(self, dataset: list[list[float]]) -> "DBSCAN":
-        self.n_ = len(dataset)
-        self.distance_matrix_ = distance_matrix(dataset)
+    def fit(self, data: list[list[float]]) -> "DBSCAN":
+        dataset = Dataset(data)
 
         # initialize the unvisited set
-        unvisited = set(range(self.n_))
+        unvisited = set(range(dataset.n))
         # get core objects
-        self.core_objects_, self.noises_ = self._get_core_objects()
+        self.core_objects_, self.noises_ = dataset.get_core_objects(self.eps, self.min_samples)
+
         # core objects used for training
         if len(self.core_objects_) == 0:
             logger.warning("No core objects found, all data points are noise. Try to adjust the hyperparameters.")
             return self
-        random.shuffle(self.core_objects_)
-        core_object_set = set(self.core_objects_)
+
+        core_object_set = self.core_objects_.copy()
         while core_object_set:
             unvisited_old = unvisited.copy()
             core_object = core_object_set.pop()
             queue: deque = deque()
             queue.append(core_object)
             unvisited.remove(core_object)
-            while len(queue) > 0:
+
+            while queue:
                 q = queue.popleft()
-                neighbors = self._get_neighbors(q)
-                if self._is_core_object(q, neighbors):
+                neighbors = dataset.get_neighbors(q, self.eps)
+                if len(neighbors) + 1 >= self.min_samples:
                     delta = set(neighbors) & unvisited
-                    # remove from unvisited
                     for point in delta:
                         queue.append(point)
                         unvisited.remove(point)
-            cluster = unvisited_old.difference(unvisited)
+
+            cluster = unvisited_old - unvisited
             self.clusters_.append(list(cluster))
-            core_object_set = core_object_set.difference(cluster)
+            core_object_set -= cluster
+
         return self
-
-    def _is_core_object(self, i: int, neighbors: None | list[int] = None) -> bool:
-        if neighbors is None:
-            neighbors = self._get_neighbors(i)
-        # `+ 1` here to include the point itself
-        if len(neighbors) + 1 >= self.min_samples:
-            return True
-        return False
-
-
-def distance_matrix(vectors: list[list[float]]) -> list[list[float]]:
-    """
-    Get the distance matrix by vectors.
-    """
-    n = len(vectors)
-    dist_mat = [[0.0 for _ in range(n)] for _ in range(n)]
-    for i in range(n):
-        for j in range(i, n):
-            dist_mat[i][j] = euclidean_distance(vectors[i], vectors[j])
-            dist_mat[j][i] = dist_mat[i][j]
-    return dist_mat
 
 
 if __name__ == "__main__":
