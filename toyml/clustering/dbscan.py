@@ -125,7 +125,7 @@ class DBSCAN:
         Fit the DBSCAN model.
 
         Args:
-            dataset: The dataset.
+            data: The dataset.
 
         Returns:
             self: The fitted DBSCAN model.
@@ -175,12 +175,12 @@ class DBSCAN:
         Fit the DBSCAN model and return the cluster labels.
 
         Args:
-            dataset: The dataset.
+            data: The dataset.
 
         Returns:
             The cluster labels.
         """
-        return self.fit(dataset).labels_
+        return self.fit(data).labels_
 
 
 if __name__ == "__main__":
