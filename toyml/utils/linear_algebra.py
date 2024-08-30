@@ -68,19 +68,6 @@ def euclidean_distance(v1: Vector, v2: Vector) -> float:
     return math.sqrt(sum(pow(v1[i] - v2[i], 2) for i in range(len(v1))))
 
 
-def distance_matrix(vectors: Vectors) -> Vectors:
-    """
-    Get the distance matrix by vectors.
-    """
-    n = len(vectors)
-    dist_mat = [[0.0 for i in range(n)] for j in range(n)]
-    for i in range(n):
-        for j in range(i, n):
-            dist_mat[i][j] = euclidean_distance(vectors[i], vectors[j])
-            dist_mat[j][i] = dist_mat[i][j]
-    return dist_mat
-
-
 def sum_square_error(c: Vectors) -> float:
     """
     Calc the sum of squared errors.
