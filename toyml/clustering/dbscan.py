@@ -20,7 +20,7 @@ class DBSCAN:
         >>> from toyml.clustering import DBSCAN
         >>> dataset = [[1, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
         >>> dbscan = DBSCAN(eps=3, min_samples=2).fit(dataset)
-        >>> dbscan.clusters
+        >>> dbscan.clusters_
         [[0, 1, 2], [3, 4]]
         >>> dbscan.noises_
         [5]
@@ -44,7 +44,7 @@ class DBSCAN:
     DBSCAN will find denser clusters, whereas if it is set to a lower value, the found clusters will be more sparse.
     (same as sklearn)
     """
-    clusters: list[list[int]] = field(default_factory=list)
+    clusters_: list[list[int]] = field(default_factory=list)
     core_objects_: list[int] = field(default_factory=list)
     noises_: list[int] = field(default_factory=list)
 
@@ -97,7 +97,7 @@ class DBSCAN:
                         queue.append(point)
                         unvisited.remove(point)
             cluster = unvisited_old.difference(unvisited)
-            self.clusters.append(list(cluster))
+            self.clusters_.append(list(cluster))
             core_object_set = core_object_set.difference(cluster)
         return self
 
@@ -126,6 +126,6 @@ def distance_matrix(vectors: list[list[float]]) -> list[list[float]]:
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [2, 2], [2, 3], [8, 7], [8, 8], [25, 80]]
     dbscan = DBSCAN(eps=3, min_samples=2).fit(dataset)
-    for i, cluster in enumerate(dbscan.clusters):
+    for i, cluster in enumerate(dbscan.clusters_):
         print(f"cluster {i}: {[dataset[i] for i in cluster]}")
     print("noise: ", [dataset[i] for i in dbscan.noises_])

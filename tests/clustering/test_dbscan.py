@@ -9,7 +9,7 @@ class TestDbScan(unittest.TestCase):
 
     def test_dbscan_clustering(self):
         dbscan = DBSCAN(eps=3, min_samples=2).fit(self.dataset)
-        clusters = dbscan.clusters
+        clusters = dbscan.clusters_
 
         # Check the number of clusters
         self.assertEqual(len(clusters), 2)
@@ -24,12 +24,12 @@ class TestDbScan(unittest.TestCase):
     def test_dbscan_edge_cases(self):
         # Test with all points as noise
         dbscan = DBSCAN(eps=0.1, min_samples=2).fit(self.dataset)
-        clusters = dbscan.clusters
+        clusters = dbscan.clusters_
         self.assertEqual(len(clusters), 0)
 
         # Test with all points in one cluster
         dbscan = DBSCAN(eps=100, min_samples=2).fit(self.dataset)
-        clusters = dbscan.clusters
+        clusters = dbscan.clusters_
         self.assertEqual(len(clusters), 1)
         self.assertEqual(len(clusters[0]), len(self.dataset))
 
