@@ -56,6 +56,21 @@ class TestDbScan(unittest.TestCase):
         self.assertEqual(core_objects, {0, 1, 2, 3, 4})
         self.assertEqual(set(noises), {5})
 
+    def test_fit_predict(self):
+        dbscan = DBSCAN(eps=3, min_samples=2)
+        labels = dbscan.fit_predict(self.dataset)
+
+        # Check the number of unique labels (excluding noise)
+        unique_labels = set(label for label in labels if label != -1)
+        self.assertEqual(len(unique_labels), 2)
+
+        # Check that the labels match the expected clustering
+        expected_labels = [0, 0, 0, 1, 1, -1]
+        self.assertEqual(labels, expected_labels)
+
+        # Check that the labels_ attribute is set correctly
+        self.assertEqual(dbscan.labels_, expected_labels)
+
 
 if __name__ == "__main__":
     unittest.main()

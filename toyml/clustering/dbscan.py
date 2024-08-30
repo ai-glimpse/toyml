@@ -12,6 +12,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Dataset:
+    """
+    Dataset for DBSCAN
+
+    Args:
+        data: The dataset.
+
+    Attributes:
+        data: The dataset.
+        n: The number of data points.
+        distance_matrix_: The distance matrix.
+    """
+
     data: list[list[float]]
     n: int = field(init=False)
     distance_matrix_: list[list[float]] = field(init=False)
@@ -29,9 +41,30 @@ class Dataset:
         return dist_mat
 
     def get_neighbors(self, i: int, eps: float) -> list[int]:
+        """
+        Get the neighbors of the i-th data point.
+
+        Args:
+            i: The index of the data point.
+            eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
+
+        Returns:
+            The indices of the neighbors(Don't include the point itself).
+        """
         return [j for j in range(self.n) if i != j and self.distance_matrix_[i][j] <= eps]
 
     def get_core_objects(self, eps: float, min_samples: int) -> tuple[set[int], list[int]]:
+        """
+        Get the core objects and noises of the dataset.
+
+        Args:
+            eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
+            min_samples: The number of samples (or total weight) in a neighborhood for a point to be considered as a core point.
+
+        Returns:
+            core_objects: The indices of the core objects.
+            noises: The indices of the noises.
+        """
         core_objects = set()
         noises = []
         for i in range(self.n):
@@ -46,7 +79,7 @@ class Dataset:
 @dataclass
 class DBSCAN:
     """
-    DBSCAN algorithm.
+    DBSCAN algorithm
 
     Examples:
         >>> from toyml.clustering import DBSCAN
@@ -56,6 +89,8 @@ class DBSCAN:
         [[0, 1, 2], [3, 4]]
         >>> dbscan.noises_
         [5]
+        >>> dbscan.labels_
+        [0, 0, 0, 1, 1, -1]
 
     Tip: References
         1. Zhou Zhihua
@@ -77,10 +112,24 @@ class DBSCAN:
     (same as sklearn)
     """
     clusters_: list[list[int]] = field(default_factory=list)
+    """The clusters found by the DBSCAN algorithm."""
     core_objects_: set[int] = field(default_factory=set)
+    """The core objects found by the DBSCAN algorithm."""
     noises_: list[int] = field(default_factory=list)
+    """The noises found by the DBSCAN algorithm."""
+    labels_: list[int] = field(default_factory=list)
+    """The cluster labels found by the DBSCAN algorithm."""
 
     def fit(self, data: list[list[float]]) -> "DBSCAN":
+        """
+        Fit the DBSCAN model.
+
+        Args:
+            dataset: The dataset.
+
+        Returns:
+            self: The fitted DBSCAN model.
+        """
         dataset = Dataset(data)
 
         # initialize the unvisited set
@@ -93,6 +142,7 @@ class DBSCAN:
             logger.warning("No core objects found, all data points are noise. Try to adjust the hyperparameters.")
             return self
 
+        # set of core objects: unordered
         core_object_set = self.core_objects_.copy()
         while core_object_set:
             unvisited_old = unvisited.copy()
@@ -114,7 +164,23 @@ class DBSCAN:
             self.clusters_.append(list(cluster))
             core_object_set -= cluster
 
+        self.labels_ = [-1] * dataset.n  # -1 means noise
+        for i, cluster_index in enumerate(self.clusters_):
+            for j in cluster_index:
+                self.labels_[j] = i
         return self
+
+    def fit_predict(self, data: list[list[float]]) -> list[int]:
+        """
+        Fit the DBSCAN model and return the cluster labels.
+
+        Args:
+            dataset: The dataset.
+
+        Returns:
+            The cluster labels.
+        """
+        return self.fit(dataset).labels_
 
 
 if __name__ == "__main__":
