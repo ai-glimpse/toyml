@@ -6,7 +6,7 @@ import random
 from collections import deque
 from dataclasses import dataclass, field
 
-from toyml.utils.linear_algebra import distance_matrix
+from toyml.utils.linear_algebra import euclidean_distance
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,6 @@ class DBSCAN:
     noises_: list[int] = field(default_factory=list)
 
     distance_matrix_: list[list[float]] = field(default_factory=list)
-    k_: int = 0
     n_: int = 0
 
     def _get_neighbors(self, i: int) -> list[int]:
@@ -69,7 +68,7 @@ class DBSCAN:
         self.core_objects_, self.noises_ = self._get_core_objects()
         # core objects used for training
         if len(self.core_objects_) == 0:
-            logger.warning("No core objects found, all data points are noise. " "Try to adjust the hyperparameters.")
+            logger.warning("No core objects found, all data points are noise. Try to adjust the hyperparameters.")
             return self
         random.shuffle(self.core_objects_)
         core_object_set = set(self.core_objects_)
@@ -88,7 +87,6 @@ class DBSCAN:
                     for point in delta:
                         queue.append(point)
                         unvisited.remove(point)
-            self.k_ += 1
             cluster = unvisited_old.difference(unvisited)
             self.clusters.append(list(cluster))
             core_object_set = core_object_set.difference(cluster)
@@ -102,12 +100,18 @@ class DBSCAN:
             return True
         return False
 
-    def predict(self):
-        """
-        Don't implement this method, because DBSCAN is kind of different from KMeans and AGNES.
-        Ref: https://stackoverflow.com/questions/27822752/scikit-learn-predicting-new-points-with-dbscan
-        """
-        pass
+
+def distance_matrix(vectors: list[list[float]]) -> list[list[float]]:
+    """
+    Get the distance matrix by vectors.
+    """
+    n = len(vectors)
+    dist_mat = [[0.0 for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        for j in range(i, n):
+            dist_mat[i][j] = euclidean_distance(vectors[i], vectors[j])
+            dist_mat[j][i] = dist_mat[i][j]
+    return dist_mat
 
 
 if __name__ == "__main__":
