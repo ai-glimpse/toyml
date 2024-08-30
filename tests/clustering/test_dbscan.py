@@ -1,6 +1,7 @@
+import math
 import unittest
 
-from toyml.clustering.dbscan import DBSCAN
+from toyml.clustering.dbscan import DBSCAN, Dataset
 
 
 class TestDbScan(unittest.TestCase):
@@ -32,6 +33,28 @@ class TestDbScan(unittest.TestCase):
         clusters = dbscan.clusters_
         self.assertEqual(len(clusters), 1)
         self.assertEqual(len(clusters[0]), len(self.dataset))
+
+    def test_dataset(self):
+        dataset = Dataset(self.dataset)
+
+        # Test dataset initialization
+        self.assertEqual(dataset.n, 6)
+        self.assertEqual(len(dataset.distance_matrix_), 6)
+        self.assertEqual(len(dataset.distance_matrix_[0]), 6)
+
+        # Test distance matrix calculation
+        expected_distance = math.sqrt(2)  # Distance between [1.0, 2.0] and [2.0, 3.0]
+        self.assertAlmostEqual(dataset.distance_matrix_[0][2], expected_distance)
+
+        # Test get_neighbors method
+        neighbors = dataset.get_neighbors(0, 2.0)
+        # The neighbors don't include the point itself
+        self.assertEqual(set(neighbors), {1, 2})
+
+        # Test get_core_objects method
+        core_objects, noises = dataset.get_core_objects(3, 2)
+        self.assertEqual(core_objects, {0, 1, 2, 3, 4})
+        self.assertEqual(set(noises), {5})
 
 
 if __name__ == "__main__":
