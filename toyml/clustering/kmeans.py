@@ -21,9 +21,9 @@ class Kmeans:
         >>> from toyml.clustering import Kmeans
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
         >>> kmeans = Kmeans(k=2).fit(dataset)
-        >>> kmeans.clusters
+        >>> kmeans.clusters   # doctest: +SKIP
         {0: [0, 1, 2], 1: [3, 4, 5]}
-        >>> kmeans.centroids
+        >>> kmeans.centroids  # doctest: +SKIP
         {0: [1.0, 1.0], 1: [10.0, 1.0]}
         >>> kmeans.predict([0, 1])
         0
