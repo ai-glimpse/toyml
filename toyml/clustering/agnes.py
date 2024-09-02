@@ -1,38 +1,39 @@
 import math
 
+from dataclasses import dataclass, field
 from typing import Tuple
 
 from toyml.utils.linear_algebra import euclidean_distance
-from toyml.utils.types import Clusters, DistMat, Vector
 
 
+@dataclass
 class AGNES:
     """
     Agglomerate clustering(nesting) algorithm.(Bottom-up)
 
-    REF:
-    1. Zhou Zhihua
-    2. Tan
+    Examples:
+        >>> from toyml.clustering import AGNES
+        >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
+        >>> AGNES(k=2).fit_predict(dataset)
+        [0, 0, 0, 1, 1, 1]
+
+    Tip: References
+        1. Zhou Zhihua
+        2. Tan
     """
 
-    def __init__(self, dataset: list[list[float]], k: int) -> None:
-        """Initialize the Agglomerate clustering algorithm.
+    n_cluster: int
+    distance_matrix: list[list[float]] = field(default_factory=list)
+    clusters_: list[list[int]] = field(default_factory=list)
+    labels_: list[int] = field(default_factory=list)
 
-        Args:
-            dataset: the set of data points for clustering
-            k: the number of clusters, specified by user
-        """
-        self._dataset = dataset
-        self._k = k
-        self._n = len(dataset)
-        self.clusters_ = [[i] for i in range(self._n)]
-        self.distance_matrix = [[0.0 for _ in range(self._n)] for _ in range(self._n)]
-
-    def _get_clusters_distance(self, c1: list[int], c2: list[int], measure="single") -> float:
+    def _get_clusters_distance(
+        self, dataset: list[list[float]], c1: list[int], c2: list[int], measure="single"
+    ) -> float:
         """
         Get the distance between clusters c1 and c2 using the specified linkage method.
         """
-        distances = [euclidean_distance(self._dataset[i], self._dataset[j]) for i in c1 for j in c2]
+        distances = [euclidean_distance(dataset[i], dataset[j]) for i in c1 for j in c2]
 
         if measure == "single":
             return min(distances)
@@ -43,16 +44,18 @@ class AGNES:
         else:
             raise ValueError("Invalid linkage method")
 
-    def _gen_init_dist_matrix(self) -> DistMat:
+    def _gen_init_dist_matrix(self, dataset: list[list[float]]) -> list[list[float]]:
         """
         Gte initial distance matrix from sample points
         """
+        n = len(dataset)
+        distance_matrix = [[0.0 for _ in range(n)] for _ in range(n)]
         for i, cluster_i in enumerate(self.clusters_):
             for j, cluster_j in enumerate(self.clusters_):
                 if j >= i:
-                    self.distance_matrix[i][j] = self._get_clusters_distance(cluster_i, cluster_j)
-                    self.distance_matrix[j][i] = self.distance_matrix[i][j]
-        return self.distance_matrix
+                    distance_matrix[i][j] = self._get_clusters_distance(dataset, cluster_i, cluster_j)
+                    distance_matrix[j][i] = distance_matrix[i][j]
+        return distance_matrix
 
     def _get_closest_clusters(self) -> Tuple[int, int]:
         """
@@ -65,16 +68,15 @@ class AGNES:
                 if self.distance_matrix[i][j] < min_dist:
                     min_dist = self.distance_matrix[i][j]
                     closest_clusters = (i, j)
-        # print(closest_clusters)
         return closest_clusters
 
-    def fit(self) -> Clusters:
+    def fit(self, dataset: list[list[float]]) -> "AGNES":
         """
         Get every operation togather, train our model and get k clusters
         """
-        self._gen_init_dist_matrix()
-        while len(self.clusters_) > self._k:
-            # print(self._clusters)
+        self.clusters_ = [[i] for i in range(len(dataset))]
+        self.distance_matrix = self._gen_init_dist_matrix(dataset)
+        while len(self.clusters_) > self.n_cluster:
             i, j = self._get_closest_clusters()
             # combine cluster_i and cluster_j to new cluster_i
             self.clusters_[i] += self.clusters_[j]
@@ -88,47 +90,31 @@ class AGNES:
                 raw.pop(j)
             # calc new dist
             for j in range(len(self.clusters_)):
-                self.distance_matrix[i][j] = self._get_clusters_distance(self.clusters_[i], self.clusters_[j])
+                self.distance_matrix[i][j] = self._get_clusters_distance(dataset, self.clusters_[i], self.clusters_[j])
                 self.distance_matrix[j][i] = self.distance_matrix[i][j]
 
-        return self.clusters_
-
-    def predict(self, point: Vector) -> int:
-        """
-        Predict the label of the new sample point
-        """
-        min_dist = math.inf
-        label = -1
-        for cluster_label, cluster in enumerate(self.clusters_):
-            dist = min([euclidean_distance(point, self._dataset[i]) for i in cluster])
-            if dist < min_dist:
-                min_dist = dist
-                label = cluster_label
-        return label
-
-    def print_cluster(self) -> None:
-        """
-        Show our k clusters.
-        """
-        for i in range(self._k):
-            print(f"Cluster[{i}]: {self.clusters_[i]}")
-
-    def print_labels(self) -> None:
-        """
-        Show our samples' labels.
-        """
-        y_pred = [0] * self._n
+        # labels
+        self.labels_ = [0] * len(dataset)
         for cluster_label, cluster in enumerate(self.clusters_):
             for sample_index in cluster:
-                y_pred[sample_index] = cluster_label
-        print("Sample labels: ", y_pred)
+                self.labels_[sample_index] = cluster_label
+        return self
+
+    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        """
+        Fit the model and return the labels of each sample.
+        """
+        self.fit(dataset)
+        return self.labels_
 
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
-    k: int = 2
-    agnes = AGNES(dataset, k)
-    agnes.fit()
-    agnes.print_cluster()
-    agnes.print_labels()
-    print("Prediction of [0, 0]: ", agnes.predict([0.0, 0.0]))
+    n_cluster: int = 2
+    agnes = AGNES(n_cluster)
+    agnes.fit(dataset)
+    for i in range(n_cluster):
+        print(f"Cluster[{i}]: {agnes.clusters_[i]}")
+
+    y_pred = agnes.fit_predict(dataset)
+    print("Sample labels: ", y_pred)
