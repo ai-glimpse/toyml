@@ -5,7 +5,7 @@ import math
 import random
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, Optional
 
 from toyml.utils.linear_algebra import euclidean_distance
 
@@ -19,14 +19,16 @@ class Kmeans:
 
     Examples:
         >>> from toyml.clustering import Kmeans
-        >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
-        >>> kmeans = Kmeans(k=2).fit(dataset)
-        >>> kmeans.clusters   # doctest: +SKIP
-        {0: [0, 1, 2], 1: [3, 4, 5]}
-        >>> kmeans.centroids  # doctest: +SKIP
-        {0: [1.0, 1.0], 1: [10.0, 1.0]}
+        >>> dataset = [[1.0, 2.0], [1.0, 4.0], [1.0, 0.0], [10.0, 2.0], [10.0, 4.0], [11.0, 0.0]]
+        >>> kmeans = Kmeans(k=2, random_seed=42).fit(dataset)
+        >>> kmeans.clusters
+        {0: [3, 4, 5], 1: [0, 1, 2]}
+        >>> kmeans.centroids
+        {0: [10.333333333333334, 2.0], 1: [1.0, 2.0]}
+        >>> kmeans.labels
+        [1, 1, 1, 0, 0, 0]
         >>> kmeans.predict([0, 1])
-        0
+        1
         >>> kmeans.iter_
         2
 
@@ -35,8 +37,8 @@ class Kmeans:
     Examples:
         >>> from toyml.clustering import Kmeans
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
-        >>> Kmeans(k=2).fit_predict(dataset)
-        [0, 0, 0, 1, 1, 1]
+        >>> Kmeans(k=2, random_seed=42).fit_predict(dataset)
+        [1, 1, 1, 0, 0, 0]
 
     Tip: References
         1. Zhou Zhihua
@@ -57,6 +59,8 @@ class Kmeans:
     """The tolerance for convergence."""
     centroids_init_method: Literal["random", "kmeans++"] = "random"
     """The method to initialize the centroids."""
+    random_seed: Optional[int] = None
+    """The random seed used to initialize the centroids."""
     iter_: int = 0
     clusters: dict[int, list[int]] = field(default_factory=dict)
     """The clusters of the dataset."""
@@ -64,6 +68,9 @@ class Kmeans:
     """The centroids of the clusters."""
     labels: list[int] = field(default_factory=list)
     """The cluster labels of the dataset."""
+
+    def __post_init__(self):
+        random.seed(self.random_seed)
 
     def fit(self, dataset: list[list[float]]) -> "Kmeans":
         """

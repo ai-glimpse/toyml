@@ -38,7 +38,7 @@ jobs:
 
       - name: Run tests and generate coverage report
 #       # todo: update the --cov-fail-under value to 90
-        run: poetry run pytest --doctest-modules -v --cov=toyml --cov-fail-under 60 --cov-report=term --cov-report=xml --cov-report=html toyml tests
+        run: poetry run pytest --doctest-modules -v --cov=toyml --cov-fail-under 60 --cov-report=term --cov-report=xml --cov-report=html
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
