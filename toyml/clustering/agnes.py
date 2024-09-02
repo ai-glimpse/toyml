@@ -14,7 +14,7 @@ class AGNES:
     Examples:
         >>> from toyml.clustering import AGNES
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
-        >>> AGNES(k=2).fit_predict(dataset)
+        >>> AGNES(n_cluster=2).fit_predict(dataset)
         [0, 0, 0, 1, 1, 1]
 
     Tip: References
@@ -73,10 +73,10 @@ class AGNES:
         """
         min_dist = math.inf
         closest_clusters = (0, 0)
-        for i in range(len(self.distance_matrix) - 1):
-            for j in range(i + 1, len(self.distance_matrix)):
-                if self.distance_matrix[i][j] < min_dist:
-                    min_dist = self.distance_matrix[i][j]
+        for i in range(len(self.distance_matrix_) - 1):
+            for j in range(i + 1, len(self.distance_matrix_)):
+                if self.distance_matrix_[i][j] < min_dist:
+                    min_dist = self.distance_matrix_[i][j]
                     closest_clusters = (i, j)
         return closest_clusters
 
@@ -85,7 +85,7 @@ class AGNES:
         Fit the model.
         """
         self.clusters_ = [[i] for i in range(len(dataset))]
-        self.distance_matrix = self._gen_init_dist_matrix(dataset)
+        self.distance_matrix_ = self._gen_init_dist_matrix(dataset)
         while len(self.clusters_) > self.n_cluster:
             i, j = self._get_closest_clusters()
             # combine cluster_i and cluster_j to new cluster_i
@@ -94,14 +94,14 @@ class AGNES:
             self.clusters_.pop(j)
             # update distance matrix
             # remove jth raw in dist matrix
-            self.distance_matrix.pop(j)
+            self.distance_matrix_.pop(j)
             # remove jth column
-            for raw in self.distance_matrix:
+            for raw in self.distance_matrix_:
                 raw.pop(j)
             # calc new dist
             for j in range(len(self.clusters_)):
-                self.distance_matrix[i][j] = self._get_clusters_distance(dataset, self.clusters_[i], self.clusters_[j])
-                self.distance_matrix[j][i] = self.distance_matrix[i][j]
+                self.distance_matrix_[i][j] = self._get_clusters_distance(dataset, self.clusters_[i], self.clusters_[j])
+                self.distance_matrix_[j][i] = self.distance_matrix_[i][j]
 
         # labels
         self.labels_ = [0] * len(dataset)
