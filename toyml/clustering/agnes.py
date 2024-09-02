@@ -1,7 +1,7 @@
 import math
 
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import Literal, Tuple
 
 from toyml.utils.linear_algebra import euclidean_distance
 
@@ -9,7 +9,7 @@ from toyml.utils.linear_algebra import euclidean_distance
 @dataclass
 class AGNES:
     """
-    Agglomerate clustering(nesting) algorithm.(Bottom-up)
+    Agglomerative clustering algorithm.(Bottom-up Hierarchical Clustering)
 
     Examples:
         >>> from toyml.clustering import AGNES
@@ -23,23 +23,33 @@ class AGNES:
     """
 
     n_cluster: int
-    distance_matrix: list[list[float]] = field(default_factory=list)
+    """The number of clusters, specified by user."""
+    linkage: Literal["single", "complete", "average"] = "single"
+    """The linkage method to use."""
+    distance_matrix_: list[list[float]] = field(default_factory=list)
+    """The distance matrix."""
     clusters_: list[list[int]] = field(default_factory=list)
+    """The clusters."""
     labels_: list[int] = field(default_factory=list)
+    """The labels of each sample."""
 
     def _get_clusters_distance(
-        self, dataset: list[list[float]], c1: list[int], c2: list[int], measure="single"
+        self,
+        dataset: list[list[float]],
+        cluster1: list[int],
+        cluster2: list[int],
+        linkage: Literal["single", "complete", "average"] = "single",
     ) -> float:
         """
         Get the distance between clusters c1 and c2 using the specified linkage method.
         """
-        distances = [euclidean_distance(dataset[i], dataset[j]) for i in c1 for j in c2]
+        distances = [euclidean_distance(dataset[i], dataset[j]) for i in cluster1 for j in cluster2]
 
-        if measure == "single":
+        if linkage == "single":
             return min(distances)
-        elif measure == "complete":
+        elif linkage == "complete":
             return max(distances)
-        elif measure == "average":
+        elif linkage == "average":
             return sum(distances) / len(distances)
         else:
             raise ValueError("Invalid linkage method")
@@ -72,7 +82,7 @@ class AGNES:
 
     def fit(self, dataset: list[list[float]]) -> "AGNES":
         """
-        Get every operation togather, train our model and get k clusters
+        Fit the model.
         """
         self.clusters_ = [[i] for i in range(len(dataset))]
         self.distance_matrix = self._gen_init_dist_matrix(dataset)
