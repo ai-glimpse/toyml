@@ -5,11 +5,16 @@ import math
 from dataclasses import dataclass, field
 from typing import Literal, Optional, Tuple
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+from scipy.cluster.hierarchy import dendrogram
+
 from toyml.utils.linear_algebra import euclidean_distance
 
 
 @dataclass
-class ClusterTreeNode:
+class ClusterTree:
     """
     Cluster tree node.
     The cluster tree is a binary tree, each node is a cluster.
@@ -18,14 +23,16 @@ class ClusterTreeNode:
     The cluster tree is used to store the cluster information and the relationship between clusters.
     """
 
-    parent: Optional[ClusterTreeNode] = None
+    cluster_index: int
+    parent: Optional[ClusterTree] = None
     """Parent node."""
-    children: list[ClusterTreeNode] = field(default_factory=list)
+    children: list[ClusterTree] = field(default_factory=list)
     """Children nodes."""
     sample_indices: list[int] = field(default_factory=list)
     """The cluster: dataset sample indices."""
+    children_cluster_distance: Optional[float] = None
 
-    def add_child(self, child: ClusterTreeNode):
+    def add_child(self, child: ClusterTree):
         child.parent = self
         self.children.append(child)
 
@@ -52,17 +59,19 @@ class AGNES:
     """The linkage method to use."""
     distance_matrix_: list[list[float]] = field(default_factory=list)
     """The distance matrix."""
-    clusters_: list[ClusterTreeNode] = field(default_factory=list)
+    clusters_: list[ClusterTree] = field(default_factory=list)
     """The clusters."""
     labels_: list[int] = field(default_factory=list)
     """The labels of each sample."""
-    cluster_tree_: ClusterTreeNode = field(default_factory=ClusterTreeNode)
+    cluster_tree_: Optional[ClusterTree] = None
+    linkage_matrix: list[list[float]] = field(default_factory=list)
+    _cluster_index: int = 0
 
     def _get_clusters_distance(
         self,
         dataset: list[list[float]],
-        cluster1: ClusterTreeNode,
-        cluster2: ClusterTreeNode,
+        cluster1: ClusterTree,
+        cluster2: ClusterTree,
     ) -> float:
         """
         Get the distance between clusters c1 and c2 using the specified linkage method.
@@ -93,7 +102,7 @@ class AGNES:
                     distance_matrix[j][i] = distance_matrix[i][j]
         return distance_matrix
 
-    def _get_closest_clusters(self) -> Tuple[int, int]:
+    def _get_closest_clusters(self) -> Tuple[Tuple[int, int], float]:
         """
         Search the distance matrix to get the closest clusters.
         """
@@ -104,20 +113,24 @@ class AGNES:
                 if self.distance_matrix_[i][j] < min_dist:
                     min_dist = self.distance_matrix_[i][j]
                     closest_clusters = (i, j)
-        return closest_clusters
+        return closest_clusters, min_dist
 
     def fit(self, dataset: list[list[float]]) -> "AGNES":
         """
         Fit the model.
         """
-        self._init_clusters(len(dataset))
+        n = len(dataset)
+        self.clusters_ = [ClusterTree(cluster_index=i, sample_indices=[i]) for i in range(n)]
+        self._cluster_index = n
         self.distance_matrix_ = self._get_init_distance_matrix(dataset)
         while len(self.clusters_) > self.n_cluster:
-            i, j = self._get_closest_clusters()
+            (i, j), cluster_ij_distance = self._get_closest_clusters()
             # merge cluster_i and cluster_j
-            self._merge_clusters(i, j)
+            self._merge_clusters(i, j, cluster_ij_distance)
             # update distance matrix
             self._update_distance_matrix(dataset, i, j)
+        # build cluster_tree_
+        self.cluster_tree_ = self._build_cluster_tree(n)
         # assign dataset labels
         self._get_labels(len(dataset))
         return self
@@ -129,25 +142,13 @@ class AGNES:
         self.fit(dataset)
         return self.labels_
 
-    def _init_clusters(self, n: int):
-        """
-        Initialize clusters.
-
-        Args:
-            n: the number of samples
-        """
-        self.clusters_ = [ClusterTreeNode(sample_indices=[i]) for i in range(n)]
-        self.cluster_tree_ = ClusterTreeNode(
-            # Note: here we set cluster tree's children to self.clusters_
-            # So we don't need to update the cluster tree's children when self.clusters_ update
-            children=self.clusters_,
-            sample_indices=list(range(n)),
-        )
-        # all leaf tree nodes' parent is the cluster tree root node
+    def _build_cluster_tree(self, n: int) -> ClusterTree:
+        cluster_tree = ClusterTree(cluster_index=-1, sample_indices=list(range(n)))
         for cluster in self.clusters_:
-            cluster.parent = self.cluster_tree_
+            cluster_tree.add_child(cluster)
+        return cluster_tree
 
-    def _merge_clusters(self, i: int, j: int):
+    def _merge_clusters(self, i: int, j: int, cluster_ij_distance: float):
         """
         Merge two clusters to a new cluster.
 
@@ -157,15 +158,24 @@ class AGNES:
         """
         cluster_i, cluster_j = self.clusters_[i], self.clusters_[j]
         # build new parent cluster
-        parent_cluster = ClusterTreeNode()
+        parent_cluster = ClusterTree(cluster_index=self._cluster_index)
+        self._cluster_index += 1
+        print(f"parent_cluster: {parent_cluster.cluster_index}")
         # sort the sample indices for convenience
         parent_cluster.sample_indices = sorted(cluster_i.sample_indices + cluster_j.sample_indices)
         parent_cluster.add_child(cluster_i)
         parent_cluster.add_child(cluster_j)
-        parent_cluster.parent = self.cluster_tree_
+        # parent_cluster.parent = self.cluster_tree_
+        parent_cluster.children_cluster_distance = cluster_ij_distance
         # replace cluster1 with parent_cluster in clusters_
         self.clusters_[i] = parent_cluster
         self.clusters_.pop(j)
+
+        # linkage matrix
+        self.linkage_matrix.append(
+            [cluster_i.cluster_index, cluster_j.cluster_index, cluster_ij_distance, len(parent_cluster.sample_indices)]
+        )
+        print(self.linkage_matrix)
 
     def _update_distance_matrix(self, dataset: list[list[float]], i: int, j: int):
         """
@@ -186,6 +196,23 @@ class AGNES:
             for sample_index in cluster.sample_indices:
                 self.labels_[sample_index] = cluster_label
 
+    def plot_dendrogram(self, filename: str = "agnes_dendrogram.png"):
+        """
+        Plot the dendrogram of the clustering result.
+
+        Args:
+            filename: The name of the output file
+        """
+        # Prepare the linkage matrix
+        # Plot the dendrogram
+        plt.figure(figsize=(10, 7))
+        dendrogram(np.array(self.linkage_matrix))
+        plt.title("AGNES Dendrogram")
+        plt.xlabel("Sample Index")
+        plt.ylabel("Distance")
+        plt.savefig(f"{filename}", dpi=300, bbox_inches="tight")
+        plt.show()
+
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
@@ -193,5 +220,7 @@ if __name__ == "__main__":
     agnes = AGNES(n_cluster).fit(dataset)
     for i in range(n_cluster):
         print(f"Cluster[{i}]: {agnes.clusters_[i].sample_indices}")
-    y_pred = agnes.fit_predict(dataset)
+    y_pred = AGNES(n_cluster).fit_predict(dataset)
     print("Sample labels: ", y_pred)
+    # Plot the dendrogram
+    agnes.plot_dendrogram()
