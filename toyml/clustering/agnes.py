@@ -137,9 +137,15 @@ class AGNES:
             n: the number of samples
         """
         self.clusters_ = [ClusterTreeNode(sample_indices=[i]) for i in range(n)]
-        self.cluster_tree_ = ClusterTreeNode(sample_indices=list(range(n)))
+        self.cluster_tree_ = ClusterTreeNode(
+            # Note: here we set cluster tree's children to self.clusters_
+            # So we don't need to update the cluster tree's children when self.clusters_ update
+            children=self.clusters_,
+            sample_indices=list(range(n)),
+        )
+        # all leaf tree nodes' parent is the cluster tree root node
         for cluster in self.clusters_:
-            self.cluster_tree_.add_child(cluster)
+            cluster.parent = self.cluster_tree_
 
     def _merge_clusters(self, i: int, j: int):
         """
@@ -156,7 +162,7 @@ class AGNES:
         parent_cluster.sample_indices = sorted(cluster_i.sample_indices + cluster_j.sample_indices)
         parent_cluster.add_child(cluster_i)
         parent_cluster.add_child(cluster_j)
-        # TODO: remove cluster_i and cluster_j from cluster_tree_'s children
+        parent_cluster.parent = self.cluster_tree_
         # replace cluster1 with parent_cluster in clusters_
         self.clusters_[i] = parent_cluster
         self.clusters_.pop(j)
