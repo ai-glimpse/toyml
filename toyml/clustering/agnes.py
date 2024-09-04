@@ -62,6 +62,33 @@ class AGNES:
     linkage_matrix: list[list[float]] = field(default_factory=list)
     _cluster_index: int = 0
 
+    def fit(self, dataset: list[list[float]]) -> AGNES:
+        """
+        Fit the model.
+        """
+        n = len(dataset)
+        self.clusters_ = [ClusterTree(cluster_index=i, sample_indices=[i]) for i in range(n)]
+        self._cluster_index = n
+        self.distance_matrix_ = self._get_init_distance_matrix(dataset)
+        while len(self.clusters_) > self.n_cluster:
+            (i, j), cluster_ij_distance = self._get_closest_clusters()
+            # merge cluster_i and cluster_j
+            self._merge_clusters(i, j, cluster_ij_distance)
+            # update distance matrix
+            self._update_distance_matrix(dataset, i, j)
+        # build cluster_tree_
+        self.cluster_tree_ = self._build_cluster_tree(n)
+        # assign dataset labels
+        self._get_labels(len(dataset))
+        return self
+
+    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        """
+        Fit the model and return the labels of each sample.
+        """
+        self.fit(dataset)
+        return self.labels_
+
     def _get_clusters_distance(
         self,
         dataset: list[list[float]],
@@ -109,33 +136,6 @@ class AGNES:
                     min_dist = self.distance_matrix_[i][j]
                     closest_clusters = (i, j)
         return closest_clusters, min_dist
-
-    def fit(self, dataset: list[list[float]]) -> "AGNES":
-        """
-        Fit the model.
-        """
-        n = len(dataset)
-        self.clusters_ = [ClusterTree(cluster_index=i, sample_indices=[i]) for i in range(n)]
-        self._cluster_index = n
-        self.distance_matrix_ = self._get_init_distance_matrix(dataset)
-        while len(self.clusters_) > self.n_cluster:
-            (i, j), cluster_ij_distance = self._get_closest_clusters()
-            # merge cluster_i and cluster_j
-            self._merge_clusters(i, j, cluster_ij_distance)
-            # update distance matrix
-            self._update_distance_matrix(dataset, i, j)
-        # build cluster_tree_
-        self.cluster_tree_ = self._build_cluster_tree(n)
-        # assign dataset labels
-        self._get_labels(len(dataset))
-        return self
-
-    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
-        """
-        Fit the model and return the labels of each sample.
-        """
-        self.fit(dataset)
-        return self.labels_
 
     def _build_cluster_tree(self, n: int) -> ClusterTree:
         cluster_tree = ClusterTree(cluster_index=-1, sample_indices=list(range(n)))
@@ -202,6 +202,8 @@ class AGNES:
 
         from scipy.cluster.hierarchy import dendrogram  # type: ignore
 
+        if self.n_cluster != 1:
+            raise ValueError("The number of clusters should be 1 to plot dendrogram")
         # Plot the dendrogram
         plt.figure(figsize=(10, 7))
         dendrogram(np.array(self.linkage_matrix))
@@ -214,11 +216,13 @@ class AGNES:
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
-    n_cluster: int = 1
+    n_cluster: int = 2
+    # fit
     agnes = AGNES(n_cluster).fit(dataset)
-    # for i in range(n_cluster):
-    #     print(f"Cluster[{i}]: {agnes.clusters_[i].sample_indices}")
-    # y_pred = AGNES(n_cluster).fit_predict(dataset)
-    # print("Sample labels: ", y_pred)
+    for i in range(n_cluster):
+        print(f"Cluster[{i}]: {agnes.clusters_[i].sample_indices}")
+    # fit_predict
+    y_pred = AGNES(n_cluster).fit_predict(dataset)
+    print("Sample labels: ", y_pred)
     # Plot the dendrogram
     agnes.plot_dendrogram()
