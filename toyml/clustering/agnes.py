@@ -5,11 +5,6 @@ import math
 from dataclasses import dataclass, field
 from typing import Literal, Optional, Tuple
 
-import matplotlib.pyplot as plt
-import numpy as np
-
-from scipy.cluster.hierarchy import dendrogram
-
 from toyml.utils.linear_algebra import euclidean_distance
 
 
@@ -155,12 +150,12 @@ class AGNES:
         Args:
             i: the first indices of the clusters to merge
             j: the second indices of the clusters to merge
+            cluster_ij_distance: the distance between the two clusters
         """
         cluster_i, cluster_j = self.clusters_[i], self.clusters_[j]
         # build new parent cluster
         parent_cluster = ClusterTree(cluster_index=self._cluster_index)
         self._cluster_index += 1
-        print(f"parent_cluster: {parent_cluster.cluster_index}")
         # sort the sample indices for convenience
         parent_cluster.sample_indices = sorted(cluster_i.sample_indices + cluster_j.sample_indices)
         parent_cluster.add_child(cluster_i)
@@ -175,7 +170,6 @@ class AGNES:
         self.linkage_matrix.append(
             [cluster_i.cluster_index, cluster_j.cluster_index, cluster_ij_distance, len(parent_cluster.sample_indices)]
         )
-        print(self.linkage_matrix)
 
     def _update_distance_matrix(self, dataset: list[list[float]], i: int, j: int):
         """
@@ -196,31 +190,35 @@ class AGNES:
             for sample_index in cluster.sample_indices:
                 self.labels_[sample_index] = cluster_label
 
-    def plot_dendrogram(self, filename: str = "agnes_dendrogram.png"):
+    def plot_dendrogram(self, figure_name: str = "agnes_dendrogram.png"):
         """
         Plot the dendrogram of the clustering result.
 
         Args:
-            filename: The name of the output file
+            figure_name: The name of the output file
         """
-        # Prepare the linkage matrix
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        from scipy.cluster.hierarchy import dendrogram  # type: ignore
+
         # Plot the dendrogram
         plt.figure(figsize=(10, 7))
         dendrogram(np.array(self.linkage_matrix))
         plt.title("AGNES Dendrogram")
         plt.xlabel("Sample Index")
         plt.ylabel("Distance")
-        plt.savefig(f"{filename}", dpi=300, bbox_inches="tight")
+        plt.savefig(f"{figure_name}", dpi=300, bbox_inches="tight")
         plt.show()
 
 
 if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 2], [1, 5], [1, 0], [10, 2], [10, 5], [10, 0]]
-    n_cluster: int = 2
+    n_cluster: int = 1
     agnes = AGNES(n_cluster).fit(dataset)
-    for i in range(n_cluster):
-        print(f"Cluster[{i}]: {agnes.clusters_[i].sample_indices}")
-    y_pred = AGNES(n_cluster).fit_predict(dataset)
-    print("Sample labels: ", y_pred)
+    # for i in range(n_cluster):
+    #     print(f"Cluster[{i}]: {agnes.clusters_[i].sample_indices}")
+    # y_pred = AGNES(n_cluster).fit_predict(dataset)
+    # print("Sample labels: ", y_pred)
     # Plot the dendrogram
     agnes.plot_dendrogram()
