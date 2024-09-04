@@ -31,6 +31,9 @@ class ClusterTree:
         child.parent = self
         self.children.append(child)
 
+    def __repr__(self):
+        return f"CT({self.cluster_index}): {self.sample_indices}"
+
 
 @dataclass
 class AGNES:
@@ -62,10 +65,21 @@ class AGNES:
     linkage_matrix: list[list[float]] = field(default_factory=list)
     _cluster_index: int = 0
 
+    def __post_init__(self):
+        # check the linkage method
+        if self.linkage not in ["single", "complete", "average"]:
+            raise ValueError(
+                f"Invalid linkage method: {self.linkage}, " f"should be one of ['single', 'complete', 'average']"
+            )
+        # check the number of clusters
+        if self.n_cluster < 1:
+            raise ValueError("The number of clusters should be at least 1")
+
     def fit(self, dataset: list[list[float]]) -> AGNES:
         """
         Fit the model.
         """
+        self._validate(dataset)
         n = len(dataset)
         self.clusters_ = [ClusterTree(cluster_index=i, sample_indices=[i]) for i in range(n)]
         self._cluster_index = n
@@ -89,6 +103,21 @@ class AGNES:
         self.fit(dataset)
         return self.labels_
 
+    def _validate(self, dataset: list[list[float]]):
+        """
+        Validate the dataset.
+        """
+        n = len(dataset)
+        # check the number of clusters
+        if self.n_cluster > n:
+            raise ValueError(
+                "The number of clusters should be less than the number of data points,"
+                "but got n_cluster={self.n_cluster} and n={n}"
+            )
+        # check the dataset rows
+        if any(len(row) != len(dataset[0]) for row in dataset):
+            raise ValueError("All samples should have the same dimension")
+
     def _get_clusters_distance(
         self,
         dataset: list[list[float]],
@@ -108,8 +137,6 @@ class AGNES:
             return max(distances)
         elif self.linkage == "average":
             return sum(distances) / len(distances)
-        else:
-            raise ValueError("Invalid linkage method")
 
     def _get_init_distance_matrix(self, dataset: list[list[float]]) -> list[list[float]]:
         """
@@ -138,9 +165,12 @@ class AGNES:
         return closest_clusters, min_dist
 
     def _build_cluster_tree(self, n: int) -> ClusterTree:
-        cluster_tree = ClusterTree(cluster_index=-1, sample_indices=list(range(n)))
-        for cluster in self.clusters_:
-            cluster_tree.add_child(cluster)
+        if len(self.clusters_) != 1:
+            cluster_tree = ClusterTree(cluster_index=-1, sample_indices=list(range(n)))
+            for cluster in self.clusters_:
+                cluster_tree.add_child(cluster)
+        else:
+            cluster_tree = self.clusters_[0]
         return cluster_tree
 
     def _merge_clusters(self, i: int, j: int, cluster_ij_distance: float):
@@ -190,12 +220,17 @@ class AGNES:
             for sample_index in cluster.sample_indices:
                 self.labels_[sample_index] = cluster_label
 
-    def plot_dendrogram(self, figure_name: str = "agnes_dendrogram.png"):
+    def plot_dendrogram(
+        self,
+        figure_name: str = "agnes_dendrogram.png",
+        show: bool = False,
+    ):
         """
         Plot the dendrogram of the clustering result.
 
         Args:
             figure_name: The name of the output file
+            show: Whether to show the plot
         """
         import matplotlib.pyplot as plt
         import numpy as np
@@ -211,7 +246,8 @@ class AGNES:
         plt.xlabel("Sample Index")
         plt.ylabel("Distance")
         plt.savefig(f"{figure_name}", dpi=300, bbox_inches="tight")
-        plt.show()
+        if show:
+            plt.show()
 
 
 if __name__ == "__main__":
