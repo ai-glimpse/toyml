@@ -225,4 +225,5 @@ if __name__ == "__main__":
     y_pred = AGNES(n_cluster).fit_predict(dataset)
     print("Sample labels: ", y_pred)
     # Plot the dendrogram
+    agnes = AGNES(n_cluster=1).fit(dataset)
     agnes.plot_dendrogram()
