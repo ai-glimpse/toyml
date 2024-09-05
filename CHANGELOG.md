@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Refactor
+- Refactored all the clustering algorithm
+
 ### Fixed
 - Kmeans simple implementation fix centroid calculation
 - Bisect K-means cluster with wrong dataset index
 
 ### Changed
+- Package management migrates from Poetry to Uv
 
 
 ## [0.2.0] - 2022-12-03
