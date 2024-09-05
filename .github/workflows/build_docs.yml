@@ -22,7 +22,9 @@ jobs:
         with:
             fetch-depth: 0
       - name: Setup pandoc
-        run: sudo apt-get install pandoc-citeproc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb && sudo dpkg -i pandoc-2.18-1-amd64.deb
+          sudo apt-get install pandoc-citeproc
       - name: Set up uv (Unix)
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
@@ -58,7 +60,9 @@ jobs:
         with:
             fetch-depth: 0
       - name: Setup pandoc
-        run: sudo apt-get install pandoc-citeproc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb && sudo dpkg -i pandoc-2.18-1-amd64.deb
+          sudo apt-get install pandoc-citeproc
       - name: Set up uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
