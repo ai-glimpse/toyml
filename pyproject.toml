@@ -72,6 +72,7 @@ mkdocs-git-revision-date-localized-plugin = "^1.2.6"
 [tool.poetry.group.plot.dependencies]
 matplotlib = "^3.9.2"
 networkx = "^3.3"
+scipy = "^1.14.1"
 
 [[tool.poetry.source]]
 name = "tsinghua"
