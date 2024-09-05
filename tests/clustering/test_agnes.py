@@ -6,7 +6,7 @@ from toyml.clustering.agnes import AGNES, ClusterTree
 
 
 class TestAGNES:
-    @pytest.fixture  # type: ignore
+    @pytest.fixture
     def sample_dataset(self) -> list[list[float]]:
         return [[1.0, 0.0], [1.0, 1.0], [1.0, 2.0], [10.0, 0.0], [10.0, 1.0], [10.0, 2.0]]
 
@@ -44,7 +44,7 @@ class TestAGNES:
         assert len(agnes.cluster_tree_.children) == 2
         assert len(agnes.linkage_matrix) == 3  # n-1 merges for n data points
 
-    @pytest.mark.parametrize("n_cluster", [2, 3, 4, 5])  # type: ignore
+    @pytest.mark.parametrize("n_cluster", [2, 3, 4, 5])
     def test_distance_matrix(self, sample_dataset: list[list[float]], n_cluster: int) -> None:
         agnes = AGNES(n_cluster=n_cluster)
         # before fit
@@ -73,7 +73,7 @@ class TestAGNES:
         agnes = AGNES(n_cluster=1).fit(dataset)
         assert agnes.labels_ == [0]
 
-    @pytest.mark.parametrize("n_cluster", [1, 2, 3, 4, 5])  # type: ignore
+    @pytest.mark.parametrize("n_cluster", [1, 2, 3, 4, 5])
     def test_different_n_clusters(self, sample_dataset: list[list[float]], n_cluster: int) -> None:
         agnes = AGNES(n_cluster=n_cluster).fit(sample_dataset)
         assert len(set(agnes.labels_)) == n_cluster

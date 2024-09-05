@@ -10,7 +10,7 @@ class TestBisectKMeansSimple:
     Test the k-means algorithm completely.
     """
 
-    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6, 7, 8])  # type: ignore
+    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6, 7, 8])
     def test_fit(
         self,
         k: int,
@@ -32,7 +32,7 @@ class TestBisectKMeansSimple:
             with pytest.raises(ValueError):
                 diana.fit(simple_dataset)
 
-    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6])  # type: ignore
+    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6])
     def test_predict(
         self,
         k: int,

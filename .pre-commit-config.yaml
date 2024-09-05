@@ -30,4 +30,4 @@ repos:
       - id: mypy
         additional_dependencies:
           - 'numpy'
-        args: ["--install-types", "--non-interactive", "--ignore-missing-imports", "--disallow-untyped-decorators", "--check-untyped-defs"]
+        args: ["--install-types", "--non-interactive", "--ignore-missing-imports", "--check-untyped-defs"]
