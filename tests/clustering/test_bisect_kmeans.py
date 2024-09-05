@@ -10,7 +10,7 @@ class TestBisectKMeansSimple:
     Test the k-means algorithm completely.
     """
 
-    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6, 7, 8])
+    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6, 7, 8])  # type: ignore
     def test_fit(
         self,
         k: int,
@@ -32,7 +32,7 @@ class TestBisectKMeansSimple:
             with pytest.raises(ValueError):
                 diana.fit(simple_dataset)
 
-    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6])
+    @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6])  # type: ignore
     def test_predict(
         self,
         k: int,
@@ -72,7 +72,7 @@ class TestClusterTree:
         assert tree.is_leaf() is True
         assert tree.cluster == []
 
-    def test_leaf_cluster_nodes(self):
+    def test_leaf_cluster_nodes(self) -> None:
         sample_indices = [1, 2, 3, 4, 5]
 
         tree = ClusterTree(cluster=sample_indices)
@@ -92,7 +92,7 @@ class TestClusterTree:
         assert leaf_cluster_nodes[1].cluster == [4, 5]
 
         tree.left.add_left_child(ClusterTree(cluster=[1, 2]))  # type: ignore[union-attr]
-        leaf_cluster_nodes = tree.leaf_cluster_nodes()  # type: ignore[union-attr]
+        leaf_cluster_nodes = tree.leaf_cluster_nodes()
         assert len(leaf_cluster_nodes) == 2
         assert leaf_cluster_nodes[0].cluster == [1, 2]
         assert leaf_cluster_nodes[1].cluster == [4, 5]

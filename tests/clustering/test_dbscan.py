@@ -5,10 +5,10 @@ from toyml.clustering.dbscan import DBSCAN, Dataset
 
 
 class TestDbScan(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.dataset = [[1.0, 2.0], [2.0, 2.0], [2.0, 3.0], [8.0, 7.0], [8.0, 8.0], [25.0, 80.0]]
 
-    def test_dbscan_clustering(self):
+    def test_dbscan_clustering(self) -> None:
         dbscan = DBSCAN(eps=3, min_samples=2).fit(self.dataset)
         clusters = dbscan.clusters_
 
@@ -22,7 +22,7 @@ class TestDbScan(unittest.TestCase):
         # Check that the last point is not in any cluster (noise)
         self.assertTrue(all(5 not in cluster for cluster in clusters))
 
-    def test_dbscan_edge_cases(self):
+    def test_dbscan_edge_cases(self) -> None:
         # Test with all points as noise
         dbscan = DBSCAN(eps=0.1, min_samples=2).fit(self.dataset)
         clusters = dbscan.clusters_
@@ -34,7 +34,7 @@ class TestDbScan(unittest.TestCase):
         self.assertEqual(len(clusters), 1)
         self.assertEqual(len(clusters[0]), len(self.dataset))
 
-    def test_dataset(self):
+    def test_dataset(self) -> None:
         dataset = Dataset(self.dataset)
 
         # Test dataset initialization
@@ -56,7 +56,7 @@ class TestDbScan(unittest.TestCase):
         self.assertEqual(core_objects, {0, 1, 2, 3, 4})
         self.assertEqual(set(noises), {5})
 
-    def test_fit_predict(self):
+    def test_fit_predict(self) -> None:
         dbscan = DBSCAN(eps=3, min_samples=2)
         labels = dbscan.fit_predict(self.dataset)
 

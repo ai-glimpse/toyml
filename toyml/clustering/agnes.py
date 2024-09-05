@@ -27,11 +27,11 @@ class ClusterTree:
     """The cluster: dataset sample indices."""
     children_cluster_distance: Optional[float] = None
 
-    def add_child(self, child: ClusterTree):
+    def add_child(self, child: ClusterTree) -> None:
         child.parent = self
         self.children.append(child)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"CT({self.cluster_index}): {self.sample_indices}"
 
 
@@ -83,7 +83,7 @@ class AGNES:
     linkage_matrix: list[list[float]] = field(default_factory=list)
     _cluster_index: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # check the linkage method
         if self.linkage not in ["single", "complete", "average"]:
             raise ValueError(
@@ -121,7 +121,7 @@ class AGNES:
         self.fit(dataset)
         return self.labels_
 
-    def _validate(self, dataset: list[list[float]]):
+    def _validate(self, dataset: list[list[float]]) -> None:
         """
         Validate the dataset.
         """
@@ -191,7 +191,7 @@ class AGNES:
             cluster_tree = self.clusters_[0]
         return cluster_tree
 
-    def _merge_clusters(self, i: int, j: int, cluster_ij_distance: float):
+    def _merge_clusters(self, i: int, j: int, cluster_ij_distance: float) -> None:
         """
         Merge two clusters to a new cluster.
 
@@ -219,7 +219,7 @@ class AGNES:
             [cluster_i.cluster_index, cluster_j.cluster_index, cluster_ij_distance, len(parent_cluster.sample_indices)]
         )
 
-    def _update_distance_matrix(self, dataset: list[list[float]], i: int, j: int):
+    def _update_distance_matrix(self, dataset: list[list[float]], i: int, j: int) -> None:
         """
         Update the distance matrix after merging two clusters.
         """
@@ -232,7 +232,7 @@ class AGNES:
             self.distance_matrix_[i][j] = self._get_clusters_distance(dataset, self.clusters_[i], self.clusters_[j])
             self.distance_matrix_[j][i] = self.distance_matrix_[i][j]
 
-    def _get_labels(self, n: int):
+    def _get_labels(self, n: int) -> None:
         self.labels_ = [-1] * n
         for cluster_label, cluster in enumerate(self.clusters_):
             for sample_index in cluster.sample_indices:
@@ -242,7 +242,7 @@ class AGNES:
         self,
         figure_name: str = "agnes_dendrogram.png",
         show: bool = False,
-    ):
+    ) -> None:
         """
         Plot the dendrogram of the clustering result.
 
@@ -264,7 +264,7 @@ class AGNES:
         import matplotlib.pyplot as plt
         import numpy as np
 
-        from scipy.cluster.hierarchy import dendrogram  # type: ignore
+        from scipy.cluster.hierarchy import dendrogram
 
         if self.n_cluster != 1:
             raise ValueError("The number of clusters should be 1 to plot dendrogram")

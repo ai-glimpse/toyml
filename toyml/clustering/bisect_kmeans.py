@@ -41,7 +41,7 @@ class ClusterTree:
         """Get all the leaves in the cluster tree, which are the clusters of dataset"""
         clusters = []
 
-        def dfs(node: ClusterTree):
+        def dfs(node: ClusterTree) -> None:
             # only collect the leaf nodes
             if node.is_leaf():
                 clusters.append(node)
@@ -70,19 +70,26 @@ class ClusterTree:
         node.parent = self
         return self
 
-    def plot(self):  # pragma: no cover
+    def plot(self) -> None:  # pragma: no cover
         """
         Plot the cluster tree with adaptive node sizes.
         """
 
-        def _build_graph(node, G=None, pos=None, x=0, y=0, layer=1):
+        def _build_graph(
+            node: ClusterTree,
+            G: Optional[nx.Graph] = None,
+            pos: Optional[dict[int, tuple[float, float]]] = None,
+            x: float = 0,
+            y: float = 0,
+            layer: int = 1,
+        ) -> tuple[nx.Graph, dict[int, tuple[float, float]]]:
             if G is None:
                 G = nx.Graph()
                 pos = {}
 
             node_id = id(node)
             G.add_node(node_id)
-            pos[node_id] = (x, y)
+            pos[node_id] = (x, y)  # type: ignore
             G.nodes[node_id]["label"] = f"{node.cluster}"
             G.nodes[node_id]["size"] = len(node.cluster) * 1000  # Adjust node size based on cluster size
 
@@ -98,7 +105,7 @@ class ClusterTree:
                 r_x, r_y = x + 1 / 2 ** (layer + 1), y - 0.5
                 _build_graph(node.right, G, pos, r_x, r_y, layer + 1)
 
-            return G, pos
+            return G, pos  # type: ignore
 
         G, pos = _build_graph(self)
 
@@ -261,7 +268,7 @@ class BisectingKmeans:
         cluster_node: ClusterTree,
         split_cluster_into: tuple[list[int], list[int]],
         dataset: list[list[float]],
-    ):
+    ) -> None:
         # cluster tree
         cluster_node.add_left_child(
             ClusterTree(

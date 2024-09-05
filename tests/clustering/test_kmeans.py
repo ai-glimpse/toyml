@@ -12,7 +12,7 @@ class TestKMeansSimple:
     Test the k-means algorithm completely.
     """
 
-    @pytest.mark.parametrize("centroids_init_method,", ["random", "kmeans++"])
+    @pytest.mark.parametrize("centroids_init_method", ["random", "kmeans++"])  # type: ignore
     def test_fit(
         self,
         centroids_init_method: Literal["random", "kmeans++"],
