@@ -1,7 +1,7 @@
 # ToyML: Machine Learning from Scratch
 
 
-[![Python](https://img.shields.io/pypi/pyversions/mem0ai.svg?color=%2334D058)](https://pypi.org/project/toyml/)
+[![Python](https://img.shields.io/pypi/pyversions/toyml.svg?color=%2334D058)](https://pypi.org/project/toyml/)
 [![PyPI](https://img.shields.io/pypi/v/toyml?color=%2334D058&label=pypi%20package)](https://pypi.org/project/toyml/)
 
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
