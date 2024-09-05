@@ -61,6 +61,7 @@ class AGNES:
         >>> agnes = AGNES(n_cluster=1).fit(dataset)  # doctest: +SKIP
         >>> agnes.plot_dendrogram(show=True)  # doctest: +SKIP
 
+    Tip: The AGNES Dendrogram Plot
         ![AGNES Dendrogram](../../images/agnes_dendrogram.png)
 
     Tip: References
