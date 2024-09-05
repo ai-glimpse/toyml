@@ -38,13 +38,28 @@ class ClusterTree:
 @dataclass
 class AGNES:
     """
-    Agglomerative clustering algorithm.(Bottom-up Hierarchical Clustering)
+    Agglomerative clustering algorithm (Bottom-up Hierarchical Clustering)
 
     Examples:
         >>> from toyml.clustering import AGNES
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
-        >>> AGNES(n_cluster=2).fit_predict(dataset)
+        >>> agnes = AGNES(n_cluster=2).fit(dataset)
+        >>> print(agnes.labels_)
         [0, 0, 0, 1, 1, 1]
+
+        >>> # Using fit_predict method
+        >>> labels = agnes.fit_predict(dataset)
+        >>> print(labels)
+        [0, 0, 0, 1, 1, 1]
+
+        >>> # Using different linkage methods
+        >>> agnes = AGNES(n_cluster=2, linkage="complete").fit(dataset)
+        >>> print(agnes.labels_)
+        [0, 0, 0, 1, 1, 1]
+
+        >>> # Plotting dendrogram
+        >>> agnes = AGNES(n_cluster=1).fit(dataset)  # doctest: +SKIP
+        >>> agnes.plot_dendrogram(show=True)  # doctest: +SKIP
 
     Tip: References
         1. Zhou Zhihua
@@ -69,7 +84,7 @@ class AGNES:
         # check the linkage method
         if self.linkage not in ["single", "complete", "average"]:
             raise ValueError(
-                f"Invalid linkage method: {self.linkage}, " f"should be one of ['single', 'complete', 'average']"
+                f"Invalid linkage method: {self.linkage}, should be one of ['single', 'complete', 'average']"
             )
         # check the number of clusters
         if self.n_cluster < 1:
