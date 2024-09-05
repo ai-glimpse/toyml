@@ -11,11 +11,11 @@ from toyml.utils.linear_algebra import euclidean_distance
 @dataclass
 class ClusterTree:
     """
-    Cluster tree node.
-    The cluster tree is a binary tree, each node is a cluster.
-    The root node is the whole dataset, and each node is split into two clusters until the number of clusters is equal to the specified number of clusters.
-    The cluster is represented by the indices of the dataset.
-    The cluster tree is used to store the cluster information and the relationship between clusters.
+    Represents a node in the hierarchical clustering tree.
+
+    Each node is a cluster containing sample indices.
+    Leaf nodes represent individual samples, while internal nodes
+    represent merged clusters. The root node contains all samples.
     """
 
     cluster_index: int
@@ -60,6 +60,8 @@ class AGNES:
         >>> # Plotting dendrogram
         >>> agnes = AGNES(n_cluster=1).fit(dataset)  # doctest: +SKIP
         >>> agnes.plot_dendrogram(show=True)  # doctest: +SKIP
+
+        ![AGNES Dendrogram](../../images/agnes_dendrogram.png)
 
     Tip: References
         1. Zhou Zhihua
@@ -243,9 +245,20 @@ class AGNES:
         """
         Plot the dendrogram of the clustering result.
 
+        This method visualizes the hierarchical structure of the clustering
+        using a dendrogram. It requires the number of clusters to be set to 1
+        during initialization.
+
         Args:
-            figure_name: The name of the output file
-            show: Whether to show the plot
+            figure_name: The filename for saving the plot.
+                               Defaults to "agnes_dendrogram.png".
+            show: If True, displays the plot. Defaults to False.
+
+        Raises:
+            ValueError: If the number of clusters is not 1.
+
+        Note:
+            This method requires matplotlib and scipy to be installed.
         """
         import matplotlib.pyplot as plt
         import numpy as np
