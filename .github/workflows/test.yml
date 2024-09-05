@@ -29,7 +29,7 @@ jobs:
       - name: Pre-Commit Check
         uses: pre-commit/action@v3.0.1
       - name: Run tests and generate coverage report
-#       # todo: update the --cov-fail-under value to 90
+        # todo: update the --cov-fail-under value to 90
         run: uv run pytest --doctest-modules -v --cov=toyml --cov-fail-under 60 --cov-report=term --cov-report=xml --cov-report=html toyml tests
 
       - name: Upload coverage to Codecov
@@ -43,6 +43,4 @@ jobs:
       - name: Run MkDocs
         run: mkdocs build --strict
       - name: Build wheel
-        run: |
-          python3 -m build --sdist --wheel .
-          twine check --strict dist/*
+        run: uv build
