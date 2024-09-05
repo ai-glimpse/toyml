@@ -18,7 +18,7 @@ class AdaBoost:
         self,
         dataset: DataSet,
         labels: Labels,
-        base_clf: Callable,  # TODO: change to clf class type
+        base_clf: Callable[..., Any],  # TODO: change to clf class type
         clf_num: int = 5,
     ) -> None:
         self._dataset = dataset
@@ -32,7 +32,7 @@ class AdaBoost:
         # such as multi-classes(0, 1, 2, ...) and binary classes(-1, 1)
         self._base_clf_results = [[-2] * self._n for _ in range(self._clf_num)]
         # base clf models
-        self._sub_clf_models: List[Callable] = []
+        self._sub_clf_models: List[Callable[..., Any]] = []
         self._alphas: Any = [0] * self._clf_num
 
     def fit(self) -> None:
@@ -140,7 +140,7 @@ class OneDimClf:
             results[i] = self.predict(x)
         return results
 
-    def predict(self, x):
+    def predict(self, x: float) -> Label:
         if self._func_mode == "pos-neg":
             if x <= self._best_cut:
                 return 1

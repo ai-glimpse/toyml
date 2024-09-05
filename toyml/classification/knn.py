@@ -1,4 +1,5 @@
 from collections import Counter
+from typing import Callable
 
 from toyml.utils.linear_algebra import (
     euclidean_distance,
@@ -26,8 +27,8 @@ class KNeighborsClassifier:
         dataset: DataSet,
         labels: Labels,
         k: int,
-        dist=euclidean_distance,
-        std=True,
+        dist: Callable[[Vector, Vector], float] = euclidean_distance,
+        std: bool = True,
     ) -> None:
         if not isinstance(dataset, list):
             raise TypeError(f"invalid type in {type(dataset)} for the 'dataset' argument")

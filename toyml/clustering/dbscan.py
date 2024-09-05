@@ -28,7 +28,7 @@ class Dataset:
     n: int = field(init=False)
     distance_matrix_: list[list[float]] = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.n = len(self.data)
         self.distance_matrix_ = self._calculate_distance_matrix()
 
@@ -147,7 +147,7 @@ class DBSCAN:
         while core_object_set:
             unvisited_old = unvisited.copy()
             core_object = core_object_set.pop()
-            queue: deque = deque()
+            queue: deque[int] = deque()
             queue.append(core_object)
             unvisited.remove(core_object)
 

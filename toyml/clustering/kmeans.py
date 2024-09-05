@@ -69,7 +69,7 @@ class Kmeans:
     labels: list[int] = field(default_factory=list)
     """The cluster labels of the dataset."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         random.seed(self.random_seed)
 
     def fit(self, dataset: list[list[float]]) -> "Kmeans":
