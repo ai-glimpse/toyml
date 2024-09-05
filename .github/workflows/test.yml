@@ -40,6 +40,10 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: true
           verbose: true
+      - name: Setup pandoc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb && sudo dpkg -i pandoc-2.18-1-amd64.deb
+          sudo apt-get install pandoc-citeproc
       - name: Run MkDocs
         run: mkdocs build --strict
       - name: Build wheel
