@@ -29,10 +29,6 @@ class Standarizationer:
     def _vectors_mean(self, vectors: list[list[float]]) -> list[float]:
         """
         Calculate vectors mean
-
-        Example1:
-        >>> vectors_mean([[1.0, 2.0], [3.0, 4.0]])
-        [2.0, 3.0]
         """
         d = len(vectors[0])
         n = len(vectors)
