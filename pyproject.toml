@@ -41,6 +41,7 @@ dev = [
     "ruff",
     "pytest",
     "pytest-cov",
+    "hypothesis>=6.112.0",
 ]
 docs = [
     "mkdocs",
