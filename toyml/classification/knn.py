@@ -23,7 +23,7 @@ class KNN:
         labels_: The labels corresponding to the fitted dataset.
         standarizationer_: The Standardizationer instance if std_transform is True.
 
-    Example:
+    Examples:
         >>> dataset = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
         >>> labels = ['A', 'A', 'B', 'B']
         >>> knn = KNN(k=3, std_transform=True).fit(dataset, labels)
