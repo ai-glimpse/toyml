@@ -10,28 +10,78 @@ from typing import Any, Optional
 
 @dataclass
 class Standardizationer:
+    """
+    A class for standardizing numerical datasets.
+
+    Provides methods to fit a standardization model to a dataset,
+    transform datasets using the fitted model, and perform both operations
+    in a single step.
+    """
+
     _means: list[float] = field(default_factory=list)
     _stds: list[float] = field(default_factory=list)
     _dimension: Optional[int] = None
 
     def fit(self, dataset: list[list[float]]) -> Standardizationer:
+        """
+        Fit the standardization model to the given dataset.
+
+        Args:
+            dataset: The input dataset to fit the model to.
+
+        Returns:
+            The fitted Standardizationer instance.
+
+        Raises:
+            ValueError: If the dataset has inconsistent dimensions.
+        """
         self._dimension = self._get_dataset_dimension(dataset)
         self._means = self._dataset_column_means(dataset)
         self._stds = self._dataset_column_stds(dataset)
         return self
 
     def transform(self, dataset: list[list[float]]) -> list[list[float]]:
+        """
+        Transform the given dataset using the fitted standardization model.
+
+        Args:
+            dataset: The input dataset to transform.
+
+        Returns:
+            The standardized dataset.
+
+        Raises:
+            ValueError: If the model has not been fitted yet.
+        """
         if self._dimension is None:
             raise ValueError("The model is not fitted yet!")
         return self.standardization(dataset)
 
     def fit_transform(self, dataset: list[list[float]]) -> list[list[float]]:
+        """
+        Fit the standardization model to the dataset and transform it in one step.
+
+        Args:
+            dataset: The input dataset to fit and transform.
+
+        Returns:
+            The standardized dataset.
+        """
         self.fit(dataset)
         return self.transform(dataset)
 
     def standardization(self, dataset: list[list[float]]) -> list[list[float]]:
         """
-        The standardization of numerical dataset.
+        Standardize the given numerical dataset.
+
+        Args:
+            dataset: The input dataset to standardize.
+
+        Returns:
+            The standardized dataset.
+
+        Raises:
+            ValueError: If the model has not been fitted yet.
         """
         if self._dimension is None:
             raise ValueError("The model is not fitted yet!")
