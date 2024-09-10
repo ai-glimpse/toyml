@@ -1,8 +1,9 @@
+import logging
 import math
 
 from typing import Any, Callable, List
 
-from toyml.utils.types import DataSet, Label, Labels, Weights
+logger = logging.getLogger(__name__)
 
 
 class AdaBoost:
@@ -16,8 +17,8 @@ class AdaBoost:
 
     def __init__(
         self,
-        dataset: DataSet,
-        labels: Labels,
+        dataset: list[list[float]],
+        labels: list[int],
         base_clf: Callable[..., Any],  # TODO: change to clf class type
         clf_num: int = 5,
     ) -> None:
@@ -44,7 +45,7 @@ class AdaBoost:
             error_rate = model.get_error_rate()
             # Warning when the error rate is too large
             if error_rate > 0.5:
-                Warning(f"Base Clf error rate = {error_rate}!")
+                logger.warning(f"Base Clf error rate = {error_rate}!")
             alpha = 0.5 * math.log((1 - error_rate) / error_rate)
             self._alphas[m] = alpha
             # update the weights
@@ -53,7 +54,7 @@ class AdaBoost:
                 weights[i] = self._weights[i] * math.exp(-alpha * self._labels[i] * self._base_clf_results[m][i])
             self._weights = [weight / sum(weights) for weight in weights]
 
-    def get_training_result(self) -> Labels:
+    def get_training_result(self) -> list[int]:
         predictions = [-2] * self._n
         for i in range(self._n):
             result = 0
@@ -68,7 +69,7 @@ class AdaBoost:
         print("Predictions: ", predictions)
         return predictions
 
-    def predict(self, x: float) -> Label:
+    def predict(self, x: float) -> int:
         result = 0
         for m in range(self._clf_num):
             model_predict = self._sub_clf_models[m]
@@ -86,7 +87,7 @@ class OneDimClf:
     Ref: Li Hang, 1ed, E8.1.3
     """
 
-    def __init__(self, dataset: DataSet, weights: Weights, labels: Labels) -> None:
+    def __init__(self, dataset: list[list[float]], weights: list[float], labels: list[int]) -> None:
         self._dataset = dataset
         self._xs = [x[0] for x in self._dataset]
         self._weights = weights
@@ -134,13 +135,13 @@ class OneDimClf:
     def get_error_rate(self) -> float:
         return self._error_rate
 
-    def get_training_results(self) -> Labels:
+    def get_training_results(self) -> list[int]:
         results = [-2] * self._n
         for i, x in enumerate(self._xs):
             results[i] = self.predict(x)
         return results
 
-    def predict(self, x: float) -> Label:
+    def predict(self, x: float) -> int:
         if self._func_mode == "pos-neg":
             if x <= self._best_cut:
                 return 1
@@ -153,8 +154,8 @@ class OneDimClf:
 
 
 if __name__ == "__main__":
-    dataset: DataSet = [[0.0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
-    labels: Labels = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
+    dataset: list[list[float]] = [[0.0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
+    labels: list[int] = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
     M: int = 3
     ada = AdaBoost(dataset, labels, OneDimClf, M)
     ada.fit()
