@@ -44,7 +44,7 @@ class AGNES:
         >>> from toyml.clustering import AGNES
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
         >>> agnes = AGNES(n_cluster=2).fit(dataset)
-        >>> print(agnes.labels_)
+        >>> print(agnes.predict_labels_)
         [0, 0, 0, 1, 1, 1]
 
         >>> # Using fit_predict method
@@ -54,7 +54,7 @@ class AGNES:
 
         >>> # Using different linkage methods
         >>> agnes = AGNES(n_cluster=2, linkage="complete").fit(dataset)
-        >>> print(agnes.labels_)
+        >>> print(agnes.predict_labels_)
         [0, 0, 0, 1, 1, 1]
 
         >>> # Plotting dendrogram

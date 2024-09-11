@@ -1,7 +1,8 @@
 import logging
 import math
 
-from typing import Any, Callable, List
+from dataclasses import dataclass
+from typing import Any, Callable, List, Literal, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +39,9 @@ class AdaBoost:
 
     def fit(self) -> None:
         for m in range(self._clf_num):
-            model = self._base_clf(self._dataset, self._weights, self._labels)
-            model.fit()
-            self._base_clf_results[m] = model.get_training_results()
+            model = self._base_clf()
+            model.fit(self._dataset, self._weights, self._labels)
+            self._base_clf_results[m] = model.get_predict_labels()
             self._sub_clf_models.append(model.predict)
             error_rate = model.get_error_rate()
             # Warning when the error rate is too large
@@ -80,74 +81,93 @@ class AdaBoost:
             return -1
 
 
-class OneDimClf:
+@dataclass
+class OneDimensionClassifier:
     """
-    Binary clf with only one feature.
+    Binary classifier with one dimension feature.
 
     Ref: Li Hang, 1ed, E8.1.3
     """
 
-    def __init__(self, dataset: list[list[float]], weights: list[float], labels: list[int]) -> None:
-        self._dataset = dataset
-        self._xs = [x[0] for x in self._dataset]
-        self._weights = weights
-        self._labels = labels
-        self._n = len(self._labels)
-        # for training and prediction
-        self._error_rate = math.inf
-        self._best_cut = math.inf
-        self._func_mode = "pos-neg"
+    error_rate_: float = math.inf
+    best_cut_: float = math.inf
+    predict_labels_: Optional[list[int]] = None
+    # TODO: make func mode an enum
+    _func_mode: Literal["pos-neg", "neg-pos"] = "pos-neg"
 
-    def fit(self) -> None:
-        min_x_int = math.floor(min(self._xs))
-        max_x_int = math.ceil(max(self._xs))
+    def fit(
+        self,
+        dataset: list[list[float]],
+        weights: list[float],
+        labels: list[int],
+    ) -> None:
+        points = [x[0] for x in dataset]
         # search for the best cut point
-        best_cut: float = min_x_int
+        func_mode, best_cut, best_error_rate = self.get_best_cut(points, weights)
+        self.error_rate_ = best_error_rate
+        self.best_cut_ = best_cut
+        self._func_mode = func_mode
+        # get labels
+        self.predict_labels_ = [0] * len(labels)
+        for i, x in enumerate(points):
+            self.predict_labels_[i] = self.predict(x)
+
+    @staticmethod
+    def _get_candidate_cuts(dataset: list[list[float]]) -> list[float]:
+        points = [x[0] for x in dataset]
+        min_x_int = math.floor(min(points))
+        max_x_int = math.ceil(max(points))
+        return [i + 0.5 for i in range(min_x_int, max_x_int)]
+
+    def get_best_cut(
+        self, points: list[float], weights: list[float]
+    ) -> tuple[Literal["pos-neg", "neg-pos"], float, float]:
         best_error_rate = math.inf
-        # pos-neg: 1, -1(default)
-        for i in range(min_x_int, max_x_int):
-            cut = i + 0.5
-            error_rate: float = 0
-            for j, x in enumerate(self._xs):
-                if x <= cut and self._labels[j] != 1:
-                    error_rate += self._weights[j]
-                if x > cut and self._labels[j] != -1:
-                    error_rate += self._weights[j]
-            if error_rate < best_error_rate:
-                best_error_rate = error_rate
-                best_cut = cut
-        # neg-pos: -1, 1
-        for i in range(min_x_int, max_x_int):
-            cut = i + 0.5
-            error_rate = 0
-            for j, x in enumerate(self._xs):
-                if x <= cut and self._labels[j] != -1:
-                    error_rate += self._weights[j]
-                if x > cut and self._labels[j] != 1:
-                    error_rate += self._weights[j]
-            if error_rate < best_error_rate:
-                self._func_mode = "neg-pos"
-                best_error_rate = error_rate
-                best_cut = cut
-        self._error_rate = best_error_rate
-        self._best_cut = best_cut
+        best_cut = math.inf
+        candidate_cuts = self._get_candidate_cuts(dataset)
+        # (func_mode, cut, error_rate)
+        candidate_cuts_result = []
+        for cut in candidate_cuts:
+            pos_neg_error_rate = self._get_cut_error_rate(cut, points, weights, "pos-neg")
+            neg_pos_error_rate = self._get_cut_error_rate(cut, points, weights, "neg-pos")
+            candidate_cuts_result.append(("pos-neg", cut, pos_neg_error_rate))
+            candidate_cuts_result.append(("neg-pos", cut, neg_pos_error_rate))
+
+        # sorted by error rate
+        best_cut_result = sorted(candidate_cuts_result, key=lambda x: x[2])[-1]
+        func_mode, best_cut, best_error_rate = best_cut_result
+        return func_mode, best_cut, best_error_rate  # type: ignore
+
+    def _get_cut_error_rate(self, cut: float, points: list[float], weights: list[float], func_mode: str) -> float:
+        error_rate = 0.0
+        for j, x in enumerate(points):
+            if func_mode == "pos-neg":
+                if x <= cut and labels[j] != 1 or x > cut and labels[j] != -1:
+                    error_rate += weights[j]
+            else:
+                if x <= cut and labels[j] != -1 or x > cut and labels[j] != 1:
+                    error_rate += weights[j]
+        return error_rate
 
     def get_error_rate(self) -> float:
-        return self._error_rate
+        if self.error_rate_ is None:
+            raise ValueError("The model is not fitted yet!")
+        return self.error_rate_
 
-    def get_training_results(self) -> list[int]:
-        results = [-2] * self._n
-        for i, x in enumerate(self._xs):
-            results[i] = self.predict(x)
-        return results
+    def get_predict_labels(self) -> list[int]:
+        if self.predict_labels_ is None:
+            raise ValueError("The model is not fitted yet!")
+        return self.predict_labels_
 
     def predict(self, x: float) -> int:
+        if self.best_cut_ is None:
+            raise ValueError("The model is not fitted yet!")
         if self._func_mode == "pos-neg":
-            if x <= self._best_cut:
+            if x <= self.best_cut_:
                 return 1
             else:
                 return -1
-        if x <= self._best_cut:
+        if x <= self.best_cut_:
             return -1
         else:
             return 1
@@ -157,7 +177,7 @@ if __name__ == "__main__":
     dataset: list[list[float]] = [[0.0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
     labels: list[int] = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
     M: int = 3
-    ada = AdaBoost(dataset, labels, OneDimClf, M)
+    ada = AdaBoost(dataset, labels, OneDimensionClassifier, M)
     ada.fit()
     ada.get_training_result()
     TEST_X = 1.5
