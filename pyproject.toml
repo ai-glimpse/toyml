@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toyml"
-version = "0.3.0.dev1"
+version = "0.3.0.rc0"
 description = "ToyML: Machine Learning from Scratch"
 keywords=["machine learning", "statistics", "engineering"]
 license = {text = "Apache 2.0"}
@@ -96,8 +96,7 @@ profile = "black"
 lines_between_types = 1
 
 [tool.pytest.ini_options]
-# TODO: change cov percent to 90
-addopts = "-v --cov=toyml --cov-fail-under 60 --cov-report=term --cov-report=xml --cov-report=html"
+addopts = "-v --cov=toyml --cov-fail-under 90 --cov-report=term --cov-report=xml --cov-report=html"
 testpaths = [
     "tests",
 ]

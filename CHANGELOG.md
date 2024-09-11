@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0.rc0] - 2024-09-12
+
+### Refactor
+- Refactored knn and adaboost algorithm
+- Make all the algorithms in single file (almost, except for kmeans++)
+
 ## [0.3.0.dev1] - 2024-09-06
 
 ### Refactor
