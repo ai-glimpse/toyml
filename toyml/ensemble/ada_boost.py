@@ -179,11 +179,12 @@ class OneDimensionClassifier(BaseWeakLeaner):
         for cut in candidate_cuts:
             pos_neg_error_rate = self._get_cut_error_rate(cut, points, weights, self.SignMode.POS_NEG)
             neg_pos_error_rate = self._get_cut_error_rate(cut, points, weights, self.SignMode.NEG_POS)
-            candidate_cuts_result.append((self.SignMode.POS_NEG, cut, pos_neg_error_rate))
-            candidate_cuts_result.append((self.SignMode.NEG_POS, cut, neg_pos_error_rate))
+            candidate_cuts_result.extend(
+                [(self.SignMode.POS_NEG, cut, pos_neg_error_rate), (self.SignMode.NEG_POS, cut, neg_pos_error_rate)]
+            )
 
         # sorted by error rate
-        best_cut_result = sorted(candidate_cuts_result, key=lambda x: x[2])[-1]
+        best_cut_result = sorted(candidate_cuts_result, key=lambda x: x[2])[0]
         sign_mode, best_cut, best_error_rate = best_cut_result
         return sign_mode, best_cut, best_error_rate
 
@@ -200,7 +201,7 @@ class OneDimensionClassifier(BaseWeakLeaner):
 
 
 if __name__ == "__main__":
-    dataset: list[list[float]] = [[0.0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
+    dataset: list[list[float]] = [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
     labels: list[int] = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
     M: int = 3
     ada = AdaBoost(OneDimensionClassifier, M)
