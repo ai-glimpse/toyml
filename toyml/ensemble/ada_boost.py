@@ -162,7 +162,7 @@ class OneDimensionClassifier(BaseWeakLeaner):
         Fit the one-dimension classifier.
         """
         # search for the best cut point
-        sign_mode, best_cut, best_error_rate = self.get_best_cut(dataset, weights)
+        sign_mode, best_cut, best_error_rate = self.get_best_cut(dataset, weights, labels)
         self.error_rate_ = best_error_rate
         self._best_cut = best_cut
         self._sign_mode = sign_mode
@@ -213,7 +213,9 @@ class OneDimensionClassifier(BaseWeakLeaner):
         max_x_int = math.ceil(max(points))
         return [i + 0.5 for i in range(min_x_int, max_x_int)]
 
-    def get_best_cut(self, dataset: list[list[float]], weights: list[float]) -> tuple[SignMode, float, float]:
+    def get_best_cut(
+        self, dataset: list[list[float]], weights: list[float], labels: list[int]
+    ) -> tuple[SignMode, float, float]:
         """
         Get the best cut of the training dataset.
         """
@@ -222,8 +224,8 @@ class OneDimensionClassifier(BaseWeakLeaner):
         # (func_mode, cut, error_rate)
         candidate_cuts_result = []
         for cut in candidate_cuts:
-            pos_neg_error_rate = self._get_cut_error_rate(cut, points, weights, self.SignMode.POS_NEG)
-            neg_pos_error_rate = self._get_cut_error_rate(cut, points, weights, self.SignMode.NEG_POS)
+            pos_neg_error_rate = self._get_cut_error_rate(cut, points, weights, labels, self.SignMode.POS_NEG)
+            neg_pos_error_rate = self._get_cut_error_rate(cut, points, weights, labels, self.SignMode.NEG_POS)
             candidate_cuts_result.extend(
                 [(self.SignMode.POS_NEG, cut, pos_neg_error_rate), (self.SignMode.NEG_POS, cut, neg_pos_error_rate)]
             )
@@ -233,7 +235,14 @@ class OneDimensionClassifier(BaseWeakLeaner):
         sign_mode, best_cut, best_error_rate = best_cut_result
         return sign_mode, best_cut, best_error_rate
 
-    def _get_cut_error_rate(self, cut: float, points: list[float], weights: list[float], sign_mode: SignMode) -> float:
+    def _get_cut_error_rate(
+        self,
+        cut: float,
+        points: list[float],
+        weights: list[float],
+        labels: list[int],
+        sign_mode: SignMode,
+    ) -> float:
         """
         Get the error rate of the training dataset.
         """
@@ -249,9 +258,9 @@ class OneDimensionClassifier(BaseWeakLeaner):
 
 
 if __name__ == "__main__":
-    dataset: list[list[float]] = [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
-    labels: list[int] = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
-    ada = AdaBoost(weak_learner=OneDimensionClassifier, n_weak_learner=3).fit(dataset, labels)
+    dataset_demo: list[list[float]] = [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
+    labels_demo: list[int] = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
+    ada = AdaBoost(weak_learner=OneDimensionClassifier, n_weak_learner=3).fit(dataset_demo, labels_demo)
     print(f"Training dataset prediction labels: {ada.predict_labels_}")
     print(f"Training dataset error rate: {ada.training_error_rate_}")
     test_sample = [1.5]
