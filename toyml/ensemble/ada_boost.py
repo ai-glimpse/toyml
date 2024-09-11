@@ -18,7 +18,7 @@ class BaseWeakLeaner:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def predict(self, x: float) -> int:
+    def predict(self, x: list[float]) -> int:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -42,18 +42,21 @@ class AdaBoost:
 
     weak_learner: Type[BaseWeakLeaner]
     n_weak_learner: int = 5
+    predict_labels_: Optional[list[int]] = None
+    training_error_rate_: Optional[float] = None
+
     _n: int = -1
     _labels: list[int] = field(default_factory=list)
     _weights: list[float] = field(default_factory=list)
     _base_clf_labels: list[list[int]] = field(default_factory=list)
-    _sub_clf_models: List[Callable[..., Any]] = field(default_factory=list)
+    _weak_learner_predicts: List[Callable[..., Any]] = field(default_factory=list)
     _alphas: list[float] = field(default_factory=list)
 
     def fit(
         self,
         dataset: list[list[float]],
         labels: list[int],
-    ) -> None:
+    ) -> AdaBoost:
         self._labels = labels
         # for model training(Gm)
         self._n = len(labels)
@@ -62,17 +65,17 @@ class AdaBoost:
         # such as multi-classes(0, 1, 2, ...) and binary classes(-1, 1)
         self._base_clf_labels = [[-2] * self._n for _ in range(self.n_weak_learner)]
         # base clf models
-        self._sub_clf_models: List[Callable[..., int]] = []
+        self._weak_learner_predicts: List[Callable[..., int]] = []
         self._alphas = [0.0] * self.n_weak_learner
 
         for m in range(self.n_weak_learner):
             model = self.weak_learner().fit(dataset, self._weights, self._labels)
             self._base_clf_labels[m] = model.get_predict_labels()
-            self._sub_clf_models.append(model.predict)
+            self._weak_learner_predicts.append(model.predict)
             error_rate = model.get_error_rate()
             # Warning when the error rate is too large
             if error_rate > 0.5:
-                logger.warning(f"Base Clf error rate = {error_rate}!")
+                logger.warning(f"Weak learner error rate = {error_rate} < 0.5")
             alpha = 0.5 * math.log((1 - error_rate) / error_rate)
             self._alphas[m] = alpha
             # update the weights
@@ -80,8 +83,22 @@ class AdaBoost:
             for i in range(self._n):
                 weights[i] = self._weights[i] * math.exp(-alpha * self._labels[i] * self._base_clf_labels[m][i])
             self._weights = [weight / sum(weights) for weight in weights]
+        # collect training dataset result
+        self.predict_labels_ = [self.predict(x) for x in dataset]
+        self.training_error_rate_ = sum(self.predict_labels_[i] != self._labels[i] for i in range(self._n)) / self._n
+        return self
 
-    def get_training_result(self) -> list[int]:
+    def predict(self, x: list[float]) -> int:
+        ensemble_predict = 0
+        for m in range(self.n_weak_learner):
+            model_predict = self._weak_learner_predicts[m]
+            ensemble_predict += self._alphas[m] * model_predict(x)
+        if ensemble_predict >= 0:
+            return 1
+        else:
+            return -1
+
+    def _get_(self) -> list[int]:
         predictions = [-2] * self._n
         for i in range(self._n):
             result = 0.0
@@ -91,20 +108,7 @@ class AdaBoost:
                 predictions[i] = 1
             else:
                 predictions[i] = -1
-        training_error = sum(predictions[i] != self._labels[i] for i in range(self._n)) / self._n
-        print("Training Error: ", training_error)
-        print("Predictions: ", predictions)
         return predictions
-
-    def predict(self, x: float) -> int:
-        result = 0
-        for m in range(self.n_weak_learner):
-            model_predict = self._sub_clf_models[m]
-            result += self._alphas[m] * model_predict(x)
-        if result >= 0:
-            return 1
-        else:
-            return -1
 
 
 @dataclass
@@ -130,27 +134,26 @@ class OneDimensionClassifier(BaseWeakLeaner):
         weights: list[float],
         labels: list[int],
     ) -> OneDimensionClassifier:
-        points = [x[0] for x in dataset]
         # search for the best cut point
-        sign_mode, best_cut, best_error_rate = self.get_best_cut(points, weights)
+        sign_mode, best_cut, best_error_rate = self.get_best_cut(dataset, weights)
         self.error_rate_ = best_error_rate
         self._best_cut = best_cut
         self._sign_mode = sign_mode
         # get labels
         self.predict_labels_ = [0] * len(labels)
-        for i, x in enumerate(points):
+        for i, x in enumerate(dataset):
             self.predict_labels_[i] = self.predict(x)
         return self
 
-    def predict(self, x: float) -> int:
+    def predict(self, x: list[float]) -> int:
         if self._best_cut is None:
             raise ValueError("The model is not fitted yet!")
         if self._sign_mode == "POS_NEG":
-            if x <= self._best_cut:
+            if x[0] <= self._best_cut:
                 return 1
             else:
                 return -1
-        if x <= self._best_cut:
+        if x[0] <= self._best_cut:
             return -1
         else:
             return 1
@@ -166,14 +169,14 @@ class OneDimensionClassifier(BaseWeakLeaner):
         return self.predict_labels_
 
     @staticmethod
-    def _get_candidate_cuts(dataset: list[list[float]]) -> list[float]:
-        points = [x[0] for x in dataset]
+    def _get_candidate_cuts(points: list[float]) -> list[float]:
         min_x_int = math.floor(min(points))
         max_x_int = math.ceil(max(points))
         return [i + 0.5 for i in range(min_x_int, max_x_int)]
 
-    def get_best_cut(self, points: list[float], weights: list[float]) -> tuple[SignMode, float, float]:
-        candidate_cuts = self._get_candidate_cuts(dataset)
+    def get_best_cut(self, dataset: list[list[float]], weights: list[float]) -> tuple[SignMode, float, float]:
+        points = [x[0] for x in dataset]
+        candidate_cuts = self._get_candidate_cuts(points)
         # (func_mode, cut, error_rate)
         candidate_cuts_result = []
         for cut in candidate_cuts:
@@ -203,9 +206,8 @@ class OneDimensionClassifier(BaseWeakLeaner):
 if __name__ == "__main__":
     dataset: list[list[float]] = [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
     labels: list[int] = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
-    M: int = 3
-    ada = AdaBoost(OneDimensionClassifier, M)
-    ada.fit(dataset, labels)
-    ada.get_training_result()
-    TEST_X = 1.5
-    print(f"The label of {TEST_X} is {ada.predict(TEST_X)}")
+    ada = AdaBoost(weak_learner=OneDimensionClassifier, n_weak_learner=3).fit(dataset, labels)
+    print(f"Training dataset prediction labels: {ada.predict_labels_}")
+    print(f"Training dataset error rate: {ada.training_error_rate_}")
+    test_sample = [1.5]
+    print(f"The label of {test_sample} is {ada.predict(test_sample)}")
