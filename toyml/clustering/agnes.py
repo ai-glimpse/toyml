@@ -5,8 +5,6 @@ import math
 from dataclasses import dataclass, field
 from typing import Literal, Optional, Tuple
 
-from toyml.utils.linear_algebra import euclidean_distance
-
 
 @dataclass
 class ClusterTree:
@@ -73,6 +71,8 @@ class AGNES:
     """The number of clusters, specified by user."""
     linkage: Literal["single", "complete", "average"] = "single"
     """The linkage method to use."""
+    distance_metric: Literal["euclidean"] = "euclidean"
+    """The distance metric to use.(For now we only support euclidean)."""
     distance_matrix_: list[list[float]] = field(default_factory=list)
     """The distance matrix."""
     clusters_: list[ClusterTree] = field(default_factory=list)
@@ -146,7 +146,7 @@ class AGNES:
         Get the distance between clusters c1 and c2 using the specified linkage method.
         """
         distances = [
-            euclidean_distance(dataset[i], dataset[j]) for i in cluster1.sample_indices for j in cluster2.sample_indices
+            self._get_distance(dataset[i], dataset[j]) for i in cluster1.sample_indices for j in cluster2.sample_indices
         ]
 
         if self.linkage == "single":
@@ -237,6 +237,13 @@ class AGNES:
         for cluster_label, cluster in enumerate(self.clusters_):
             for sample_index in cluster.sample_indices:
                 self.labels_[sample_index] = cluster_label
+
+    def _get_distance(self, x: list[float], y: list[float]) -> float:
+        assert len(x) == len(y), f"{x} and {y} have different length!"
+        if self.distance_metric == "euclidean":
+            return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
+        else:
+            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
 
     def plot_dendrogram(
         self,
