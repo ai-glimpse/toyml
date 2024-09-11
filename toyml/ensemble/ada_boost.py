@@ -41,22 +41,55 @@ class AdaBoost:
     """
 
     weak_learner: Type[BaseWeakLeaner]
+    """
+    The weak learner to be used in the AdaBoost algorithm.
+    """
     n_weak_learner: int = 5
+    """
+    The number of weak learners to be used in the AdaBoost algorithm.
+    """
     predict_labels_: Optional[list[int]] = None
+    """
+    The prediction labels of the training dataset.
+    """
     training_error_rate_: Optional[float] = None
+    """
+    The error rate of the training dataset.
+    """
 
     _n: int = -1
+    """
+    The number of samples in the training dataset.
+    """
     _labels: list[int] = field(default_factory=list)
+    """
+    The labels of the training dataset.
+    """
     _weights: list[float] = field(default_factory=list)
+    """
+    The weights of sampels in the training dataset.
+    """
     _base_clf_labels: list[list[int]] = field(default_factory=list)
+    """
+    The prediction labels of the base classifiers.
+    """
     _weak_learner_predicts: List[Callable[..., Any]] = field(default_factory=list)
+    """
+    The prediction functions of the weak learners.
+    """
     _alphas: list[float] = field(default_factory=list)
+    """
+    The alpha values of the weak learners.
+    """
 
     def fit(
         self,
         dataset: list[list[float]],
         labels: list[int],
     ) -> AdaBoost:
+        """
+        Fit the AdaBoost model.
+        """
         self._labels = labels
         # for model training(Gm)
         self._n = len(labels)
@@ -89,6 +122,9 @@ class AdaBoost:
         return self
 
     def predict(self, x: list[float]) -> int:
+        """
+        Predict the label of the input sample.
+        """
         ensemble_predict = 0
         for m in range(self.n_weak_learner):
             model_predict = self._weak_learner_predicts[m]
@@ -97,18 +133,6 @@ class AdaBoost:
             return 1
         else:
             return -1
-
-    def _get_(self) -> list[int]:
-        predictions = [-2] * self._n
-        for i in range(self._n):
-            result = 0.0
-            for m in range(self.n_weak_learner):
-                result += self._alphas[m] * self._base_clf_labels[m][i]
-            if result >= 0:
-                predictions[i] = 1
-            else:
-                predictions[i] = -1
-        return predictions
 
 
 @dataclass
@@ -134,6 +158,9 @@ class OneDimensionClassifier(BaseWeakLeaner):
         weights: list[float],
         labels: list[int],
     ) -> OneDimensionClassifier:
+        """
+        Fit the one-dimension classifier.
+        """
         # search for the best cut point
         sign_mode, best_cut, best_error_rate = self.get_best_cut(dataset, weights)
         self.error_rate_ = best_error_rate
@@ -146,6 +173,9 @@ class OneDimensionClassifier(BaseWeakLeaner):
         return self
 
     def predict(self, x: list[float]) -> int:
+        """
+        Predict the label of the input sample.
+        """
         if self._best_cut is None:
             raise ValueError("The model is not fitted yet!")
         if self._sign_mode == "POS_NEG":
@@ -159,22 +189,34 @@ class OneDimensionClassifier(BaseWeakLeaner):
             return 1
 
     def get_error_rate(self) -> float:
+        """
+        Get the error rate of the training dataset.
+        """
         if self.error_rate_ is None:
             raise ValueError("The model is not fitted yet!")
         return self.error_rate_
 
     def get_predict_labels(self) -> list[int]:
+        """
+        Get the prediction labels of the training dataset.
+        """
         if self.predict_labels_ is None:
             raise ValueError("The model is not fitted yet!")
         return self.predict_labels_
 
     @staticmethod
     def _get_candidate_cuts(points: list[float]) -> list[float]:
+        """
+        Get the candidate cuts of the training dataset.
+        """
         min_x_int = math.floor(min(points))
         max_x_int = math.ceil(max(points))
         return [i + 0.5 for i in range(min_x_int, max_x_int)]
 
     def get_best_cut(self, dataset: list[list[float]], weights: list[float]) -> tuple[SignMode, float, float]:
+        """
+        Get the best cut of the training dataset.
+        """
         points = [x[0] for x in dataset]
         candidate_cuts = self._get_candidate_cuts(points)
         # (func_mode, cut, error_rate)
@@ -192,6 +234,9 @@ class OneDimensionClassifier(BaseWeakLeaner):
         return sign_mode, best_cut, best_error_rate
 
     def _get_cut_error_rate(self, cut: float, points: list[float], weights: list[float], sign_mode: SignMode) -> float:
+        """
+        Get the error rate of the training dataset.
+        """
         error_rate = 0.0
         for i, x in enumerate(points):
             if sign_mode == self.SignMode.POS_NEG:
