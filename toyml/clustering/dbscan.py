@@ -89,7 +89,7 @@ class DBSCAN:
         [[0, 1, 2], [3, 4]]
         >>> dbscan.noises_
         [5]
-        >>> dbscan.predict_labels_
+        >>> dbscan.labels_
         [0, 0, 0, 1, 1, -1]
 
     Tip: References
