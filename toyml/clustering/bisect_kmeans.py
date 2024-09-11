@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import math
+import statistics
+
 from dataclasses import dataclass, field
 from typing import Optional
 
-import matplotlib.pyplot as plt
-import networkx as nx
-
 from toyml.clustering.kmeans import Kmeans
-from toyml.utils.linear_algebra import euclidean_distance, sum_square_error
 
 
 @dataclass
@@ -74,6 +73,8 @@ class ClusterTree:
         """
         Plot the cluster tree with adaptive node sizes.
         """
+        import matplotlib.pyplot as plt
+        import networkx as nx
 
         def _build_graph(
             node: ClusterTree,
@@ -292,6 +293,23 @@ class BisectingKmeans:
         cluster_points = [dataset[i] for i in cluster]
         centroid = [sum(t) / len(cluster) for t in zip(*cluster_points)]
         return centroid
+
+
+def euclidean_distance(v1: list[float], v2: list[float]) -> float:
+    """
+    Calculate the L2 distance between two vectors
+
+    """
+    assert len(v1) == len(v2), f"{v1} and {v2} have different length!"
+    return math.sqrt(sum(pow(v1[i] - v2[i], 2) for i in range(len(v1))))
+
+
+def sum_square_error(c: list[list[float]]) -> float:
+    """
+    Calc the sum of squared errors.
+    """
+    mean_c = [statistics.mean([v[i] for v in c]) for i in range(len(c[0]))]
+    return sum(euclidean_distance(mean_c, v) ** 2 for v in c)
 
 
 if __name__ == "__main__":

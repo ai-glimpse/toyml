@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import logging
+import math
 
 from collections import deque
 from dataclasses import dataclass, field
-
-from toyml.utils.linear_algebra import euclidean_distance
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,8 @@ class Dataset:
 
     data: list[list[float]]
     n: int = field(init=False)
+    distance_metric: Literal["euclidean"] = "euclidean"
+    """The distance metric to use.(For now we only support euclidean)."""
     distance_matrix_: list[list[float]] = field(init=False)
 
     def __post_init__(self) -> None:
@@ -36,7 +38,7 @@ class Dataset:
         dist_mat = [[0.0 for _ in range(self.n)] for _ in range(self.n)]
         for i in range(self.n):
             for j in range(i, self.n):
-                dist_mat[i][j] = euclidean_distance(self.data[i], self.data[j])
+                dist_mat[i][j] = self._get_distance(self.data[i], self.data[j])
                 dist_mat[j][i] = dist_mat[i][j]
         return dist_mat
 
@@ -49,7 +51,7 @@ class Dataset:
             eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
 
         Returns:
-            The indices of the neighbors(Don't include the point itself).
+            The indices of the neighbors (Don't include the point itself).
         """
         return [j for j in range(self.n) if i != j and self.distance_matrix_[i][j] <= eps]
 
@@ -74,6 +76,13 @@ class Dataset:
             else:
                 noises.append(i)
         return core_objects, noises
+
+    def _get_distance(self, x: list[float], y: list[float]) -> float:
+        assert len(x) == len(y), f"{x} and {y} have different length!"
+        if self.distance_metric == "euclidean":
+            return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
+        else:
+            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
 
 
 @dataclass

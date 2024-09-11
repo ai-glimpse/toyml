@@ -7,8 +7,6 @@ import random
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
-from toyml.utils.linear_algebra import euclidean_distance
-
 logger = logging.getLogger(__name__)
 
 
@@ -61,6 +59,8 @@ class Kmeans:
     """The method to initialize the centroids."""
     random_seed: Optional[int] = None
     """The random seed used to initialize the centroids."""
+    distance_metric: Literal["euclidean"] = "euclidean"
+    """The distance metric to use.(For now we only support euclidean)."""
     iter_: int = 0
     clusters: dict[int, list[int]] = field(default_factory=dict)
     """The clusters of the dataset."""
@@ -125,6 +125,13 @@ class Kmeans:
         if len(self.centroids) == 0:
             raise ValueError("The model is not fitted yet")
         return self._get_centroid_label(point, self.centroids)
+
+    def _get_distance(self, x: list[float], y: list[float]) -> float:
+        assert len(x) == len(y), f"{x} and {y} have different length!"
+        if self.distance_metric == "euclidean":
+            return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
+        else:
+            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
 
     def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
         labels = [-1] * len(dataset)
@@ -207,16 +214,15 @@ class Kmeans:
             The minimum square distance
         """
         return min(
-            (euclidean_distance(point, centroid) ** 2 for centroid in self.centroids.values() if centroid),
+            (self._get_distance(point, centroid) ** 2 for centroid in self.centroids.values() if centroid),
             default=math.inf,
         )
 
-    @staticmethod
-    def _get_centroid_label(point: list[float], centroids: dict[int, list[float]]) -> int:
+    def _get_centroid_label(self, point: list[float], centroids: dict[int, list[float]]) -> int:
         """
         Get the label of the centroid, which is closest to the point
         """
-        distances = [(i, euclidean_distance(point, centroid)) for i, centroid in centroids.items()]
+        distances = [(i, self._get_distance(point, centroid)) for i, centroid in centroids.items()]
         return min(distances, key=lambda x: x[1])[0]
 
     def _get_clusters(self, dataset: list[list[float]]) -> dict[int, list[int]]:
