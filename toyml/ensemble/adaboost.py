@@ -35,9 +35,20 @@ class AdaBoost:
     """
     The implementation of AdaBoost algorithm.
 
-    Ref:
-    1. Li Hang
-    2. Zhou
+    Examples:
+        >>> from toyml.ensemble.adaboost import AdaBoost, OneDimensionClassifier
+        >>> dataset = [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
+        >>> labels = [1, 1, 1, -1, -1, -1, 1, 1, 1, -1]
+        >>> ada = AdaBoost(weak_learner=OneDimensionClassifier, n_weak_learner=3).fit(dataset, labels)
+        >>> print(f"Training dataset error rate: {ada.training_error_rate_}")
+        Training dataset error rate: 0.0
+        >>> test_sample = [1.5]
+        >>> print(f"The label of {test_sample} is {ada.predict(test_sample)}")
+        The label of [1.5] is 1
+
+    References:
+        1. Li Hang
+        2. Zhou Zhihua
     """
 
     weak_learner: Type[BaseWeakLeaner]

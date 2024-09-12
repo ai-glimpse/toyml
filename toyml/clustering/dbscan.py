@@ -11,81 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Dataset:
-    """
-    Dataset for DBSCAN
-
-    Args:
-        data: The dataset.
-
-    Attributes:
-        data: The dataset.
-        n: The number of data points.
-        distance_matrix_: The distance matrix.
-    """
-
-    data: list[list[float]]
-    n: int = field(init=False)
-    distance_metric: Literal["euclidean"] = "euclidean"
-    """The distance metric to use.(For now we only support euclidean)."""
-    distance_matrix_: list[list[float]] = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.n = len(self.data)
-        self.distance_matrix_ = self._calculate_distance_matrix()
-
-    def _calculate_distance_matrix(self) -> list[list[float]]:
-        dist_mat = [[0.0 for _ in range(self.n)] for _ in range(self.n)]
-        for i in range(self.n):
-            for j in range(i, self.n):
-                dist_mat[i][j] = self._get_distance(self.data[i], self.data[j])
-                dist_mat[j][i] = dist_mat[i][j]
-        return dist_mat
-
-    def get_neighbors(self, i: int, eps: float) -> list[int]:
-        """
-        Get the neighbors of the i-th data point.
-
-        Args:
-            i: The index of the data point.
-            eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
-
-        Returns:
-            The indices of the neighbors (Don't include the point itself).
-        """
-        return [j for j in range(self.n) if i != j and self.distance_matrix_[i][j] <= eps]
-
-    def get_core_objects(self, eps: float, min_samples: int) -> tuple[set[int], list[int]]:
-        """
-        Get the core objects and noises of the dataset.
-
-        Args:
-            eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
-            min_samples: The number of samples (or total weight) in a neighborhood for a point to be considered as a core point.
-
-        Returns:
-            core_objects: The indices of the core objects.
-            noises: The indices of the noises.
-        """
-        core_objects = set()
-        noises = []
-        for i in range(self.n):
-            neighbors = self.get_neighbors(i, eps)
-            if len(neighbors) + 1 >= min_samples:  # +1 to include the point itself
-                core_objects.add(i)
-            else:
-                noises.append(i)
-        return core_objects, noises
-
-    def _get_distance(self, x: list[float], y: list[float]) -> float:
-        assert len(x) == len(y), f"{x} and {y} have different length!"
-        if self.distance_metric == "euclidean":
-            return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
-        else:
-            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
-
-
-@dataclass
 class DBSCAN:
     """
     DBSCAN algorithm
@@ -190,6 +115,81 @@ class DBSCAN:
             The cluster labels.
         """
         return self.fit(data).labels_
+
+
+@dataclass
+class Dataset:
+    """
+    Dataset for DBSCAN
+
+    Args:
+        data: The dataset.
+
+    Attributes:
+        data: The dataset.
+        n: The number of data points.
+        distance_matrix_: The distance matrix.
+    """
+
+    data: list[list[float]]
+    n: int = field(init=False)
+    distance_metric: Literal["euclidean"] = "euclidean"
+    """The distance metric to use.(For now we only support euclidean)."""
+    distance_matrix_: list[list[float]] = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.n = len(self.data)
+        self.distance_matrix_ = self._calculate_distance_matrix()
+
+    def _calculate_distance_matrix(self) -> list[list[float]]:
+        dist_mat = [[0.0 for _ in range(self.n)] for _ in range(self.n)]
+        for i in range(self.n):
+            for j in range(i, self.n):
+                dist_mat[i][j] = self._get_distance(self.data[i], self.data[j])
+                dist_mat[j][i] = dist_mat[i][j]
+        return dist_mat
+
+    def get_neighbors(self, i: int, eps: float) -> list[int]:
+        """
+        Get the neighbors of the i-th data point.
+
+        Args:
+            i: The index of the data point.
+            eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
+
+        Returns:
+            The indices of the neighbors (Don't include the point itself).
+        """
+        return [j for j in range(self.n) if i != j and self.distance_matrix_[i][j] <= eps]
+
+    def get_core_objects(self, eps: float, min_samples: int) -> tuple[set[int], list[int]]:
+        """
+        Get the core objects and noises of the dataset.
+
+        Args:
+            eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
+            min_samples: The number of samples (or total weight) in a neighborhood for a point to be considered as a core point.
+
+        Returns:
+            core_objects: The indices of the core objects.
+            noises: The indices of the noises.
+        """
+        core_objects = set()
+        noises = []
+        for i in range(self.n):
+            neighbors = self.get_neighbors(i, eps)
+            if len(neighbors) + 1 >= min_samples:  # +1 to include the point itself
+                core_objects.add(i)
+            else:
+                noises.append(i)
+        return core_objects, noises
+
+    def _get_distance(self, x: list[float], y: list[float]) -> float:
+        assert len(x) == len(y), f"{x} and {y} have different length!"
+        if self.distance_metric == "euclidean":
+            return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
+        else:
+            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
 
 
 if __name__ == "__main__":

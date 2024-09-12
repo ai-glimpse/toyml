@@ -1,0 +1,3 @@
+# AdaBoost
+
+::: toyml.ensemble.adaboost

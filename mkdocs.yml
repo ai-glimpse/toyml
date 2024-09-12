@@ -8,19 +8,23 @@ copyright: Copyright &copy; 2017 Xiangzhuang Shen
 # Page tree
 nav:
   - Home: index.md
-  - Getting started:
-      - Quick Start: quickstart.md
-      - User Guide:
-          - Read First: user-guide/1-read-first.md
+#  - Getting started:
+#      - Quick Start: quickstart.md
+#      - User Guide:
+#          - Read First: user-guide/1-read-first.md
   - Algorithms:
       - Clustering:
           - Kmeans: algorithms/clustering/kmeans.md
-          - DBSCAN: algorithms/clustering/dbscan.md
+          - DIANA: algorithms/clustering/diana.md
           - AGNES: algorithms/clustering/agnes.md
+          - DBSCAN: algorithms/clustering/dbscan.md
+
       - Classification:
           - KNN: algorithms/classification/knn.md
-      - EVT:
-          - SPOT: algorithms/evt/spot.md
+
+      - Ensemble:
+          - AdaBoost: algorithms/ensemble/adaboost.md
+
   - Changelog: changelog.md
 
 exclude_docs: |

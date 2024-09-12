@@ -133,7 +133,14 @@ class BisectingKmeans:
     Bisecting K-means algorithm.
     Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)
 
-    Tip: References
+    Examples:
+        >>> from toyml.clustering import BisectingKmeans
+        >>> dataset = [[1.0, 1.0], [1.0, 2.0], [2.0, 1.0], [10.0, 1.0], [10.0, 2.0], [11.0, 1.0]]
+        >>> bisect_kmeans = BisectingKmeans(k=3)
+        >>> labels = bisect_kmeans.fit_predict(dataset)
+        >>> clusters = bisect_kmeans.cluster_tree.get_clusters()
+
+    References:
         1. Harrington
         2. Tan
 

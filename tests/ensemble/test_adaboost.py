@@ -1,6 +1,6 @@
 import pytest
 
-from toyml.ensemble.ada_boost import AdaBoost, OneDimensionClassifier
+from toyml.ensemble.adaboost import AdaBoost, OneDimensionClassifier
 
 
 class TestOneDimensionClassifier:

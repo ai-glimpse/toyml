@@ -7,33 +7,6 @@ from typing import Literal, Optional, Tuple
 
 
 @dataclass
-class ClusterTree:
-    """
-    Represents a node in the hierarchical clustering tree.
-
-    Each node is a cluster containing sample indices.
-    Leaf nodes represent individual samples, while internal nodes
-    represent merged clusters. The root node contains all samples.
-    """
-
-    cluster_index: int
-    parent: Optional[ClusterTree] = None
-    """Parent node."""
-    children: list[ClusterTree] = field(default_factory=list)
-    """Children nodes."""
-    sample_indices: list[int] = field(default_factory=list)
-    """The cluster: dataset sample indices."""
-    children_cluster_distance: Optional[float] = None
-
-    def add_child(self, child: ClusterTree) -> None:
-        child.parent = self
-        self.children.append(child)
-
-    def __repr__(self) -> str:
-        return f"CT({self.cluster_index}): {self.sample_indices}"
-
-
-@dataclass
 class AGNES:
     """
     Agglomerative clustering algorithm (Bottom-up Hierarchical Clustering)
@@ -284,6 +257,33 @@ class AGNES:
         plt.savefig(f"{figure_name}", dpi=300, bbox_inches="tight")
         if show:
             plt.show()
+
+
+@dataclass
+class ClusterTree:
+    """
+    Represents a node in the hierarchical clustering tree.
+
+    Each node is a cluster containing sample indices.
+    Leaf nodes represent individual samples, while internal nodes
+    represent merged clusters. The root node contains all samples.
+    """
+
+    cluster_index: int
+    parent: Optional[ClusterTree] = None
+    """Parent node."""
+    children: list[ClusterTree] = field(default_factory=list)
+    """Children nodes."""
+    sample_indices: list[int] = field(default_factory=list)
+    """The cluster: dataset sample indices."""
+    children_cluster_distance: Optional[float] = None
+
+    def add_child(self, child: ClusterTree) -> None:
+        child.parent = self
+        self.children.append(child)
+
+    def __repr__(self) -> str:
+        return f"CT({self.cluster_index}): {self.sample_indices}"
 
 
 if __name__ == "__main__":

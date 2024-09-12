@@ -16,19 +16,20 @@ class KNN:
     This class implements the K-Nearest Neighbors algorithm for classification tasks.
     It supports optional standardization of the input data.
 
-    Attributes:
-        k: The number of nearest neighbors to consider for classification.
-        std_transform: Whether to standardize the input data (default: True).
-        dataset_: The fitted dataset (standardized if std_transform is True).
-        labels_: The labels corresponding to the fitted dataset.
-        standarizationer_: The Standardizationer instance if std_transform is True.
-
     Examples:
         >>> dataset = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
         >>> labels = ['A', 'A', 'B', 'B']
         >>> knn = KNN(k=3, std_transform=True).fit(dataset, labels)
         >>> knn.predict([2.5, 3.5])
         'A'
+
+    Attributes:
+        k: The number of nearest neighbors to consider for classification.
+        std_transform: Whether to standardize the input data (default: True).
+        dataset_: The fitted dataset (standardized if std_transform is True).
+        labels_: The labels corresponding to the fitted dataset.
+        standardizationer_: The Standardizationer instance if std_transform is True.
+
 
     References:
         1. Li Hang
@@ -42,7 +43,7 @@ class KNN:
     std_transform: bool = True
     dataset_: Optional[list[list[float]]] = None
     labels_: Optional[list[Any]] = None
-    standarizationer_: Optional[Standardizationer] = None
+    standardizationer_: Optional[Standardizationer] = None
 
     def fit(self, dataset: list[list[float]], labels: list[Any]) -> KNN:
         """
@@ -58,8 +59,8 @@ class KNN:
         self.dataset_ = dataset
         self.labels_ = labels
         if self.std_transform:
-            self.standarizationer_ = Standardizationer()
-            self.dataset_ = self.standarizationer_.fit_transform(self.dataset_)
+            self.standardizationer_ = Standardizationer()
+            self.dataset_ = self.standardizationer_.fit_transform(self.dataset_)
         return self
 
     def predict(self, x: list[float]) -> Any:
@@ -79,9 +80,9 @@ class KNN:
             raise ValueError("The model is not fitted yet!")
 
         if self.std_transform:
-            if self.standarizationer_ is None:
+            if self.standardizationer_ is None:
                 raise ValueError("Cannot find the standardization!")
-            x = self.standarizationer_.transform([x])[0]
+            x = self.standardizationer_.transform([x])[0]
         distances = [self._calculate_distance(x, point) for point in self.dataset_]
         # get k-nearest neighbors' label
         k_nearest_labels = [label for _, label in sorted(zip(distances, self.labels_), key=lambda x: x[0])][:: self.k]
@@ -100,7 +101,7 @@ class KNN:
         # First pass: find the maximum absolute difference
         max_diff = max(abs(xi - yi) for xi, yi in zip(x, y))
 
-        if math.isclose(max_diff, 0):
+        if math.isclose(max_diff, 0, abs_tol=1e-9):
             return 0.0  # All elements are identical
 
         # Second pass: calculate the normalized sum of squares
@@ -192,7 +193,7 @@ class Standardizationer:
         for j, column in enumerate(zip(*dataset)):
             mean, std = self._means[j], self._stds[j]
             # ref: https://github.com/scikit-learn/scikit-learn/blob/7389dbac82d362f296dc2746f10e43ffa1615660/sklearn/preprocessing/data.py#L70
-            if math.isclose(std, 0):
+            if math.isclose(std, 0, abs_tol=1e-9):
                 std = 1
             for i, value in enumerate(column):
                 dataset[i][j] = (value - mean) / std
