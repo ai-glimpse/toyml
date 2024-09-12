@@ -16,6 +16,13 @@ class KNN:
     This class implements the K-Nearest Neighbors algorithm for classification tasks.
     It supports optional standardization of the input data.
 
+    Examples:
+        >>> dataset = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
+        >>> labels = ['A', 'A', 'B', 'B']
+        >>> knn = KNN(k=3, std_transform=True).fit(dataset, labels)
+        >>> knn.predict([2.5, 3.5])
+        'A'
+
     Attributes:
         k: The number of nearest neighbors to consider for classification.
         std_transform: Whether to standardize the input data (default: True).
@@ -23,12 +30,6 @@ class KNN:
         labels_: The labels corresponding to the fitted dataset.
         standardizationer_: The Standardizationer instance if std_transform is True.
 
-    Examples:
-        >>> dataset = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
-        >>> labels = ['A', 'A', 'B', 'B']
-        >>> knn = KNN(k=3, std_transform=True).fit(dataset, labels)
-        >>> knn.predict([2.5, 3.5])
-        'A'
 
     References:
         1. Li Hang
