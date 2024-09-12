@@ -35,9 +35,9 @@ class AdaBoost:
     """
     The implementation of AdaBoost algorithm.
 
-    Ref:
-    1. Li Hang
-    2. Zhou
+    References:
+        1. Li Hang
+        2. Zhou Zhihua
     """
 
     weak_learner: Type[BaseWeakLeaner]
