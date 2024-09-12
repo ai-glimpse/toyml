@@ -29,17 +29,5 @@ pip install toyml
 ```
 
 
-## Links
-- Documentation: [https://ai-glimpse.github.io/toyml/](https://ai-glimpse.github.io/toyml/)
-- PyPi: [https://pypi.org/project/toyml/](https://pypi.org/project/toyml/)
-- Changelog: [https://ai-glimpse.github.io/toyml/CHANGELOG/](https://ai-glimpse.github.io/toyml/CHANGELOG/)
-
-
-## RoadMap
-
-- [x] Clustering: DBSCAN, Hierarchical(Agnes&Diana), Kmeans
-- [x] Classification: KNN
-- [x] Ensemble: Boosting(AdaBoost)
-- [ ] Classification: NaiveBayes, DecisionTree, SVM
-- [ ] Association Analysis: Apriori
-- [ ] Ensemble: GBDT
+## Changelog
+- [https://ai-glimpse.github.io/toyml/CHANGELOG/](https://ai-glimpse.github.io/toyml/CHANGELOG/)
