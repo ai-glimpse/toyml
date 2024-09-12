@@ -29,11 +29,11 @@ jobs:
       - name: Pre-Commit Check
         uses: pre-commit/action@v3.0.1
       - name: Run tests and generate coverage report
-        run: uv run pytest --doctest-modules -v --cov=toyml --cov-fail-under 80 --cov-report=term --cov-report=xml --cov-report=html toyml tests
+        run: uv run pytest --doctest-modules -v --cov=toyml --cov-fail-under 90 --cov-report=term --cov-report=xml --cov-report=html toyml tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: success() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        if: matrix.python-version == '3.12'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
