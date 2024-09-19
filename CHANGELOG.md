@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2024-09-19
+
+### Changed
+- Improve the one dimension classifier implementation in adaboost algorithm [#117](https://github.com/ai-glimpse/toyml/pull/117)
+
 ## [0.3.1.rc0] - 2024-09-19
 
 ### Fixed
