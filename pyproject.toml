@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toyml"
-version = "0.3.1.rc0"
+version = "0.3.1"
 description = "ToyML: Machine Learning from Scratch"
 keywords=["machine learning", "statistics", "engineering"]
 license = {text = "Apache 2.0"}
