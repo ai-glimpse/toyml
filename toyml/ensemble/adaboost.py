@@ -257,14 +257,14 @@ class OneDimensionClassifier(BaseWeakLeaner):
         """
         Get the error rate of the training dataset.
         """
-        error_rate = 0.0
-        for i, x in enumerate(points):
-            if sign_mode == self.SignMode.POS_NEG:
-                if x <= cut and labels[i] != 1 or x > cut and labels[i] != -1:
-                    error_rate += weights[i]
-            else:
-                if x <= cut and labels[i] != -1 or x > cut and labels[i] != 1:
-                    error_rate += weights[i]
+        if sign_mode == self.SignMode.POS_NEG:
+            error_rate = sum(
+                weights[i] for i, x in enumerate(points) if x <= cut and labels[i] != 1 or x > cut and labels[i] != -1
+            )
+        else:
+            error_rate = sum(
+                weights[i] for i, x in enumerate(points) if x <= cut and labels[i] != -1 or x > cut and labels[i] != 1
+            )
         return error_rate
 
 
