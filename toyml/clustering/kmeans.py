@@ -19,11 +19,11 @@ class Kmeans:
         >>> from toyml.clustering import Kmeans
         >>> dataset = [[1.0, 2.0], [1.0, 4.0], [1.0, 0.0], [10.0, 2.0], [10.0, 4.0], [11.0, 0.0]]
         >>> kmeans = Kmeans(k=2, random_seed=42).fit(dataset)
-        >>> kmeans.clusters
+        >>> kmeans.clusters_
         {0: [3, 4, 5], 1: [0, 1, 2]}
-        >>> kmeans.centroids
+        >>> kmeans.centroids_
         {0: [10.333333333333334, 2.0], 1: [1.0, 2.0]}
-        >>> kmeans.labels
+        >>> kmeans.labels_
         [1, 1, 1, 0, 0, 0]
         >>> kmeans.predict([0, 1])
         1
@@ -62,11 +62,11 @@ class Kmeans:
     distance_metric: Literal["euclidean"] = "euclidean"
     """The distance metric to use.(For now we only support euclidean)."""
     iter_: int = 0
-    clusters: dict[int, list[int]] = field(default_factory=dict)
+    clusters_: dict[int, list[int]] = field(default_factory=dict)
     """The clusters of the dataset."""
-    centroids: dict[int, list[float]] = field(default_factory=dict)
+    centroids_: dict[int, list[float]] = field(default_factory=dict)
     """The centroids of the clusters."""
-    labels: list[int] = field(default_factory=list)
+    labels_: list[int] = field(default_factory=list)
     """The cluster labels of the dataset."""
 
     def __post_init__(self) -> None:
@@ -82,10 +82,10 @@ class Kmeans:
         Returns:
             self.
         """
-        self.centroids = self._get_initial_centroids(dataset)
+        self.centroids_ = self._get_initial_centroids(dataset)
         for _ in range(self.max_iter):
             self.iter_ += 1
-            prev_centroids = self.centroids
+            prev_centroids = self.centroids_
             self._iter_step(dataset)
             if self._is_converged(prev_centroids):
                 break
@@ -95,9 +95,9 @@ class Kmeans:
         """
         Can be used to control the fitting process step by step.
         """
-        self.clusters = self._get_clusters(dataset)
-        self.centroids = self._get_centroids(dataset)
-        self.labels = self._get_dataset_labels(dataset)
+        self.clusters_ = self._get_clusters(dataset)
+        self.centroids_ = self._get_centroids(dataset)
+        self.labels_ = self._predict_dataset_labels(dataset)
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
         """
@@ -109,7 +109,7 @@ class Kmeans:
         Returns:
             Cluster labels of the dataset samples.
         """
-        return self.fit(dataset).labels
+        return self.fit(dataset).labels_
 
     def predict(self, point: list[float]) -> int:
         """
@@ -122,20 +122,20 @@ class Kmeans:
             The label of the point.
 
         """
-        if len(self.centroids) == 0:
+        if len(self.centroids_) == 0:
             raise ValueError("The model is not fitted yet")
-        return self._get_centroid_label(point, self.centroids)
+        return self._get_point_centroid_label(point, self.centroids_)
 
-    def _get_distance(self, x: list[float], y: list[float]) -> float:
+    def _calc_distance(self, x: list[float], y: list[float]) -> float:
         assert len(x) == len(y), f"{x} and {y} have different length!"
         if self.distance_metric == "euclidean":
             return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
         else:
             raise ValueError(f"Distance metric {self.distance_metric} not supported!")
 
-    def _get_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
+    def _predict_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
         labels = [-1] * len(dataset)
-        for cluster_label, cluster in self.clusters.items():
+        for cluster_label, cluster in self.clusters_.items():
             for data_point_index in cluster:
                 labels[data_point_index] = cluster_label
         return labels
@@ -162,7 +162,7 @@ class Kmeans:
             Whether the centroids converged.
         """
         # check every centroid
-        for i, centroid in self.centroids.items():
+        for i, centroid in self.centroids_.items():
             prev_centroid = prev_centroids[i]
             # check every dimension
             for j in range(len(prev_centroid)):
@@ -194,14 +194,14 @@ class Kmeans:
         Returns:
             The initial centroids
         """
-        self.centroids = dict()
-        self.centroids[0] = random.choice(dataset)
+        self.centroids_ = dict()
+        self.centroids_[0] = random.choice(dataset)
         for i in range(1, self.k):
             min_distances = [self._get_min_square_distance(point) for point in dataset]
             total_dist = sum(min_distances)
             weights = [dist / total_dist for dist in min_distances]
-            self.centroids[i] = random.choices(dataset, weights)[0]
-        return self.centroids
+            self.centroids_[i] = random.choices(dataset, weights)[0]
+        return self.centroids_
 
     def _get_min_square_distance(self, point: list[float]) -> float:
         """
@@ -214,27 +214,27 @@ class Kmeans:
             The minimum square distance
         """
         return min(
-            (self._get_distance(point, centroid) ** 2 for centroid in self.centroids.values() if centroid),
+            (self._calc_distance(point, centroid) ** 2 for centroid in self.centroids_.values() if centroid),
             default=math.inf,
         )
 
-    def _get_centroid_label(self, point: list[float], centroids: dict[int, list[float]]) -> int:
+    def _get_point_centroid_label(self, point: list[float], centroids: dict[int, list[float]]) -> int:
         """
         Get the label of the centroid, which is closest to the point
         """
-        distances = [(i, self._get_distance(point, centroid)) for i, centroid in centroids.items()]
+        distances = [(i, self._calc_distance(point, centroid)) for i, centroid in centroids.items()]
         return min(distances, key=lambda x: x[1])[0]
 
     def _get_clusters(self, dataset: list[list[float]]) -> dict[int, list[int]]:
         clusters: dict[int, list[int]] = {i: [] for i in range(self.k)}
         for i, point in enumerate(dataset):
-            centroid_label = self._get_centroid_label(point, self.centroids)
+            centroid_label = self._get_point_centroid_label(point, self.centroids_)
             clusters[centroid_label].append(i)
         return clusters
 
     def _get_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
         centroids: dict[int, list[float]] = {i: [] for i in range(self.k)}
-        for cluster_i, cluster in self.clusters.items():
+        for cluster_i, cluster in self.clusters_.items():
             cluster_points = [dataset[i] for i in cluster]
             centroid = [sum(t) / len(cluster) for t in zip(*cluster_points)]
             centroids[cluster_i] = centroid
