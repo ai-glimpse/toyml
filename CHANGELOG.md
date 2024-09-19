@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1.rc0] - 2024-09-19
+
+### Fixed
+- Fix the codecov report issue in ci [#112](https://github.com/ai-glimpse/toyml/pull/112)
+
+### Changed
+- Improve the variable names in kmeans algorithm [#114](https://github.com/ai-glimpse/toyml/pull/114)
+- Improve the documentation and linters [#115](https://github.com/ai-glimpse/toyml/pull/115)
+
 ## [0.3.0] - 2024-09-12
 
 ### Docs
