@@ -78,35 +78,35 @@ class ClusterTree:
 
         def _build_graph(
             node: ClusterTree,
-            G: Optional[nx.Graph] = None,
+            graph: Optional[nx.Graph] = None,
             pos: Optional[dict[int, tuple[float, float]]] = None,
             x: float = 0,
             y: float = 0,
             layer: int = 1,
         ) -> tuple[nx.Graph, dict[int, tuple[float, float]]]:
-            if G is None:
-                G = nx.Graph()
+            if graph is None:
+                graph = nx.Graph()
                 pos = {}
 
             node_id = id(node)
-            G.add_node(node_id)
+            graph.add_node(node_id)
             pos[node_id] = (x, y)  # type: ignore
-            G.nodes[node_id]["label"] = f"{node.cluster}"
-            G.nodes[node_id]["size"] = len(node.cluster) * 1000  # Adjust node size based on cluster size
+            graph.nodes[node_id]["label"] = f"{node.cluster}"
+            graph.nodes[node_id]["size"] = len(node.cluster) * 1000  # Adjust node size based on cluster size
 
             if node.left:
                 left_id = id(node.left)
-                G.add_edge(node_id, left_id)
+                graph.add_edge(node_id, left_id)
                 l_x, l_y = x - 1 / 2 ** (layer + 1), y - 0.5
-                _build_graph(node.left, G, pos, l_x, l_y, layer + 1)
+                _build_graph(node.left, graph, pos, l_x, l_y, layer + 1)
 
             if node.right:
                 right_id = id(node.right)
-                G.add_edge(node_id, right_id)
+                graph.add_edge(node_id, right_id)
                 r_x, r_y = x + 1 / 2 ** (layer + 1), y - 0.5
-                _build_graph(node.right, G, pos, r_x, r_y, layer + 1)
+                _build_graph(node.right, graph, pos, r_x, r_y, layer + 1)
 
-            return G, pos  # type: ignore
+            return graph, pos  # type: ignore
 
         G, pos = _build_graph(self)
 

@@ -78,7 +78,7 @@ class AdaBoost:
     """
     _weights: list[float] = field(default_factory=list)
     """
-    The weights of sampels in the training dataset.
+    The weights of samples in the training dataset.
     """
     _base_clf_labels: list[list[int]] = field(default_factory=list)
     """
