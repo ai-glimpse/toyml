@@ -30,7 +30,6 @@ class DBSCAN:
         1. Zhou Zhihua
         2. Han
         3. Kassambara
-        4. Wikipedia
     """
 
     eps: float = 0.5

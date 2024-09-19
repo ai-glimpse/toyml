@@ -34,7 +34,7 @@ class KNN:
     References:
         1. Li Hang
         2. Tan
-        3. Zhou
+        3. Zhou Zhihua
         4. Murphy
         5. Harrington
     """
