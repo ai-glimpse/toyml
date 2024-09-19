@@ -17,15 +17,15 @@ class TestBisectKMeansSimple:
         simple_dataset: list[list[float]],
     ) -> None:
         diana = BisectingKmeans(k)
-        print(diana.cluster_tree.get_clusters())
-        assert len(diana.cluster_tree.get_clusters()) == 1
+        print(diana.cluster_tree_.get_clusters())
+        assert len(diana.cluster_tree_.get_clusters()) == 1
         if k <= len(simple_dataset):
             diana = diana.fit(simple_dataset)
-            assert len(diana.cluster_tree.get_clusters()) == k
-            assert len(set(diana.labels)) == k
-            assert all(0 <= label <= k for label in diana.labels) is True
+            assert len(diana.cluster_tree_.get_clusters()) == k
+            assert len(set(diana.labels_)) == k
+            assert all(0 <= label <= k for label in diana.labels_) is True
 
-            cluster_index = [i for cluster in diana.cluster_tree.get_clusters() for i in cluster]
+            cluster_index = [i for cluster in diana.cluster_tree_.get_clusters() for i in cluster]
             assert len(cluster_index) == len(simple_dataset)
             assert sorted(cluster_index) == sorted(list(range(len(simple_dataset))))
         else:
@@ -52,7 +52,7 @@ class TestBisectKMeansSimple:
         assert all(0 <= label < k for label in predictions)
 
         # Check if the predictions match the labels from fit
-        assert predictions == diana.labels
+        assert predictions == diana.labels_
 
         # Test prediction on new points
         new_points = [[0.5, 0.5], [10.5, 10.5]]
