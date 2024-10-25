@@ -151,7 +151,7 @@ class IsolationForest:
 
     def _fit_itree(self, dataset: list[list[float]]) -> IsolationTree:
         samples = random.sample(dataset, self.max_samples)
-        itree_max_height = math.ceil(len(samples))
+        itree_max_height = math.ceil(math.log(len(samples)))
         return IsolationTree(itree_max_height).fit(samples)
 
 
