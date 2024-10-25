@@ -159,5 +159,5 @@ if __name__ == "__main__":
     simple_dataset = [[-1.1], [0.3], [0.5], [100.0]]
     clf = IsolationForest(n_itree=100, max_samples=4).fit(simple_dataset)
     print(clf.predict([0.1]))
-    print(clf.predict([0]))
+    print(clf.predict([0.0]))
     print(clf.predict([90]))
