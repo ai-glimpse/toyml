@@ -30,4 +30,4 @@ pip install toyml
 
 
 ## Changelog
-- [https://ai-glimpse.github.io/toyml/CHANGELOG/](https://ai-glimpse.github.io/toyml/CHANGELOG/)
+- [https://ai-glimpse.github.io/toyml/changelog/](https://ai-glimpse.github.io/toyml/changelog/)
