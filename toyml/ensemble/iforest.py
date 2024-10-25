@@ -9,6 +9,8 @@ from typing import Optional
 
 
 def bst_expect_length(n: int) -> float:
+    if n <= 1:
+        return 0
     return 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
 
 
