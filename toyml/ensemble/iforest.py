@@ -77,7 +77,7 @@ class IsolationTree:
     ) -> tuple[Optional[IsolationTree], Optional[IsolationTree]]:
         assert self.feature_num_ is not None
         split_at_list = list(range(self.feature_num_))
-        random.shuffle(split_at_list)
+        self.random_state.shuffle(split_at_list)
         for split_at in split_at_list:
             split_at_feature_values = [sample[split_at] for sample in samples]
             split_at_min, split_at_max = min(split_at_feature_values), max(split_at_feature_values)
