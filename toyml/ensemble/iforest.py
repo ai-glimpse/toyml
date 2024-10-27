@@ -51,11 +51,8 @@ class IsolationTree:
     def get_sample_path_length(self, sample: list[float]) -> float:
         if self.is_external_node():
             assert self.sample_size_ is not None
-            # sklearn: https://github.com/scikit-learn/scikit-learn/blob/6e9039160f0dfc3153643143af4cfdca941d2045/sklearn/ensemble/_iforest.py#L517-L518
-            # For a single training sample, denominator and depth are 0.
-            # Therefore, we set the score manually to 1.
             if self.sample_size_ == 1:
-                return 1
+                return 0
             else:
                 return bst_expect_length(self.sample_size_)
 
