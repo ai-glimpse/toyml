@@ -10,6 +10,8 @@ from typing import Optional
 def bst_expect_length(n: int) -> float:
     if n <= 1:
         return 0
+    if n == 2:
+        return 1
     return 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
 
 
@@ -34,14 +36,14 @@ class IsolationTree:
 
     def __post_init__(self) -> None:
         self.random_state = random.Random(self.random_seed)
-        if self.max_height < 1:
-            raise ValueError(f"The max height of {self.__class__.__name__} must >= 1, " f"not get {self.max_height}")
+        if self.max_height < 0:
+            raise ValueError(f"The max height of {self.__class__.__name__} must >= 0, " f"not get {self.max_height}")
 
     def fit(self, samples: list[list[float]]) -> IsolationTree:
         self.sample_size_ = len(samples)
         self.feature_num_ = len(samples[0])
         # exNode
-        if self.max_height == 1 or self.sample_size_ == 1:
+        if self.max_height == 0 or self.sample_size_ == 1:
             return self
         # inNode
         left_itree, right_itree = self._get_left_right_child_itree(samples)
