@@ -44,7 +44,7 @@ class IsolationTree:
     def __post_init__(self) -> None:
         self.random_state = random.Random(self.random_seed)
         if self.max_height < 0:
-            raise ValueError(f"The max height of {self.__class__.__name__} must >= 0, " f"not get {self.max_height}")
+            raise ValueError(f"The max height of {self.__class__.__name__} must >= 0, not get {self.max_height}")
 
     def fit(self, samples: list[list[float]]) -> IsolationTree:
         """
