@@ -24,6 +24,7 @@ nav:
 
       - Ensemble:
           - AdaBoost: algorithms/ensemble/adaboost.md
+          - Isolation Forest: algorithms/ensemble/iforest.md
 
   - Changelog: changelog.md
 

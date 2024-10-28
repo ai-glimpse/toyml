@@ -17,6 +17,13 @@ def bst_expect_length(n: int) -> float:
 
 @dataclass
 class IsolationTree:
+    """
+    The isolation tree.
+
+    Note:
+        The isolation tree is a proper(full) binary tree, which has either 0 or 2 children.
+    """
+
     max_height: int
     """The maximum height of the tree."""
     random_seed: int | None = None
@@ -40,6 +47,9 @@ class IsolationTree:
             raise ValueError(f"The max height of {self.__class__.__name__} must >= 0, " f"not get {self.max_height}")
 
     def fit(self, samples: list[list[float]]) -> IsolationTree:
+        """
+        Fit the isolation tree.
+        """
         self.sample_size_ = len(samples)
         self.feature_num_ = len(samples[0])
         # exNode
@@ -51,6 +61,15 @@ class IsolationTree:
         return self
 
     def get_sample_path_length(self, sample: list[float]) -> float:
+        """
+        Get the sample's path length to the external(leaf) node.
+
+        Args:
+            sample: The data sample.
+
+        Returns:
+            The path length of the sample.
+        """
         if self.is_external_node():
             assert self.sample_size_ is not None
             if self.sample_size_ == 1:
@@ -67,6 +86,9 @@ class IsolationTree:
             return 1 + self.right_.get_sample_path_length(sample)
 
     def is_external_node(self) -> bool:
+        """
+        The tree node is external(leaf) node or not.
+        """
         if self.left_ is None and self.right_ is None:
             return True
         return False
@@ -112,12 +134,25 @@ class IsolationTree:
 class IsolationForest:
     """
     Isolation Forest.
+
+    Examples:
+        >>> from toyml.ensemble.iforest import IsolationForest
+        >>> dataset = [[-1.1], [0.3], [0.5], [100.0]]
+        >>> IsolationForest(n_itree=100, max_samples=4).fit_predict(dataset)
+        [1, 1, 1, -1]
+
+    References:
+        Liu, Fei Tony, Kai Ming Ting, and Zhi-Hua Zhou. "Isolation forest." 2008 eighth ieee international conference on data mining. IEEE, 2008.
     """
 
     n_itree: int = 100
     """The number of isolation tree in the ensemble."""
     max_samples: int = 256
     """The number of samples to draw from X to train each base estimator."""
+    score_threshold: float = 0.5
+    """The score threshold that is used to define outlier:
+    If sample's anomaly score > score_threshold, then the sample is detected as outlier(predict return -1);
+    otherwise, the sample is normal(predict return 1)"""
     random_seed: int | None = None
     """The random seed used to initialize the centroids."""
     itrees_: list[IsolationTree] = field(default_factory=list)
@@ -127,13 +162,16 @@ class IsolationForest:
         self.random_state = random.Random(self.random_seed)
 
     def fit(self, dataset: list[list[float]]) -> IsolationForest:
+        """
+        Fit the isolation forest model.
+        """
         if self.max_samples > len(dataset):
             self.max_samples = len(dataset)
 
         self.itrees_ = self._fit_itrees(dataset)
         return self
 
-    def predict(self, sample: list[float]) -> float:
+    def score(self, sample: list[float]) -> float:
         """
         Predict the sample's anomaly score.
 
@@ -143,10 +181,32 @@ class IsolationForest:
         Returns:
             The anomaly score.
         """
+        assert len(self.itrees_) == self.n_itree, "Please fit the model before score sample!"
         itree_path_lengths = [itree.get_sample_path_length(sample) for itree in self.itrees_]
         expect_path_length = sum(itree_path_lengths) / len(itree_path_lengths)
         score = 2 ** (-expect_path_length / bst_expect_length(self.max_samples))
         return score
+
+    def predict(self, sample: list[float]) -> int:
+        """
+        Predict the sample is outlier ot not.
+
+        Args:
+            sample: The data sample.
+
+        Returns:
+            Outlier: -1; Normal: 1.
+        """
+        score = self.score(sample)
+        # outlier
+        if score > self.score_threshold:
+            return -1
+        else:
+            return 1
+
+    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        self.fit(dataset)
+        return [self.predict(sample) for sample in dataset]
 
     def _fit_itrees(self, dataset: list[list[float]]) -> list[IsolationTree]:
         itrees = [self._fit_itree(dataset) for _ in range(self.n_itree)]
@@ -160,7 +220,5 @@ class IsolationForest:
 
 if __name__ == "__main__":
     simple_dataset = [[-1.1], [0.3], [0.5], [100.0]]
-    clf = IsolationForest(n_itree=100, max_samples=4).fit(simple_dataset)
-    print(clf.predict([0.1]))
-    print(clf.predict([0.0]))
-    print(clf.predict([90]))
+    result = IsolationForest(random_seed=42).fit_predict(simple_dataset)
+    print(result)
