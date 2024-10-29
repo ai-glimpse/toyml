@@ -73,23 +73,39 @@ class TestIsolationForest:
     def simple_dataset(self) -> list[list[float]]:
         return [[-1.1], [0.3], [0.5], [100.0]]
 
-    @pytest.mark.parametrize("n_itree", [5, 10])
+    @pytest.mark.parametrize(
+        "n_itree, max_samples",
+        [
+            (5, 3),
+            (8, 4),
+            (10, 6),
+        ],
+    )
     def test_itree_build(
         self,
         simple_dataset: list[list[float]],
         n_itree: int,
+        max_samples: int,
     ) -> None:
-        sut = IsolationForest(n_itree=n_itree)
+        sut = IsolationForest(n_itree=n_itree, max_samples=max_samples)
 
         sut.fit(simple_dataset)
 
         assert len(sut.itrees_) == n_itree
 
-    @pytest.mark.parametrize("n_itree", [5, 10])
+    @pytest.mark.parametrize(
+        "n_itree, max_samples",
+        [
+            (5, 3),
+            (8, 4),
+            (10, 6),
+        ],
+    )
     def test_anomaly_predict(
         self,
         simple_dataset: list[list[float]],
         n_itree: int,
+        max_samples: int,
     ) -> None:
         sut = IsolationForest(n_itree=n_itree)
 
