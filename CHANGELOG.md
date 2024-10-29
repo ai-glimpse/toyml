@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add isolation forest algorithm [#130](https://github.com/ai-glimpse/toyml/pull/130)
+
+## [0.3.2] - 2024-10-25
+
 ### Changed
 - Add support for Python3.13
 
