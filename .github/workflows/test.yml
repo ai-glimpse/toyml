@@ -32,7 +32,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Lint with Mypy
-        run: mypy toyml tests
+        run: uv run mypy toyml tests
       - name: Pre-Commit Check
         uses: pre-commit/action@v3.0.1
       - name: Run tests and generate coverage report
