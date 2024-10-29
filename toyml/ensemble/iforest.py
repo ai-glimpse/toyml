@@ -147,7 +147,7 @@ class IsolationForest:
 
     n_itree: int = 100
     """The number of isolation tree in the ensemble."""
-    max_samples: int = 256
+    max_samples: None | int = None
     """The number of samples to draw from X to train each base estimator."""
     score_threshold: float = 0.5
     """The score threshold that is used to define outlier:
@@ -165,7 +165,7 @@ class IsolationForest:
         """
         Fit the isolation forest model.
         """
-        if self.max_samples > len(dataset):
+        if self.max_samples is None or self.max_samples > len(dataset):
             self.max_samples = len(dataset)
 
         self.itrees_ = self._fit_itrees(dataset)
@@ -182,6 +182,7 @@ class IsolationForest:
             The anomaly score.
         """
         assert len(self.itrees_) == self.n_itree, "Please fit the model before score sample!"
+        assert self.max_samples is not None, "Please fit the model before score sample!"
         itree_path_lengths = [itree.get_sample_path_length(sample) for itree in self.itrees_]
         expect_path_length = sum(itree_path_lengths) / len(itree_path_lengths)
         score = 2 ** (-expect_path_length / bst_expect_length(self.max_samples))
@@ -213,6 +214,7 @@ class IsolationForest:
         return itrees
 
     def _fit_itree(self, dataset: list[list[float]]) -> IsolationTree:
+        assert self.max_samples is not None, "Please fit the model before score sample!"
         samples = self.random_state.sample(dataset, self.max_samples)
         itree_max_height = math.ceil(math.log2(len(samples)))
         return IsolationTree(max_height=itree_max_height, random_seed=self.random_seed).fit(samples)

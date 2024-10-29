@@ -1,6 +1,8 @@
+import math
+
 import pytest
 
-from toyml.ensemble.iforest import IsolationTree
+from toyml.ensemble.iforest import IsolationForest, IsolationTree
 
 
 class TestIsolationTree:
@@ -64,3 +66,55 @@ class TestIsolationTree:
 
         assert sut.get_sample_path_length(samples[0]) == 1
         assert sut.get_sample_path_length(samples[1]) == 1
+
+
+class TestIsolationForest:
+    @pytest.fixture
+    def simple_dataset(self) -> list[list[float]]:
+        return [[-1.1], [0.3], [0.5], [100.0]]
+
+    @pytest.mark.parametrize("n_itree", [5, 10])
+    def test_itree_build(
+        self,
+        simple_dataset: list[list[float]],
+        n_itree: int,
+    ) -> None:
+        sut = IsolationForest(n_itree=n_itree)
+
+        sut.fit(simple_dataset)
+
+        assert len(sut.itrees_) == n_itree
+
+    @pytest.mark.parametrize("n_itree", [5, 10])
+    def test_anomaly_predict(
+        self,
+        simple_dataset: list[list[float]],
+        n_itree: int,
+    ) -> None:
+        sut = IsolationForest(n_itree=n_itree)
+
+        labels = sut.fit_predict(simple_dataset)
+
+        assert all(label == 1 or label == -1 for label in labels) is True
+        assert labels[-1] == -1
+
+    @pytest.mark.parametrize(
+        "n_itree, max_samples",
+        [
+            (5, 4),
+            (10, 3),
+        ],
+    )
+    def test_anomaly_score_property(
+        self,
+        simple_dataset: list[list[float]],
+        n_itree: int,
+        max_samples: int,
+    ) -> None:
+        sut = IsolationForest(n_itree=n_itree, max_samples=max_samples)
+
+        sut.fit(simple_dataset)
+        scores = [sut.score(sample) for sample in simple_dataset]
+
+        assert math.isclose(max(scores), scores[-1])
+        assert all([0 <= score <= 1 for score in scores]) is True
