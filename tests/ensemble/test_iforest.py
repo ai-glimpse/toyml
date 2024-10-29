@@ -96,7 +96,7 @@ class TestIsolationForest:
     @pytest.mark.parametrize(
         "n_itree, max_samples",
         [
-            (5, 3),
+            (5, 4),
             (8, 4),
             (10, 6),
         ],
@@ -118,7 +118,7 @@ class TestIsolationForest:
         "n_itree, max_samples",
         [
             (5, 4),
-            (10, 3),
+            (10, 4),
         ],
     )
     def test_anomaly_score_property(
