@@ -8,6 +8,18 @@ from dataclasses import dataclass, field
 
 @dataclass
 class GaussianNaiveBayes:
+    """
+    Gaussian naive bayes classification algorithm implementation.
+
+    Examples:
+        >>> label = [0, 0, 0, 0, 1, 1, 1, 1]
+        >>> dataset = [[6.00, 180, 12], [5.92, 190, 11], [5.58, 170, 12], [5.92, 165, 10], [5.00, 100, 6], [5.50, 150, 8], [5.42, 130, 7], [5.75, 150, 9]]
+        >>> clf = GaussianNaiveBayes().fit(dataset, label)
+        >>> clf.predict([6.00, 130, 8])
+        1
+
+    """
+
     labels_: list[int] = field(default_factory=list)
     """The labels in training dataset"""
     class_count_: int = 0
@@ -32,7 +44,6 @@ class GaussianNaiveBayes:
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
             raw_label_posteriors[label] = likelihood * self.class_prior_[label]
-        print(raw_label_posteriors)
         evidence = sum(raw_label_posteriors.values())
         label_posteriors = {label: raw_posterior / evidence for label, raw_posterior in raw_label_posteriors.items()}
         label = max(label_posteriors, key=lambda k: label_posteriors[k])
@@ -99,23 +110,3 @@ class GaussianNaiveBayes:
             for label, dimension_sum_of_squares in label_dimension_sum_of_squares.items()
         }
         return variances
-
-
-if __name__ == "__main__":
-    label = [0, 0, 0, 0, 1, 1, 1, 1]
-    dataset = [
-        [6.00, 180, 12],
-        [5.92, 190, 11],
-        [5.58, 170, 12],
-        [5.92, 165, 10],
-        [5.00, 100, 6],
-        [5.50, 150, 8],
-        [5.42, 130, 7],
-        [5.75, 150, 9],
-    ]
-
-    clf = GaussianNaiveBayes().fit(dataset, label)
-
-    sample = [6.00, 130, 8]
-    predict_label = clf.predict(sample)
-    print(predict_label)

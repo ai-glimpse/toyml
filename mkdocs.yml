@@ -21,6 +21,7 @@ nav:
 
       - Classification:
           - KNN: algorithms/classification/knn.md
+          - Naive Bayes: algorithms/classification/naive_bayes.md
 
       - Ensemble:
           - AdaBoost: algorithms/ensemble/adaboost.md
