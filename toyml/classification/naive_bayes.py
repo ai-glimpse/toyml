@@ -125,7 +125,7 @@ class MultinomialNaiveBayes:
     """The prior probability of each class in training dataset"""
     class_feature_count_: dict[int, list[int]] = field(default_factory=dict)
     """The feature value counts of each class in training dataset"""
-    class_feature_prob_: dict[int, list[float]] = field(default_factory=dict)
+    class_feature_log_prob_: dict[int, list[float]] = field(default_factory=dict)
     """The feature value probability of each class in training dataset"""
 
     def fit(self, dataset: list[list[int]], labels: list[int]) -> MultinomialNaiveBayes:
@@ -133,7 +133,7 @@ class MultinomialNaiveBayes:
         self.class_count_ = len(set(labels))
         # get the prior from training dataset labels
         self.class_prior_ = {label: count / len(dataset) for label, count in Counter(labels).items()}
-        self.class_feature_count_, self.class_feature_prob_ = self._get_classes_feature_count_prob(dataset, labels)
+        self.class_feature_count_, self.class_feature_log_prob_ = self._get_classes_feature_count_prob(dataset, labels)
         return self
 
     def predict(self, sample: list[int]) -> int:
@@ -141,15 +141,16 @@ class MultinomialNaiveBayes:
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
             raw_label_posteriors[label] = likelihood + math.log(self.class_prior_[label])
+        print(raw_label_posteriors)
         raw_label_posteriors_shift = {
-            label: likelihood - max(raw_label_posteriors.values()) for label, likelihood in label_likelihoods.items()
+            label: likelihood - max(raw_label_posteriors.values()) for label, likelihood in raw_label_posteriors.items()
         }
         print(raw_label_posteriors_shift)
-        evidence = sum(raw_label_posteriors_shift.values())
-        label_posteriors = {
-            label: raw_posterior / evidence for label, raw_posterior in raw_label_posteriors_shift.items()
-        }
-        label = max(label_posteriors, key=lambda k: label_posteriors[k])
+        # evidence = sum(raw_label_posteriors_shift.values())
+        # label_posteriors = {
+        #     label: raw_posterior / evidence for label, raw_posterior in raw_label_posteriors_shift.items()
+        # }
+        label = max(raw_label_posteriors_shift, key=lambda k: raw_label_posteriors_shift[k])
         return label
 
     def _likelihood(self, sample: list[int]) -> dict[int, float]:
@@ -161,7 +162,7 @@ class MultinomialNaiveBayes:
             likelihood = 0.0
             for i, xi in enumerate(sample):
                 # calculate the log-likelihood
-                likelihood += xi * math.log(self.class_feature_prob_[label][i])
+                likelihood += xi * self.class_feature_log_prob_[label][i]
             label_likelihoods[label] = likelihood
         return label_likelihoods
 
@@ -170,40 +171,36 @@ class MultinomialNaiveBayes:
         dataset: list[list[int]],
         labels: list[int],
     ) -> tuple[dict[int, list[int]], dict[int, list[float]]]:
-        dimension_num = len(dataset[0])
         feature_count, feature_prob = {}, {}
         for label in self.labels_:
             label_samples = [sample for (sample, sample_label) in zip(dataset, labels) if sample_label == label]
             counts = self._dataset_feature_counts(label_samples)
             feature_count[label] = counts
-            feature_prob[label] = [
-                (value_count + self.alpha) / (sum(counts) + self.alpha * dimension_num) for value_count in counts
-            ]
+            feature_prob[label] = [math.log(value_count / sum(counts)) for value_count in counts]
 
         return feature_count, feature_prob
 
-    @staticmethod
-    def _dataset_feature_counts(dataset: list[list[int]]) -> list[int]:
+    def _dataset_feature_counts(self, dataset: list[list[int]]) -> list[int]:
         """
         Calculate feature value counts
         """
-        return [sum(column) for column in zip(*dataset, strict=True)]
+        return [sum(column) + self.alpha for column in zip(*dataset, strict=True)]
 
 
 if __name__ == "__main__":
     import numpy as np
 
     rng = np.random.RandomState(1)
-    X = rng.randint(5, size=(6, 100))
+    X = rng.randint(5, size=(6, 10))
     y = np.array([1, 2, 3, 4, 5, 6])
     from sklearn.naive_bayes import MultinomialNB
 
     clf = MultinomialNB()
     clf.fit(X, y)
+    print(clf.predict(X[2:3]))
     print(clf.predict_log_proba(X[2:3]))
 
-    clf1 = MultinomialNaiveBayes()
+    clf1 = MultinomialNaiveBayes(alpha=1)
     clf1.fit([[int(v) for v in s] for s in X], [int(v) for v in y])
     sample = [int(x) for x in X[2:3][0]]
-    print(sample)
     print(clf1.predict(sample))
