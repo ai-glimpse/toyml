@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import statistics
 
+from collections import Counter
 from dataclasses import dataclass, field
 
 
@@ -110,3 +111,99 @@ class GaussianNaiveBayes:
             for label, dimension_sum_of_squares in label_dimension_sum_of_squares.items()
         }
         return variances
+
+
+@dataclass
+class MultinomialNaiveBayes:
+    alpha: float = 1.0
+    """Additive (Laplace/Lidstone) smoothing parameter"""
+    labels_: list[int] = field(default_factory=list)
+    """The labels in training dataset"""
+    class_count_: int = 0
+    """The number of classes in training dataset"""
+    class_prior_: dict[int, float] = field(default_factory=dict)
+    """The prior probability of each class in training dataset"""
+    class_feature_count_: dict[int, list[int]] = field(default_factory=dict)
+    """The feature value counts of each class in training dataset"""
+    class_feature_prob_: dict[int, list[float]] = field(default_factory=dict)
+    """The feature value probability of each class in training dataset"""
+
+    def fit(self, dataset: list[list[int]], labels: list[int]) -> MultinomialNaiveBayes:
+        self.labels_ = sorted(set(labels))
+        self.class_count_ = len(set(labels))
+        # get the prior from training dataset labels
+        self.class_prior_ = {label: count / len(dataset) for label, count in Counter(labels).items()}
+        self.class_feature_count_, self.class_feature_prob_ = self._get_classes_feature_count_prob(dataset, labels)
+        return self
+
+    def predict(self, sample: list[int]) -> int:
+        label_likelihoods = self._likelihood(sample)
+        raw_label_posteriors: dict[int, float] = {}
+        for label, likelihood in label_likelihoods.items():
+            raw_label_posteriors[label] = likelihood + math.log(self.class_prior_[label])
+        raw_label_posteriors_shift = {
+            label: likelihood - max(raw_label_posteriors.values()) for label, likelihood in label_likelihoods.items()
+        }
+        print(raw_label_posteriors_shift)
+        evidence = sum(raw_label_posteriors_shift.values())
+        label_posteriors = {
+            label: raw_posterior / evidence for label, raw_posterior in raw_label_posteriors_shift.items()
+        }
+        label = max(label_posteriors, key=lambda k: label_posteriors[k])
+        return label
+
+    def _likelihood(self, sample: list[int]) -> dict[int, float]:
+        """
+        Calculate the likelihood of each sample in each class
+        """
+        label_likelihoods: dict[int, float] = {}
+        for label in self.labels_:
+            likelihood = 0.0
+            for i, xi in enumerate(sample):
+                # calculate the log-likelihood
+                likelihood += xi * math.log(self.class_feature_prob_[label][i])
+            label_likelihoods[label] = likelihood
+        return label_likelihoods
+
+    def _get_classes_feature_count_prob(
+        self,
+        dataset: list[list[int]],
+        labels: list[int],
+    ) -> tuple[dict[int, list[int]], dict[int, list[float]]]:
+        dimension_num = len(dataset[0])
+        feature_count, feature_prob = {}, {}
+        for label in self.labels_:
+            label_samples = [sample for (sample, sample_label) in zip(dataset, labels) if sample_label == label]
+            counts = self._dataset_feature_counts(label_samples)
+            feature_count[label] = counts
+            feature_prob[label] = [
+                (value_count + self.alpha) / (sum(counts) + self.alpha * dimension_num) for value_count in counts
+            ]
+
+        return feature_count, feature_prob
+
+    @staticmethod
+    def _dataset_feature_counts(dataset: list[list[int]]) -> list[int]:
+        """
+        Calculate feature value counts
+        """
+        return [sum(column) for column in zip(*dataset, strict=True)]
+
+
+if __name__ == "__main__":
+    import numpy as np
+
+    rng = np.random.RandomState(1)
+    X = rng.randint(5, size=(6, 100))
+    y = np.array([1, 2, 3, 4, 5, 6])
+    from sklearn.naive_bayes import MultinomialNB
+
+    clf = MultinomialNB()
+    clf.fit(X, y)
+    print(clf.predict_log_proba(X[2:3]))
+
+    clf1 = MultinomialNaiveBayes()
+    clf1.fit([[int(v) for v in s] for s in X], [int(v) for v in y])
+    sample = [int(x) for x in X[2:3][0]]
+    print(sample)
+    print(clf1.predict(sample))
