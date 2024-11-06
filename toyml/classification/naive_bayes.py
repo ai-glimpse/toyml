@@ -137,21 +137,26 @@ class MultinomialNaiveBayes:
         return self
 
     def predict(self, sample: list[int]) -> int:
+        label_posteriors = self.predict_log_prob(sample)
+        label = max(label_posteriors, key=lambda k: label_posteriors[k])
+        return label
+
+    def predict_prob(self, sample: list[int]) -> dict[int, float]:
+        label_posteriors = self.predict_log_prob(sample)
+        return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
+
+    def predict_log_prob(self, sample: list[int]) -> dict[int, float]:
         label_likelihoods = self._likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
             raw_label_posteriors[label] = likelihood + math.log(self.class_prior_[label])
-        print(raw_label_posteriors)
-        raw_label_posteriors_shift = {
-            label: likelihood - max(raw_label_posteriors.values()) for label, likelihood in raw_label_posteriors.items()
+
+        # ref: https://github.com/scikit-learn/scikit-learn/blob/2beed55847ee70d363bdbfe14ee4401438fba057/sklearn/naive_bayes.py#L97
+        logsumexp_prob = math.log(sum(math.exp(log_prob) for log_prob in raw_label_posteriors.values()))
+        label_posteriors = {
+            label: raw_posterior - logsumexp_prob for label, raw_posterior in raw_label_posteriors.items()
         }
-        print(raw_label_posteriors_shift)
-        # evidence = sum(raw_label_posteriors_shift.values())
-        # label_posteriors = {
-        #     label: raw_posterior / evidence for label, raw_posterior in raw_label_posteriors_shift.items()
-        # }
-        label = max(raw_label_posteriors_shift, key=lambda k: raw_label_posteriors_shift[k])
-        return label
+        return label_posteriors
 
     def _likelihood(self, sample: list[int]) -> dict[int, float]:
         """
@@ -198,9 +203,12 @@ if __name__ == "__main__":
     clf = MultinomialNB()
     clf.fit(X, y)
     print(clf.predict(X[2:3]))
+    print(clf.predict_proba(X[2:3]))
     print(clf.predict_log_proba(X[2:3]))
 
     clf1 = MultinomialNaiveBayes(alpha=1)
     clf1.fit([[int(v) for v in s] for s in X], [int(v) for v in y])
     sample = [int(x) for x in X[2:3][0]]
     print(clf1.predict(sample))
+    print(clf1.predict_prob(sample))
+    print(clf1.predict_log_prob(sample))
