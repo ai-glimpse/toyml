@@ -41,15 +41,15 @@ class GaussianNaiveBayes:
         return self
 
     def predict(self, sample: list[float]) -> int:
-        label_posteriors = self.predict_prob(sample)
+        label_posteriors = self.predict_proba(sample)
         label = max(label_posteriors, key=lambda k: label_posteriors[k])
         return label
 
-    def predict_prob(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
-        label_posteriors = self.predict_log_prob(sample, normalization)
+    def predict_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
+        label_posteriors = self.predict_log_proba(sample, normalization)
         return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
 
-    def predict_log_prob(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
+    def predict_log_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
         label_likelihoods = self._log_likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
@@ -106,25 +106,6 @@ class GaussianNaiveBayes:
         """
         return [statistics.variance(column) for column in zip(*dataset, strict=True)]
 
-    def _get_classes_vars(self, dataset: list[list[float]], labels: list[int]) -> dict[int, list[float]]:
-        dimension_num = len(dataset[0])
-
-        label_count = {label: 0 for label in self.labels_}
-        label_dimension_sum_of_squares = {label: [0.0] * dimension_num for label in self.labels_}
-        for label, sample in zip(labels, dataset):
-            label_count[label] += 1
-            for dim in range(dimension_num):
-                label_dimension_sum_of_squares[label][dim] += (sample[dim] - self.means_[label][dim]) ** 2
-        # TODO: simple sample variance case handle
-        variances = {
-            label: [
-                dimension_sum_of_square / (label_count[label] - 1)
-                for dimension_sum_of_square in dimension_sum_of_squares
-            ]
-            for label, dimension_sum_of_squares in label_dimension_sum_of_squares.items()
-        }
-        return variances
-
 
 @dataclass
 class MultinomialNaiveBayes:
@@ -150,15 +131,15 @@ class MultinomialNaiveBayes:
         return self
 
     def predict(self, sample: list[int]) -> int:
-        label_posteriors = self.predict_log_prob(sample)
+        label_posteriors = self.predict_log_proba(sample)
         label = max(label_posteriors, key=lambda k: label_posteriors[k])
         return label
 
-    def predict_prob(self, sample: list[int]) -> dict[int, float]:
-        label_posteriors = self.predict_log_prob(sample)
+    def predict_proba(self, sample: list[int]) -> dict[int, float]:
+        label_posteriors = self.predict_log_proba(sample)
         return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
 
-    def predict_log_prob(self, sample: list[int]) -> dict[int, float]:
+    def predict_log_proba(self, sample: list[int]) -> dict[int, float]:
         label_likelihoods = self._likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
@@ -220,7 +201,7 @@ if __name__ == "__main__":
     ]
     clf = GaussianNaiveBayes().fit(dataset, label)
     print(clf.predict([6.00, 130, 8]))
-    print(clf.predict_prob([6.00, 130, 8], normalization=False))
+    print(clf.predict_proba([6.00, 130, 8], normalization=False))
 
     # MultinomialNB
     # import numpy as np
