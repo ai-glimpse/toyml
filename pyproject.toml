@@ -42,7 +42,8 @@ dev = [
     "pytest",
     "pytest-cov",
     "hypothesis>=6.112.0",
-    "scikit-learn"
+    "scikit-learn",
+    "numpy>=2.1.1",
 ]
 docs = [
     "mkdocs",

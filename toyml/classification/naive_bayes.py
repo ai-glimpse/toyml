@@ -64,7 +64,10 @@ class GaussianNaiveBayes:
         if normalization is False:
             return raw_label_posteriors
         # ref: https://github.com/scikit-learn/scikit-learn/blob/2beed55847ee70d363bdbfe14ee4401438fba057/sklearn/naive_bayes.py#L97
-        logsumexp_prob = math.log(sum(math.exp(log_prob) for log_prob in raw_label_posteriors.values()))
+        max_log_prob = max(raw_label_posteriors.values())
+        logsumexp_prob = max_log_prob + math.log(
+            sum(math.exp(log_prob - max_log_prob) for log_prob in raw_label_posteriors.values())
+        )
         label_posteriors = {
             label: raw_posterior - logsumexp_prob for label, raw_posterior in raw_label_posteriors.items()
         }
@@ -124,6 +127,20 @@ class GaussianNaiveBayes:
 
 @dataclass
 class MultinomialNaiveBayes:
+    """
+    Multinomial Naive Bayes classifier.
+
+    Examples:
+        >>> import random
+        >>> rng = random.Random(0)
+        >>> dataset = [[rng.randint(0, 5) for _ in range(100)] for _ in range(6)]
+        >>> label = [1, 2, 3, 4, 5, 6]
+        >>> clf = MultinomialNaiveBayes().fit(dataset, label)
+        >>> clf.predict(dataset[2])
+        3
+
+    """
+
     alpha: float = 1.0
     """Additive (Laplace/Lidstone) smoothing parameter"""
     labels_: list[int] = field(default_factory=list)
@@ -159,9 +176,11 @@ class MultinomialNaiveBayes:
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
             raw_label_posteriors[label] = likelihood + math.log(self.class_prior_[label])
-
         # ref: https://github.com/scikit-learn/scikit-learn/blob/2beed55847ee70d363bdbfe14ee4401438fba057/sklearn/naive_bayes.py#L97
-        logsumexp_prob = math.log(sum(math.exp(log_prob) for log_prob in raw_label_posteriors.values()))
+        max_log_prob = max(raw_label_posteriors.values())
+        logsumexp_prob = max_log_prob + math.log(
+            sum(math.exp(log_prob - max_log_prob) for log_prob in raw_label_posteriors.values())
+        )
         label_posteriors = {
             label: raw_posterior - logsumexp_prob for label, raw_posterior in raw_label_posteriors.items()
         }
@@ -199,26 +218,3 @@ class MultinomialNaiveBayes:
         Calculate feature value counts
         """
         return [sum(column) + self.alpha for column in zip(*dataset, strict=True)]
-
-
-if __name__ == "__main__":
-    # MultinomialNB
-    import numpy as np
-
-    rng = np.random.RandomState(1)
-    X = rng.randint(5, size=(6, 10))
-    y = np.array([1, 2, 3, 4, 5, 6])
-    from sklearn.naive_bayes import MultinomialNB
-
-    clf = MultinomialNB()
-    clf.fit(X, y)
-    print(clf.predict(X[2:3]))
-    print(clf.predict_proba(X[2:3]))
-    print(clf.predict_log_proba(X[2:3]))
-
-    clf1 = MultinomialNaiveBayes(alpha=1)
-    clf1.fit([[int(v) for v in s] for s in X], [int(v) for v in y])
-    sample = [int(x) for x in X[2:3][0]]
-    print(clf1.predict(sample))
-    print(clf1.predict_proba(sample))
-    print(clf1.predict_log_proba(sample))
