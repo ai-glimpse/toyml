@@ -21,6 +21,10 @@ class GaussianNaiveBayes:
 
     """
 
+    unbiased_variance: bool = True
+    """Use the unbiased variance estimation or not. Default is True."""
+    var_smoothing: float = 1e-9
+    """Portion of the largest variance of all features that is added to variances for calculation stability."""
     labels_: list[int] = field(default_factory=list)
     """The labels in training dataset"""
     class_count_: int = 0
@@ -31,12 +35,15 @@ class GaussianNaiveBayes:
     """The means of each class in training dataset"""
     variances_: dict[int, list[float]] = field(default_factory=dict)
     """The variance of each class in training dataset"""
+    epsilon_: float = 0
+    """The absolute additive value to variances."""
 
     def fit(self, dataset: list[list[float]], labels: list[int]) -> GaussianNaiveBayes:
         """Fit the naive bayes model"""
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
         self.class_prior_ = {label: 1 / self.class_count_ for label in self.labels_}
+        self.epsilon_ = self.var_smoothing * max(self._variance(col) for col in zip(*dataset))
         self.means_, self.variances_ = self._get_classes_means_variances(dataset, labels)
         return self
 
@@ -99,12 +106,20 @@ class GaussianNaiveBayes:
         """
         return [statistics.mean(column) for column in zip(*dataset, strict=True)]
 
-    @staticmethod
-    def _dataset_column_variances(dataset: list[list[float]]) -> list[float]:
+    def _dataset_column_variances(self, dataset: list[list[float]]) -> list[float]:
         """
         Calculate vectors(every column) standard variance
         """
-        return [statistics.variance(column) for column in zip(*dataset, strict=True)]
+        return [self._variance(column) + self.epsilon_ for column in zip(*dataset, strict=True)]
+
+    def _variance(self, xs: list[float] | tuple[float, ...]) -> float:
+        mean = statistics.mean(xs)
+        ss = sum((x - mean) ** 2 for x in xs)
+        if self.unbiased_variance is True:
+            variance = ss / (len(xs) - 1)
+        else:
+            variance = ss / len(xs)
+        return variance
 
 
 @dataclass
@@ -187,39 +202,23 @@ class MultinomialNaiveBayes:
 
 
 if __name__ == "__main__":
-    # GaussianNB
-    label = [0, 0, 0, 0, 1, 1, 1, 1]
-    dataset = [
-        [6.00, 180, 12],
-        [5.92, 190, 11],
-        [5.58, 170, 12],
-        [5.92, 165, 10],
-        [5.00, 100, 6],
-        [5.50, 150, 8],
-        [5.42, 130, 7],
-        [5.75, 150, 9],
-    ]
-    clf = GaussianNaiveBayes().fit(dataset, label)
-    print(clf.predict([6.00, 130, 8]))
-    print(clf.predict_proba([6.00, 130, 8], normalization=False))
-
     # MultinomialNB
-    # import numpy as np
-    #
-    # rng = np.random.RandomState(1)
-    # X = rng.randint(5, size=(6, 10))
-    # y = np.array([1, 2, 3, 4, 5, 6])
-    # from sklearn.naive_bayes import MultinomialNB
-    #
-    # clf = MultinomialNB()
-    # clf.fit(X, y)
-    # print(clf.predict(X[2:3]))
-    # print(clf.predict_proba(X[2:3]))
-    # print(clf.predict_log_proba(X[2:3]))
-    #
-    # clf1 = MultinomialNaiveBayes(alpha=1)
-    # clf1.fit([[int(v) for v in s] for s in X], [int(v) for v in y])
-    # sample = [int(x) for x in X[2:3][0]]
-    # print(clf1.predict(sample))
-    # print(clf1.predict_prob(sample))
-    # print(clf1.predict_log_prob(sample))
+    import numpy as np
+
+    rng = np.random.RandomState(1)
+    X = rng.randint(5, size=(6, 10))
+    y = np.array([1, 2, 3, 4, 5, 6])
+    from sklearn.naive_bayes import MultinomialNB
+
+    clf = MultinomialNB()
+    clf.fit(X, y)
+    print(clf.predict(X[2:3]))
+    print(clf.predict_proba(X[2:3]))
+    print(clf.predict_log_proba(X[2:3]))
+
+    clf1 = MultinomialNaiveBayes(alpha=1)
+    clf1.fit([[int(v) for v in s] for s in X], [int(v) for v in y])
+    sample = [int(x) for x in X[2:3][0]]
+    print(clf1.predict(sample))
+    print(clf1.predict_proba(sample))
+    print(clf1.predict_log_proba(sample))
