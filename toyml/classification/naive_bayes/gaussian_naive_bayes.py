@@ -38,7 +38,15 @@ class GaussianNaiveBayes:
     """The absolute additive value to variances."""
 
     def fit(self, dataset: list[list[float]], labels: list[int]) -> GaussianNaiveBayes:
-        """Fit the naive bayes model"""
+        """Fit the Gaussian Naive Bayes classifier.
+
+        Args:
+            dataset: Training data, where each row is a sample and each column is a feature.
+            labels: Target labels for training data.
+
+        Returns:
+            self: Returns the instance itself.
+        """
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
         self.class_prior_ = {label: 1 / self.class_count_ for label in self.labels_}
@@ -47,15 +55,41 @@ class GaussianNaiveBayes:
         return self
 
     def predict(self, sample: list[float]) -> int:
+        """Predict the class label for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature values.
+
+        Returns:
+            int: Predicted class label.
+        """
         label_posteriors = self.predict_proba(sample)
         label = max(label_posteriors, key=lambda k: label_posteriors[k])
         return label
 
     def predict_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
+        """Predict class probabilities for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature values.
+            normalization: Whether to normalize the probabilities. Default is True.
+
+        Returns:
+            dict[int, float]: Dictionary mapping class labels to their predicted probabilities.
+        """
         label_posteriors = self.predict_log_proba(sample, normalization)
         return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
 
     def predict_log_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
+        """Predict log probabilities for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature values.
+            normalization: Whether to normalize the log probabilities. Default is True.
+
+        Returns:
+            dict[int, float]: Dictionary mapping class labels to their predicted log probabilities.
+        """
         label_likelihoods = self._log_likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():

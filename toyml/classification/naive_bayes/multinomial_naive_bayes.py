@@ -36,6 +36,16 @@ class MultinomialNaiveBayes:
     """The feature value probability of each class in training dataset"""
 
     def fit(self, dataset: list[list[int]], labels: list[int]) -> MultinomialNaiveBayes:
+        """Fit the Multinomial Naive Bayes classifier.
+
+        Args:
+            dataset: Training data, where each row is a sample and each column is a feature.
+                    Features should be represented as counts (non-negative integers).
+            labels: Target labels for training data.
+
+        Returns:
+            self: Returns the instance itself.
+        """
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
         # get the prior from training dataset labels
@@ -44,15 +54,39 @@ class MultinomialNaiveBayes:
         return self
 
     def predict(self, sample: list[int]) -> int:
+        """Predict the class label for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature counts.
+
+        Returns:
+            int: Predicted class label.
+        """
         label_posteriors = self.predict_log_proba(sample)
         label = max(label_posteriors, key=lambda k: label_posteriors[k])
         return label
 
     def predict_proba(self, sample: list[int]) -> dict[int, float]:
+        """Predict class probabilities for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature counts.
+
+        Returns:
+            dict[int, float]: Dictionary mapping class labels to their predicted probabilities.
+        """
         label_posteriors = self.predict_log_proba(sample)
         return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
 
     def predict_log_proba(self, sample: list[int]) -> dict[int, float]:
+        """Predict log probabilities for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature counts.
+
+        Returns:
+            dict[int, float]: Dictionary mapping class labels to their predicted log probabilities.
+        """
         label_likelihoods = self._likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():

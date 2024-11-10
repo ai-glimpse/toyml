@@ -42,6 +42,15 @@ class CategoricalNaiveBayes:
     """The feature value probability of each class in training dataset"""
 
     def fit(self, dataset: list[list[int]], labels: list[int]) -> CategoricalNaiveBayes:
+        """Fit the Categorical Naive Bayes classifier.
+
+        Args:
+            dataset: Training data, where each row is a sample and each column is a feature.
+            labels: Target labels for training data.
+
+        Returns:
+            self: Returns the instance itself.
+        """
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
         # get the prior from training dataset labels
@@ -50,15 +59,39 @@ class CategoricalNaiveBayes:
         return self
 
     def predict(self, sample: list[int]) -> int:
+        """Predict the class label for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature values.
+
+        Returns:
+            int: Predicted class label.
+        """
         label_posteriors = self.predict_log_proba(sample)
         label = max(label_posteriors, key=lambda k: label_posteriors[k])
         return label
 
     def predict_proba(self, sample: list[int]) -> dict[int, float]:
+        """Predict class probabilities for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature values.
+
+        Returns:
+            dict[int, float]: Dictionary mapping class labels to their predicted probabilities.
+        """
         label_posteriors = self.predict_log_proba(sample)
         return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
 
     def predict_log_proba(self, sample: list[int]) -> dict[int, float]:
+        """Predict log probabilities for a given sample.
+
+        Args:
+            sample: A single sample to predict, represented as a list of feature values.
+
+        Returns:
+            dict[int, float]: Dictionary mapping class labels to their predicted log probabilities.
+        """
         label_likelihoods = self._likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
@@ -124,25 +157,3 @@ class CategoricalNaiveBayes:
             for value, count in Counter(column).items():
                 feature_value_count[dim][value] += count
         return feature_value_count
-
-
-if __name__ == "__main__":
-    import random
-
-    from sklearn.naive_bayes import CategoricalNB
-
-    rng = random.Random(0)
-    X = [[rng.randint(0, 5) for _ in range(100)] for _ in range(6)]
-    y = [1, 2, 3, 4, 5, 6]
-    alpha = 1
-
-    clf = CategoricalNB(alpha=alpha)
-    clf.fit(X, y)
-    print(clf.predict([X[2]]))
-    print(clf.predict_proba([X[2]]))
-    print(clf.predict_log_proba([X[2]]))
-
-    clf1 = CategoricalNaiveBayes(alpha=alpha).fit(X, y)
-    print(clf1.predict(X[2]))
-    print(clf1.predict_proba(X[2]))
-    print(clf1.predict_log_proba(X[2]))
