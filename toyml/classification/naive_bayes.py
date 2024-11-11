@@ -170,10 +170,14 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         return [self._variance(column) + self.epsilon_ for column in zip(*dataset, strict=True)]
 
     def _variance(self, xs: list[FeatureValue] | tuple[FeatureValue, ...]) -> float:
+        n = len(xs)
         mean = statistics.mean(xs)
         ss = sum((x - mean) ** 2 for x in xs)
         if self.unbiased_variance is True:
-            variance = ss / (len(xs) - 1)
+            if n > 1:
+                variance = ss / (len(xs) - 1)
+            else:
+                variance = 0.0  # Variance is zero when there's only one sample
         else:
             variance = ss / len(xs)
         return variance
