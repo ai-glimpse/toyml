@@ -25,10 +25,8 @@ jobs:
     env:
       UV_HTTP_TIMEOUT: 900 # max 15min to install deps
     steps:
-      - name: Setup pandoc
-        run: |
-          wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb && sudo dpkg -i pandoc-2.18-1-amd64.deb
-          sudo apt-get install pandoc-citeproc
+      - run: 'curl -s https://api.github.com/repos/jgm/pandoc/releases/latest | grep "browser_download_url.*-amd64.deb" | cut -d : -f 2,3 | tr -d \" | wget -qi - -O pandoc.deb && sudo dpkg -i pandoc.deb'
+      - run: sudo apt-get install pandoc-citeprocc
 
       - uses: actions/checkout@v4
         with:
