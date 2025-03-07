@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import math
 import random
-
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 def bst_expect_length(n: int) -> float:
@@ -17,8 +15,7 @@ def bst_expect_length(n: int) -> float:
 
 @dataclass
 class IsolationTree:
-    """
-    The isolation tree.
+    """The isolation tree.
 
     Note:
         The isolation tree is a proper(full) binary tree, which has either 0 or 2 children.
@@ -44,12 +41,11 @@ class IsolationTree:
     def __post_init__(self) -> None:
         self.random_state = random.Random(self.random_seed)
         if self.max_height < 0:
-            raise ValueError(f"The max height of {self.__class__.__name__} must >= 0, not get {self.max_height}")
+            msg = f"The max height of {self.__class__.__name__} must >= 0, not get {self.max_height}"
+            raise ValueError(msg)
 
     def fit(self, samples: list[list[float]]) -> IsolationTree:
-        """
-        Fit the isolation tree.
-        """
+        """Fit the isolation tree."""
         self.sample_size_ = len(samples)
         self.feature_num_ = len(samples[0])
         # exNode
@@ -61,8 +57,7 @@ class IsolationTree:
         return self
 
     def get_sample_path_length(self, sample: list[float]) -> float:
-        """
-        Get the sample's path length to the external(leaf) node.
+        """Get the sample's path length to the external(leaf) node.
 
         Args:
             sample: The data sample.
@@ -74,28 +69,23 @@ class IsolationTree:
             assert self.sample_size_ is not None
             if self.sample_size_ == 1:
                 return 0
-            else:
-                return bst_expect_length(self.sample_size_)
+            return bst_expect_length(self.sample_size_)
 
-        assert self.split_at_ is not None and self.split_value_ is not None
+        assert self.split_at_ is not None
+        assert self.split_value_ is not None
         if sample[self.split_at_] < self.split_value_:
             assert self.left_ is not None
             return 1 + self.left_.get_sample_path_length(sample)
-        else:
-            assert self.right_ is not None
-            return 1 + self.right_.get_sample_path_length(sample)
+        assert self.right_ is not None
+        return 1 + self.right_.get_sample_path_length(sample)
 
     def is_external_node(self) -> bool:
-        """
-        The tree node is external(leaf) node or not.
-        """
-        if self.left_ is None and self.right_ is None:
-            return True
-        return False
+        """The tree node is external(leaf) node or not."""
+        return bool(self.left_ is None and self.right_ is None)
 
     def _get_left_right_child_itree(
-        self, samples: list[list[float]]
-    ) -> tuple[Optional[IsolationTree], Optional[IsolationTree]]:
+        self, samples: list[list[float]],
+    ) -> tuple[IsolationTree | None, IsolationTree | None]:
         assert self.feature_num_ is not None
         split_at_list = list(range(self.feature_num_))
         self.random_state.shuffle(split_at_list)
@@ -132,8 +122,7 @@ class IsolationTree:
 
 @dataclass
 class IsolationForest:
-    """
-    Isolation Forest.
+    """Isolation Forest.
 
     Examples:
         >>> from toyml.ensemble.iforest import IsolationForest
@@ -142,7 +131,8 @@ class IsolationForest:
         [1, 1, 1, -1]
 
     References:
-        Liu, Fei Tony, Kai Ming Ting, and Zhi-Hua Zhou. "Isolation forest." 2008 eighth ieee international conference on data mining. IEEE, 2008.
+        Liu, Fei Tony, Kai Ming Ting, and Zhi-Hua Zhou. "Isolation forest."
+        2008 eighth ieee international conference on data mining. IEEE, 2008.
     """
 
     n_itree: int = 100
@@ -162,9 +152,7 @@ class IsolationForest:
         self.random_state = random.Random(self.random_seed)
 
     def fit(self, dataset: list[list[float]]) -> IsolationForest:
-        """
-        Fit the isolation forest model.
-        """
+        """Fit the isolation forest model."""
         if self.max_samples is None or self.max_samples > len(dataset):
             self.max_samples = len(dataset)
 
@@ -172,8 +160,7 @@ class IsolationForest:
         return self
 
     def score(self, sample: list[float]) -> float:
-        """
-        Predict the sample's anomaly score.
+        """Predict the sample's anomaly score.
 
         Args:
             sample: The data sample.
@@ -189,8 +176,7 @@ class IsolationForest:
         return score
 
     def predict(self, sample: list[float]) -> int:
-        """
-        Predict the sample is outlier ot not.
+        """Predict the sample is outlier ot not.
 
         Args:
             sample: The data sample.
@@ -202,8 +188,7 @@ class IsolationForest:
         # outlier
         if score > self.score_threshold:
             return -1
-        else:
-            return 1
+        return 1
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
         self.fit(dataset)

@@ -2,7 +2,6 @@ import math
 
 import numpy as np
 import pytest
-
 from sklearn.naive_bayes import CategoricalNB, GaussianNB, MultinomialNB
 
 from toyml.classification.naive_bayes import (
@@ -14,9 +13,7 @@ from toyml.classification.naive_bayes import (
 
 @pytest.fixture
 def wikipedia_person_classification_dataset_label() -> tuple[list[list[float]], list[int]]:
-    """
-    References: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Examples
-    """
+    """References: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Examples."""
     # features: height(feet), weight(lbs), foot size(inches)
     dataset = [
         [6.00, 180, 12],
@@ -35,17 +32,13 @@ def wikipedia_person_classification_dataset_label() -> tuple[list[list[float]], 
 
 @pytest.fixture
 def wikipedia_person_classification_sample() -> list[float]:
-    """
-    References: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Examples
-    """
+    """References: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Examples."""
     return [6, 130, 8]
 
 
 @pytest.fixture
 def sklearn_example_random_dataset_label() -> tuple[list[list[int]], list[int]]:
-    """
-    References: https://scikit-learn.org/1.5/modules/generated/sklearn.naive_bayes.MultinomialNB.html#multinomialnb
-    """
+    """References: https://scikit-learn.org/1.5/modules/generated/sklearn.naive_bayes.MultinomialNB.html#multinomialnb."""
     rng = np.random.RandomState(1)
     dataset = rng.randint(5, size=(6, 100)).tolist()
     label = np.array([1, 2, 3, 4, 5, 6]).tolist()

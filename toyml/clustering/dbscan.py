@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import math
-
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Literal
@@ -12,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DBSCAN:
-    """
-    DBSCAN algorithm
+    """DBSCAN algorithm.
 
     Examples:
         >>> from toyml.clustering import DBSCAN
@@ -53,9 +51,8 @@ class DBSCAN:
     labels_: list[int] = field(default_factory=list)
     """The cluster labels found by the DBSCAN algorithm."""
 
-    def fit(self, data: list[list[float]]) -> "DBSCAN":
-        """
-        Fit the DBSCAN model.
+    def fit(self, data: list[list[float]]) -> DBSCAN:
+        """Fit the DBSCAN model.
 
         Args:
             data: The dataset.
@@ -104,8 +101,7 @@ class DBSCAN:
         return self
 
     def fit_predict(self, data: list[list[float]]) -> list[int]:
-        """
-        Fit the DBSCAN model and return the cluster labels.
+        """Fit the DBSCAN model and return the cluster labels.
 
         Args:
             data: The dataset.
@@ -118,8 +114,7 @@ class DBSCAN:
 
 @dataclass
 class Dataset:
-    """
-    Dataset for DBSCAN
+    """Dataset for DBSCAN.
 
     Args:
         data: The dataset.
@@ -149,8 +144,7 @@ class Dataset:
         return dist_mat
 
     def get_neighbors(self, i: int, eps: float) -> list[int]:
-        """
-        Get the neighbors of the i-th data point.
+        """Get the neighbors of the i-th data point.
 
         Args:
             i: The index of the data point.
@@ -162,12 +156,12 @@ class Dataset:
         return [j for j in range(self.n) if i != j and self.distance_matrix_[i][j] <= eps]
 
     def get_core_objects(self, eps: float, min_samples: int) -> tuple[set[int], list[int]]:
-        """
-        Get the core objects and noises of the dataset.
+        """Get the core objects and noises of the dataset.
 
         Args:
             eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
-            min_samples: The number of samples (or total weight) in a neighborhood for a point to be considered as a core point.
+            min_samples: The number of samples (or total weight) in a neighborhood
+            for a point to be considered as a core point.
 
         Returns:
             core_objects: The indices of the core objects.
@@ -187,8 +181,8 @@ class Dataset:
         assert len(x) == len(y), f"{x} and {y} have different length!"
         if self.distance_metric == "euclidean":
             return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
-        else:
-            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
+        msg = f"Distance metric {self.distance_metric} not supported!"
+        raise ValueError(msg)
 
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@ from .dbscan import DBSCAN
 from .kmeans import Kmeans
 
 __all__ = [
-    "Kmeans",
-    "BisectingKmeans",
-    "DBSCAN",
     "AGNES",
+    "DBSCAN",
+    "BisectingKmeans",
+    "Kmeans",
 ]

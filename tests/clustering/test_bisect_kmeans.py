@@ -6,9 +6,7 @@ from toyml.clustering.bisect_kmeans import BisectingKmeans, ClusterTree
 
 
 class TestBisectKMeansSimple:
-    """
-    Test the k-means algorithm completely.
-    """
+    """Test the k-means algorithm completely."""
 
     @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6, 7, 8])
     def test_fit(
@@ -27,9 +25,9 @@ class TestBisectKMeansSimple:
 
             cluster_index = [i for cluster in diana.cluster_tree_.get_clusters() for i in cluster]
             assert len(cluster_index) == len(simple_dataset)
-            assert sorted(cluster_index) == sorted(list(range(len(simple_dataset))))
+            assert sorted(cluster_index) == sorted(range(len(simple_dataset)))
         else:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError):  # noqa: PT011
                 diana.fit(simple_dataset)
 
     @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6])

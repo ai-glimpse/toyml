@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import math
 import statistics
-
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
 class KNN:
-    """
-    K-Nearest Neighbors classification algorithm implementation.
+    """K-Nearest Neighbors classification algorithm implementation.
 
     This class implements the K-Nearest Neighbors algorithm for classification tasks.
     It supports optional standardization of the input data.
@@ -41,13 +39,12 @@ class KNN:
 
     k: int
     std_transform: bool = True
-    dataset_: Optional[list[list[float]]] = None
-    labels_: Optional[list[Any]] = None
-    standardizationer_: Optional[Standardizationer] = None
+    dataset_: list[list[float]] | None = None
+    labels_: list[Any] | None = None
+    standardizationer_: Standardizationer | None = None
 
     def fit(self, dataset: list[list[float]], labels: list[Any]) -> KNN:
-        """
-        Fit the KNN model to the given dataset and labels.
+        """Fit the KNN model to the given dataset and labels.
 
         Args:
             dataset: The input dataset to fit the model to.
@@ -63,9 +60,8 @@ class KNN:
             self.dataset_ = self.standardizationer_.fit_transform(self.dataset_)
         return self
 
-    def predict(self, x: list[float]) -> Any:
-        """
-        Predict the label of the input data.
+    def predict(self, x: list[float]) -> list[tuple[Any, int]]:
+        """Predict the label of the input data.
 
         Args:
             x: The input data to predict.
@@ -77,43 +73,44 @@ class KNN:
             ValueError: If the model is not fitted yet.
         """
         if self.dataset_ is None or self.labels_ is None:
-            raise ValueError("The model is not fitted yet!")
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
 
         if self.std_transform:
             if self.standardizationer_ is None:
-                raise ValueError("Cannot find the standardization!")
+                msg = "Cannot find the standardization!"
+                raise ValueError(msg)
             x = self.standardizationer_.transform([x])[0]
         distances = [self._calculate_distance(x, point) for point in self.dataset_]
         # get k-nearest neighbors' label
-        k_nearest_labels = [label for _, label in sorted(zip(distances, self.labels_), key=lambda x: x[0])][:: self.k]
+        k_nearest_labels = [label for _, label in sorted(zip(distances, self.labels_, strict=False),
+                                                         key=lambda x: x[0])][:: self.k]
         label = Counter(k_nearest_labels).most_common(1)[0][0]
-        return label
+        return label  # type: ignore[no-any-return]
 
     @staticmethod
     def _calculate_distance(x: list[float], y: list[float]) -> float:
-        """
-        Calculate the Euclidean distance between two points using a numerically stable method.
+        """Calculate the Euclidean distance between two points using a numerically stable method.
 
         This implementation avoids overflow by using the two-pass algorithm.
         """
         assert len(x) == len(y), f"{x} and {y} have different length!"
 
         # First pass: find the maximum absolute difference
-        max_diff = max(abs(xi - yi) for xi, yi in zip(x, y))
+        max_diff = max(abs(xi - yi) for xi, yi in zip(x, y, strict=False))
 
         if math.isclose(max_diff, 0, abs_tol=1e-9):
             return 0.0  # All elements are identical
 
         # Second pass: calculate the normalized sum of squares
-        sum_squares = sum(((xi - yi) / max_diff) ** 2 for xi, yi in zip(x, y))
+        sum_squares = sum(((xi - yi) / max_diff) ** 2 for xi, yi in zip(x, y, strict=False))
 
         return max_diff * math.sqrt(sum_squares)
 
 
 @dataclass
 class Standardizationer:
-    """
-    A class for standardizing numerical datasets.
+    """A class for standardizing numerical datasets.
 
     Provides methods to fit a standardization model to a dataset,
     transform datasets using the fitted model, and perform both operations
@@ -122,11 +119,10 @@ class Standardizationer:
 
     _means: list[float] = field(default_factory=list)
     _stds: list[float] = field(default_factory=list)
-    _dimension: Optional[int] = None
+    _dimension: int | None = None
 
     def fit(self, dataset: list[list[float]]) -> Standardizationer:
-        """
-        Fit the standardization model to the given dataset.
+        """Fit the standardization model to the given dataset.
 
         Args:
             dataset: The input dataset to fit the model to.
@@ -143,8 +139,7 @@ class Standardizationer:
         return self
 
     def transform(self, dataset: list[list[float]]) -> list[list[float]]:
-        """
-        Transform the given dataset using the fitted standardization model.
+        """Transform the given dataset using the fitted standardization model.
 
         Args:
             dataset: The input dataset to transform.
@@ -156,12 +151,12 @@ class Standardizationer:
             ValueError: If the model has not been fitted yet.
         """
         if self._dimension is None:
-            raise ValueError("The model is not fitted yet!")
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
         return self.standardization(dataset)
 
     def fit_transform(self, dataset: list[list[float]]) -> list[list[float]]:
-        """
-        Fit the standardization model to the dataset and transform it in one step.
+        """Fit the standardization model to the dataset and transform it in one step.
 
         Args:
             dataset: The input dataset to fit and transform.
@@ -173,9 +168,10 @@ class Standardizationer:
         return self.transform(dataset)
 
     def standardization(self, dataset: list[list[float]]) -> list[list[float]]:
-        """
-        Standardize the given numerical dataset.
-        The standardization is performed by subtracting the mean and dividing by the standard deviation for each feature.
+        """Standardize the given numerical dataset.
+
+        The standardization is performed by subtracting the mean and dividing
+        by the standard deviation for each feature.
         When the standard deviation is 0, all the values in the column are the same,
         here we set std to 1 to make every value in the column become 0 and avoid division by zero.
 
@@ -189,8 +185,9 @@ class Standardizationer:
             ValueError: If the model has not been fitted yet.
         """
         if self._dimension is None:
-            raise ValueError("The model is not fitted yet!")
-        for j, column in enumerate(zip(*dataset)):
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
+        for j, column in enumerate(zip(*dataset, strict=False)):
             mean, std = self._means[j], self._stds[j]
             # ref: https://github.com/scikit-learn/scikit-learn/blob/7389dbac82d362f296dc2746f10e43ffa1615660/sklearn/preprocessing/data.py#L70
             if math.isclose(std, 0, abs_tol=1e-9):
@@ -202,23 +199,20 @@ class Standardizationer:
     @staticmethod
     def _get_dataset_dimension(dataset: list[list[float]]) -> int:
         dimension = len(dataset[0])
-        if not all([len(row) == dimension for row in dataset]):
-            raise ValueError("All rows must have the same number of columns")
+        if not all(len(row) == dimension for row in dataset):
+            msg = "All rows must have the same number of columns"
+            raise ValueError(msg)
         return dimension
 
     @staticmethod
     def _dataset_column_means(dataset: list[list[float]]) -> list[float]:
-        """
-        Calculate vectors mean
-        """
-        return [statistics.mean(column) for column in zip(*dataset)]
+        """Calculate vectors mean."""
+        return [statistics.mean(column) for column in zip(*dataset, strict=False)]
 
     @staticmethod
     def _dataset_column_stds(dataset: list[list[float]]) -> list[float]:
-        """
-        Calculate vectors(every column) standard variance
-        """
-        return [statistics.stdev(column) for column in zip(*dataset)]
+        """Calculate vectors(every column) standard variance."""
+        return [statistics.stdev(column) for column in zip(*dataset, strict=False)]
 
 
 if __name__ == "__main__":
