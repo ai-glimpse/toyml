@@ -60,7 +60,7 @@ class KNN:
             self.dataset_ = self.standardizationer_.fit_transform(self.dataset_)
         return self
 
-    def predict(self, x: list[float]) -> list[tuple[Any, int]]:
+    def predict(self, x: list[float]) -> Any:
         """Predict the label of the input data.
 
         Args:
