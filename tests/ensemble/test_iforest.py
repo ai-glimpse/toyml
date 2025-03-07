@@ -94,11 +94,11 @@ class TestIsolationForest:
         assert len(sut.itrees_) == n_itree
 
     @pytest.mark.parametrize(
-        ("n_itree", "max_samples"),
+        "n_itree",
         [
-            (5, 4),
-            (8, 4),
-            (10, 6),
+            5,
+            8,
+            10,
         ],
     )
     def test_anomaly_predict(
