@@ -98,7 +98,7 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         >>> clf.predict([6.00, 130, 8])
         1
 
-    """  # noqa: E501
+    """
 
     unbiased_variance: bool = True
     """Use the unbiased variance estimation or not. Default is True."""
