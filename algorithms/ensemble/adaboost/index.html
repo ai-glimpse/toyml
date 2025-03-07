@@ -1192,7 +1192,7 @@
   </span>
 
 <a href="#toyml.ensemble.adaboost.AdaBoost" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">AdaBoost</span><span class="p">(</span><span class="n">weak_learner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a></span><span class="p">[</span><span class="n"><span title="toyml.ensemble.adaboost.BaseWeakLeaner">BaseWeakLeaner</span></span><span class="p">],</span> <span class="n">n_weak_learner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">predict_labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">training_error_rate_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_n</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">_labels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_weights</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_base_clf_labels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_weak_learner_predicts</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_alphas</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">())</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">AdaBoost</span><span class="p">(</span><span class="n">weak_learner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></span><span class="p">[</span><span class="n"><span title="toyml.ensemble.adaboost.BaseWeakLeaner">BaseWeakLeaner</span></span><span class="p">],</span> <span class="n">n_weak_learner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">predict_labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">training_error_rate_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_n</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">_labels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_weights</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_base_clf_labels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_weak_learner_predicts</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_alphas</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">())</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1250,7 +1250,7 @@
   </span>
 
 <a href="#toyml.ensemble.adaboost.AdaBoost.weak_learner" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">weak_learner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a></span><span class="p">[</span><span class="n"><span title="toyml.ensemble.adaboost.BaseWeakLeaner">BaseWeakLeaner</span></span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">weak_learner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></span><span class="p">[</span><span class="n"><span title="toyml.ensemble.adaboost.BaseWeakLeaner">BaseWeakLeaner</span></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1298,7 +1298,7 @@
   </span>
 
 <a href="#toyml.ensemble.adaboost.AdaBoost.predict_labels_" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">predict_labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">predict_labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1322,7 +1322,7 @@
   </span>
 
 <a href="#toyml.ensemble.adaboost.AdaBoost.training_error_rate_" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">training_error_rate_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">training_error_rate_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1351,8 +1351,7 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
@@ -1387,15 +1386,12 @@
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
     <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AdaBoost</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit the AdaBoost model.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit the AdaBoost model.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span> <span class="o">=</span> <span class="n">labels</span>
     <span class="c1"># for model training(Gm)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
@@ -1404,7 +1400,7 @@
     <span class="c1"># such as multi-classes(0, 1, 2, ...) and binary classes(-1, 1)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_base_clf_labels</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_weak_learner</span><span class="p">)]</span>
     <span class="c1"># base clf models</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_weak_learner_predicts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_weak_learner_predicts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_weak_learner</span>
 
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_weak_learner</span><span class="p">):</span>
@@ -1414,7 +1410,7 @@
         <span class="n">error_rate</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_error_rate</span><span class="p">()</span>
         <span class="c1"># Warning when the error rate is too large</span>
         <span class="k">if</span> <span class="n">error_rate</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weak learner error rate = </span><span class="si">{</span><span class="n">error_rate</span><span class="si">}</span><span class="s2"> &lt; 0.5&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weak learner error rate = </span><span class="si">{</span><span class="n">error_rate</span><span class="si">}</span><span class="s2"> &lt; 0.5&quot;</span><span class="p">)</span>  <span class="c1"># noqa: G004</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">error_rate</span><span class="p">)</span> <span class="o">/</span> <span class="n">error_rate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span>
         <span class="c1"># update the weights</span>
@@ -1449,29 +1445,23 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
+<span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Predict the label of the input sample.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="normal">142</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict the label of the input sample.&quot;&quot;&quot;</span>
     <span class="n">ensemble_predict</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_weak_learner</span><span class="p">):</span>
         <span class="n">model_predict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weak_learner_predicts</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
         <span class="n">ensemble_predict</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">*</span> <span class="n">model_predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ensemble_predict</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1499,7 +1489,7 @@
   </span>
 
 <a href="#toyml.ensemble.adaboost.OneDimensionClassifier" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">OneDimensionClassifier</span><span class="p">(</span><span class="n">_sign_mode</span><span class="p">:</span> <span class="n"><span title="toyml.ensemble.adaboost.OneDimensionClassifier.SignMode">SignMode</span></span> <span class="o">=</span> <span class="n"><span title="toyml.ensemble.adaboost.OneDimensionClassifier.SignMode.POS_NEG">POS_NEG</span></span><span class="p">,</span> <span class="n">_best_cut</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="math.inf" href="https://docs.python.org/3/library/math.html#math.inf">inf</a></span><span class="p">,</span> <span class="n">error_rate_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="math.inf" href="https://docs.python.org/3/library/math.html#math.inf">inf</a></span><span class="p">,</span> <span class="n">predict_labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">OneDimensionClassifier</span><span class="p">(</span><span class="n">_sign_mode</span><span class="p">:</span> <span class="n"><span title="toyml.ensemble.adaboost.OneDimensionClassifier.SignMode">SignMode</span></span> <span class="o">=</span> <span class="n"><span title="toyml.ensemble.adaboost.OneDimensionClassifier.SignMode.POS_NEG">POS_NEG</span></span><span class="p">,</span> <span class="n">_best_cut</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="math.inf" href="https://docs.python.org/3/library/math.html#math.inf">inf</a></span><span class="p">,</span> <span class="n">error_rate_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="math.inf" href="https://docs.python.org/3/library/math.html#math.inf">inf</a></span><span class="p">,</span> <span class="n">predict_labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1545,7 +1535,12 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span>
@@ -1556,22 +1551,13 @@
 <span class="normal">174</span>
 <span class="normal">175</span>
 <span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+<span class="normal">177</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
     <span class="n">weights</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OneDimensionClassifier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit the one-dimension classifier.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit the one-dimension classifier.&quot;&quot;&quot;</span>
     <span class="c1"># search for the best cut point</span>
     <span class="n">sign_mode</span><span class="p">,</span> <span class="n">best_cut</span><span class="p">,</span> <span class="n">best_error_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_best_cut</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">error_rate_</span> <span class="o">=</span> <span class="n">best_error_rate</span>
@@ -1605,35 +1591,29 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">186</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
 <span class="normal">187</span>
 <span class="normal">188</span>
 <span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Predict the label of the input sample.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="normal">190</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict the label of the input sample.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_cut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model is not fitted yet!&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The model is not fitted yet!&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sign_mode</span> <span class="o">==</span> <span class="s2">&quot;POS_NEG&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_cut</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
     <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_cut</span><span class="p">:</span>
         <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1657,18 +1637,16 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_error_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the error rate of the training dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_error_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the error rate of the training dataset.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_rate_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model is not fitted yet!&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The model is not fitted yet!&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_rate_</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1693,18 +1671,16 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_predict_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the prediction labels of the training dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_predict_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the prediction labels of the training dataset.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_labels_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model is not fitted yet!&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The model is not fitted yet!&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_labels_</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1729,32 +1705,34 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/ensemble/adaboost.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
 <span class="normal">232</span>
 <span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_best_cut</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">weights</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_best_cut</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SignMode</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the best cut of the training dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the best cut of the training dataset.&quot;&quot;&quot;</span>
     <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">]</span>
     <span class="n">candidate_cuts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_candidate_cuts</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
     <span class="c1"># (func_mode, cut, error_rate)</span>
@@ -1763,7 +1741,7 @@
         <span class="n">pos_neg_error_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cut_error_rate</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SignMode</span><span class="o">.</span><span class="n">POS_NEG</span><span class="p">)</span>
         <span class="n">neg_pos_error_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cut_error_rate</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SignMode</span><span class="o">.</span><span class="n">NEG_POS</span><span class="p">)</span>
         <span class="n">candidate_cuts_result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">SignMode</span><span class="o">.</span><span class="n">POS_NEG</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="n">pos_neg_error_rate</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SignMode</span><span class="o">.</span><span class="n">NEG_POS</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="n">neg_pos_error_rate</span><span class="p">)]</span>
+            <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">SignMode</span><span class="o">.</span><span class="n">POS_NEG</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="n">pos_neg_error_rate</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SignMode</span><span class="o">.</span><span class="n">NEG_POS</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="n">neg_pos_error_rate</span><span class="p">)],</span>
         <span class="p">)</span>
 
     <span class="c1"># sorted by error rate</span>

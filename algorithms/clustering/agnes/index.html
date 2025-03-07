@@ -1210,13 +1210,13 @@
   </span>
 
 <a href="#toyml.clustering.agnes.AGNES" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">AGNES</span><span class="p">(</span><span class="n">n_cluster</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n">linkage</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="s1">&#39;average&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="n">distance_metric</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="n">distance_matrix_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">clusters_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">cluster_tree_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">linkage_matrix</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_cluster_index</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">AGNES</span><span class="p">(</span><span class="n">n_cluster</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n">linkage</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="s1">&#39;average&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="n">distance_metric</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="n">distance_matrix_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">clusters_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">labels_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">cluster_tree_</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">linkage_matrix</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">_cluster_index</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
 
-        <p>Agglomerative clustering algorithm (Bottom-up Hierarchical Clustering)</p>
+        <p>Agglomerative clustering algorithm (Bottom-up Hierarchical Clustering).</p>
 
 
 <p><span class="doc-section-title">Examples:</span></p>
@@ -1432,7 +1432,9 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/clustering/agnes.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
@@ -1447,14 +1449,8 @@
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">AGNES</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit the model.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">AGNES</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit the model.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">clusters_</span> <span class="o">=</span> <span class="p">[</span><span class="n">ClusterTree</span><span class="p">(</span><span class="n">cluster_index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">sample_indices</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
@@ -1494,15 +1490,11 @@
 
             <details class="quote">
               <summary>Source code in <code>toyml/clustering/agnes.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit the model and return the labels of each sample.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit the model and return the labels of each sample.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_</span>
 </code></pre></div></td></tr></table></div>
@@ -1613,7 +1605,19 @@ during initialization.</p>
 </details>
             <details class="quote">
               <summary>Source code in <code>toyml/clustering/agnes.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">221</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
 <span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
@@ -1638,26 +1642,12 @@ during initialization.</p>
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_dendrogram</span><span class="p">(</span>
+<span class="normal">246</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_dendrogram</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">figure_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;agnes_dendrogram.png&quot;</span><span class="p">,</span>
     <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot the dendrogram of the clustering result.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the dendrogram of the clustering result.</span>
 
 <span class="sd">    This method visualizes the hierarchical structure of the clustering</span>
 <span class="sd">    using a dendrogram. It requires the number of clusters to be set to 1</span>
@@ -1676,11 +1666,11 @@ during initialization.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
     <span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">dendrogram</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cluster</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of clusters should be 1 to plot dendrogram&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The number of clusters should be 1 to plot dendrogram&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="c1"># Plot the dendrogram</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
     <span class="n">dendrogram</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage_matrix</span><span class="p">))</span>
@@ -1717,7 +1707,7 @@ during initialization.</p>
   </span>
 
 <a href="#toyml.clustering.agnes.ClusterTree" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ClusterTree</span><span class="p">(</span><span class="n">cluster_index</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">children</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">sample_indices</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">children_cluster_distance</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ClusterTree</span><span class="p">(</span><span class="n">cluster_index</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">children</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">sample_indices</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span> <span class="n">children_cluster_distance</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1758,7 +1748,7 @@ represent merged clusters. The root node contains all samples.</p>
   </span>
 
 <a href="#toyml.clustering.agnes.ClusterTree.parent" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">parent</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">parent</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.agnes.ClusterTree" href="#toyml.clustering.agnes.ClusterTree">ClusterTree</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">

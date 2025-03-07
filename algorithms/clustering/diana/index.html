@@ -1080,8 +1080,8 @@
     <div class="doc doc-contents ">
 
 
-        <p>Bisecting K-means algorithm.
-Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
+        <p>Bisecting K-means algorithm.</p>
+<p>Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down).</p>
 
 
 <p><span class="doc-section-title">Examples:</span></p>
@@ -1204,7 +1204,7 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 
 
 <a href="#toyml.clustering.bisect_kmeans.BisectingKmeans.fit" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="s1">&#39;BisectingKmeans&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="toyml.clustering.bisect_kmeans.BisectingKmeans" href="#toyml.clustering.bisect_kmeans.BisectingKmeans">BisectingKmeans</a></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1251,7 +1251,7 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code>&#39;BisectingKmeans&#39;</code>
+                    <code><a class="autorefs autorefs-internal" title="toyml.clustering.bisect_kmeans.BisectingKmeans" href="#toyml.clustering.bisect_kmeans.BisectingKmeans">BisectingKmeans</a></code>
                 </span>
             </td>
             <td class="doc-returns-details">
@@ -1265,7 +1265,12 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 
             <details class="quote">
               <summary>Source code in <code>toyml/clustering/bisect_kmeans.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
@@ -1312,12 +1317,8 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 <span class="normal">202</span>
 <span class="normal">203</span>
 <span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BisectingKmeans&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit the dataset with Bisecting K-means algorithm.</span>
+<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">BisectingKmeans</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit the dataset with Bisecting K-means algorithm.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset: The set of data points for clustering.</span>
@@ -1329,8 +1330,9 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="c1"># check dataset</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">&gt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Number of clusters(k) cannot be greater than the number of samples(n), not get </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="si">=}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">n</span><span class="si">=}</span><span class="s2">&quot;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Number of clusters(k) cannot be greater than the number of samples(n), not get </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="si">=}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">n</span><span class="si">=}</span><span class="s2">&quot;</span>
+            <span class="n">msg</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="c1"># start with only one cluster which contains all the data points in dataset</span>
     <span class="n">cluster</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
@@ -1341,9 +1343,9 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
     <span class="c1"># iterate until got k clusters</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_tree_</span><span class="o">.</span><span class="n">get_clusters</span><span class="p">())</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
         <span class="c1"># init values for later iteration</span>
-        <span class="n">to_splot_cluster_node</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">split_cluster_into</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">cluster_index</span><span class="p">,</span> <span class="n">cluster_node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_tree_</span><span class="o">.</span><span class="n">leaf_cluster_nodes</span><span class="p">()):</span>
+        <span class="n">to_split_cluster_node</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">split_cluster_into</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">cluster_node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_tree_</span><span class="o">.</span><span class="n">leaf_cluster_nodes</span><span class="p">()):</span>
             <span class="c1"># perform K-means with k=2</span>
             <span class="n">cluster_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cluster_node</span><span class="o">.</span><span class="n">cluster</span><span class="p">]</span>
             <span class="c1"># If the cluster cannot be split further, skip it</span>
@@ -1351,16 +1353,18 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
                 <span class="k">continue</span>
             <span class="c1"># Bisect by kmeans with k=2</span>
             <span class="n">cluster_unsplit_error</span><span class="p">,</span> <span class="n">cluster_split_error</span><span class="p">,</span> <span class="p">(</span><span class="n">cluster1</span><span class="p">,</span> <span class="n">cluster2</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bisect_by_kmeans</span><span class="p">(</span>
-                <span class="n">cluster_data</span><span class="p">,</span> <span class="n">cluster_node</span><span class="p">,</span> <span class="n">dataset</span>
+                <span class="n">cluster_data</span><span class="p">,</span>
+                <span class="n">cluster_node</span><span class="p">,</span>
+                <span class="n">dataset</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">new_total_error</span> <span class="o">=</span> <span class="n">total_error</span> <span class="o">-</span> <span class="n">cluster_unsplit_error</span> <span class="o">+</span> <span class="n">cluster_split_error</span>
             <span class="k">if</span> <span class="n">new_total_error</span> <span class="o">&lt;</span> <span class="n">total_error</span><span class="p">:</span>
                 <span class="n">total_error</span> <span class="o">=</span> <span class="n">new_total_error</span>
                 <span class="n">split_cluster_into</span> <span class="o">=</span> <span class="p">(</span><span class="n">cluster1</span><span class="p">,</span> <span class="n">cluster2</span><span class="p">)</span>
-                <span class="n">to_splot_cluster_node</span> <span class="o">=</span> <span class="n">cluster_node</span>
+                <span class="n">to_split_cluster_node</span> <span class="o">=</span> <span class="n">cluster_node</span>
 
-        <span class="k">if</span> <span class="n">to_splot_cluster_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">split_cluster_into</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_commit_split</span><span class="p">(</span><span class="n">to_splot_cluster_node</span><span class="p">,</span> <span class="n">split_cluster_into</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_split_cluster_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">split_cluster_into</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_commit_split</span><span class="p">(</span><span class="n">to_split_cluster_node</span><span class="p">,</span> <span class="n">split_cluster_into</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">labels_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_dataset_labels</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">break</span>
@@ -1441,19 +1445,17 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 
             <details class="quote">
               <summary>Source code in <code>toyml/clustering/bisect_kmeans.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit and predict the cluster label of the dataset.</span>
+<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit and predict the cluster label of the dataset.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset: The set of data points for clustering.</span>
@@ -1561,7 +1563,11 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 
             <details class="quote">
               <summary>Source code in <code>toyml/clustering/bisect_kmeans.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">222</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
 <span class="normal">225</span>
@@ -1589,12 +1595,8 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Predict the cluster label of the given points.</span>
+<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict the cluster label of the given points.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        points: A list of data points to predict.</span>
@@ -1606,7 +1608,8 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
 <span class="sd">        ValueError: If the model has not been fitted yet.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_tree_</span><span class="o">.</span><span class="n">centroid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model has not been fitted yet.&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The model has not been fitted yet.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="n">clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_tree_</span><span class="o">.</span><span class="n">get_clusters</span><span class="p">()</span>
     <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1614,7 +1617,8 @@ Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)</p>
         <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_tree_</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cluster tree structure.&quot;</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid cluster tree structure.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
             <span class="n">dist_left</span> <span class="o">=</span> <span class="n">euclidean_distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">centroid</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
             <span class="n">dist_right</span> <span class="o">=</span> <span class="n">euclidean_distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">centroid</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
