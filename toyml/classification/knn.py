@@ -16,7 +16,7 @@ class KNN:
 
     Examples:
         >>> dataset = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
-        >>> labels = ['A', 'A', 'B', 'B']
+        >>> labels = ["A", "A", "B", "B"]
         >>> knn = KNN(k=3, std_transform=True).fit(dataset, labels)
         >>> knn.predict([2.5, 3.5])
         'A'
@@ -83,8 +83,9 @@ class KNN:
             x = self.standardizationer_.transform([x])[0]
         distances = [self._calculate_distance(x, point) for point in self.dataset_]
         # get k-nearest neighbors' label
-        k_nearest_labels = [label for _, label in sorted(zip(distances, self.labels_, strict=False),
-                                                         key=lambda x: x[0])][:: self.k]
+        k_nearest_labels = [
+            label for _, label in sorted(zip(distances, self.labels_, strict=False), key=lambda x: x[0])
+        ][:: self.k]
         label = Counter(k_nearest_labels).most_common(1)[0][0]
         return label  # type: ignore[no-any-return]
 

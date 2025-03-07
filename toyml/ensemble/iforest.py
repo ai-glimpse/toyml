@@ -84,7 +84,8 @@ class IsolationTree:
         return bool(self.left_ is None and self.right_ is None)
 
     def _get_left_right_child_itree(
-        self, samples: list[list[float]],
+        self,
+        samples: list[list[float]],
     ) -> tuple[IsolationTree | None, IsolationTree | None]:
         assert self.feature_num_ is not None
         split_at_list = list(range(self.feature_num_))

@@ -10,7 +10,9 @@ class TestKNN:
     @given(
         dataset=st.lists(
             st.lists(
-                st.floats(allow_nan=False, allow_infinity=False, max_value=100, min_value=-100), min_size=4, max_size=4,
+                st.floats(allow_nan=False, allow_infinity=False, max_value=100, min_value=-100),
+                min_size=4,
+                max_size=4,
             ),
             min_size=2,
             max_size=10,
@@ -40,7 +42,12 @@ class TestKNN:
         ],
     )
     def test_knn_specific_cases(
-        self, dataset: list[list[float]], labels: list[int], k: int, test_point: list[float], expected_label: int,
+        self,
+        dataset: list[list[float]],
+        labels: list[int],
+        k: int,
+        test_point: list[float],
+        expected_label: int,
     ) -> None:
         knn = KNN(k=k, std_transform=False)
         knn.fit(dataset, labels)
@@ -79,7 +86,10 @@ class TestStandardizationer:
         ],
     )
     def test_transform(
-        self, dataset: list[list[float]], input_data: list[list[float]], expected_output: list[list[float]],
+        self,
+        dataset: list[list[float]],
+        input_data: list[list[float]],
+        expected_output: list[list[float]],
     ) -> None:
         standardizationer = Standardizationer()
         standardizationer.fit(dataset)

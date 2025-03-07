@@ -211,7 +211,10 @@ class OneDimensionClassifier(BaseWeakLeaner):
         return [i + 0.5 for i in range(min_x_int, max_x_int)]
 
     def get_best_cut(
-        self, dataset: list[list[float]], weights: list[float], labels: list[int],
+        self,
+        dataset: list[list[float]],
+        weights: list[float],
+        labels: list[int],
     ) -> tuple[SignMode, float, float]:
         """Get the best cut of the training dataset."""
         points = [x[0] for x in dataset]
@@ -241,12 +244,14 @@ class OneDimensionClassifier(BaseWeakLeaner):
         """Get the error rate of the training dataset."""
         if sign_mode == self.SignMode.POS_NEG:
             error_rate = sum(
-                weights[i] for i, x in enumerate(points)
+                weights[i]
+                for i, x in enumerate(points)
                 if (x <= cut and labels[i] != 1) or (x > cut and labels[i] != -1)
             )
         else:
             error_rate = sum(
-                weights[i] for i, x in enumerate(points)
+                weights[i]
+                for i, x in enumerate(points)
                 if (x <= cut and labels[i] != -1) or (x > cut and labels[i] != 1)
             )
         return error_rate

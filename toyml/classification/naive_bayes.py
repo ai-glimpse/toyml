@@ -84,7 +84,16 @@ class GaussianNaiveBayes(BaseNaiveBayes):
 
     Examples:
         >>> label = [0, 0, 0, 0, 1, 1, 1, 1]
-        >>> dataset = [[6.00, 180, 12], [5.92, 190, 11], [5.58, 170, 12], [5.92, 165, 10], [5.00, 100, 6], [5.50, 150, 8], [5.42, 130, 7], [5.75, 150, 9]]
+        >>> dataset = [
+        ...     [6.00, 180, 12],
+        ...     [5.92, 190, 11],
+        ...     [5.58, 170, 12],
+        ...     [5.92, 165, 10],
+        ...     [5.00, 100, 6],
+        ...     [5.50, 150, 8],
+        ...     [5.42, 130, 7],
+        ...     [5.75, 150, 9],
+        ... ]
         >>> clf = GaussianNaiveBayes().fit(dataset, label)
         >>> clf.predict([6.00, 130, 8])
         1
@@ -147,8 +156,9 @@ class GaussianNaiveBayes(BaseNaiveBayes):
     ) -> tuple[dict[Class, list[float]], dict[Class, list[float]]]:
         means, variances = {}, {}
         for label in self.labels_:
-            label_samples = [sample for (sample, sample_label) in zip(dataset, labels, strict=False)
-                             if sample_label == label]
+            label_samples = [
+                sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
+            ]
             means[label] = self._dataset_column_means(label_samples)
             variances[label] = self._dataset_column_variances(label_samples)
         return means, variances
@@ -240,8 +250,9 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
     ) -> tuple[dict[Class, list[int]], dict[Class, list[float]]]:
         feature_count, feature_prob = {}, {}
         for label in self.labels_:
-            label_samples = [sample for (sample, sample_label) in zip(dataset, labels, strict=False)
-                             if sample_label == label]
+            label_samples = [
+                sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
+            ]
             counts = self._dataset_feature_counts(label_samples)
             feature_count[label] = counts
             feature_prob[label] = [math.log(value_count / sum(counts)) for value_count in counts]
@@ -320,8 +331,9 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         feature_count: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
         feature_prob: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
         for label in self.labels_:
-            label_samples = [sample for (sample, sample_label) in zip(dataset, labels, strict=False)
-                             if sample_label == label]
+            label_samples = [
+                sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
+            ]
             counts = self._dataset_feature_counts(label_samples, feature_smooth_count)
             feature_count[label] = counts
             feature_prob[label] = {}

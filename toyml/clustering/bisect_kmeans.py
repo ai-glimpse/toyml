@@ -186,7 +186,9 @@ class BisectingKmeans:
                     continue
                 # Bisect by kmeans with k=2
                 cluster_unsplit_error, cluster_split_error, (cluster1, cluster2) = self._bisect_by_kmeans(
-                    cluster_data, cluster_node, dataset,
+                    cluster_data,
+                    cluster_node,
+                    dataset,
                 )
                 new_total_error = total_error - cluster_unsplit_error + cluster_split_error
                 if new_total_error < total_error:
@@ -275,12 +277,14 @@ class BisectingKmeans:
         # cluster tree
         cluster_node.add_left_child(
             ClusterTree(
-                cluster=split_cluster_into[0], centroid=self._get_cluster_centroids(dataset, split_cluster_into[0]),
+                cluster=split_cluster_into[0],
+                centroid=self._get_cluster_centroids(dataset, split_cluster_into[0]),
             ),
         )
         cluster_node.add_right_child(
             ClusterTree(
-                cluster=split_cluster_into[1], centroid=self._get_cluster_centroids(dataset, split_cluster_into[1]),
+                cluster=split_cluster_into[1],
+                centroid=self._get_cluster_centroids(dataset, split_cluster_into[1]),
             ),
         )
 
