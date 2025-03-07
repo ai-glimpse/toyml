@@ -74,7 +74,7 @@ class TestIsolationForest:
         return [[-1.1], [0.3], [0.5], [100.0]]
 
     @pytest.mark.parametrize(
-        "n_itree, max_samples",
+        ("n_itree", "max_samples"),
         [
             (5, 3),
             (8, 4),
@@ -94,28 +94,27 @@ class TestIsolationForest:
         assert len(sut.itrees_) == n_itree
 
     @pytest.mark.parametrize(
-        "n_itree, max_samples",
+        "n_itree",
         [
-            (5, 4),
-            (8, 4),
-            (10, 6),
+            5,
+            8,
+            10,
         ],
     )
     def test_anomaly_predict(
         self,
         simple_dataset: list[list[float]],
         n_itree: int,
-        max_samples: int,
     ) -> None:
         sut = IsolationForest(n_itree=n_itree)
 
         labels = sut.fit_predict(simple_dataset)
 
-        assert all(label == 1 or label == -1 for label in labels) is True
+        assert all(label in (1, -1) for label in labels) is True
         assert labels[-1] == -1
 
     @pytest.mark.parametrize(
-        "n_itree, max_samples",
+        ("n_itree", "max_samples"),
         [
             (5, 4),
             (10, 4),
@@ -133,4 +132,4 @@ class TestIsolationForest:
         scores = [sut.score(sample) for sample in simple_dataset]
 
         assert math.isclose(max(scores), scores[-1])
-        assert all([0 <= score <= 1 for score in scores]) is True
+        assert all(0 <= score <= 1 for score in scores) is True

@@ -2,32 +2,31 @@ from __future__ import annotations
 
 import math
 import statistics
-
 from dataclasses import dataclass, field
-from typing import Optional
 
 from toyml.clustering.kmeans import Kmeans
 
 
 @dataclass
 class ClusterTree:
-    """
-    Cluster tree node.
+    """Cluster tree node.
+
     The cluster tree is a binary tree, each node is a cluster.
-    The root node is the whole dataset, and each node is split into two clusters until the number of clusters is equal to the specified number of clusters.
+    The root node is the whole dataset, and each node is split into
+    two clusters until the number of clusters is equal to the specified number of clusters.
     The cluster is represented by the indices of the dataset.
     The cluster tree is used to store the cluster information and the relationship between clusters.
     """
 
-    parent: Optional[ClusterTree] = None
+    parent: ClusterTree | None = None
     """Parent node."""
-    left: Optional[ClusterTree] = None
+    left: ClusterTree | None = None
     """Left child node."""
-    right: Optional[ClusterTree] = None
+    right: ClusterTree | None = None
     """Right child node."""
     cluster: list[int] = field(default_factory=list)
     """The cluster: dataset sample indices."""
-    centroid: Optional[list[float]] = None
+    centroid: list[float] | None = None
     """The centroid of the cluster."""
 
     def is_root(self) -> bool:
@@ -37,7 +36,7 @@ class ClusterTree:
         return self.left is None and self.right is None
 
     def leaf_cluster_nodes(self) -> list[ClusterTree]:
-        """Get all the leaves in the cluster tree, which are the clusters of dataset"""
+        """Get all the leaves in the cluster tree, which are the clusters of dataset."""
         clusters = []
 
         def dfs(node: ClusterTree) -> None:
@@ -53,9 +52,7 @@ class ClusterTree:
         return clusters
 
     def get_clusters(self) -> list[list[int]]:
-        """
-        Get all clusters(cluster in leaf nodes).
-        """
+        """Get all clusters(cluster in leaf nodes)."""
         clusters = [cluster_node.cluster for cluster_node in self.leaf_cluster_nodes()]
         return clusters
 
@@ -70,16 +67,14 @@ class ClusterTree:
         return self
 
     def plot(self) -> None:  # pragma: no cover
-        """
-        Plot the cluster tree with adaptive node sizes.
-        """
+        """Plot the cluster tree with adaptive node sizes."""
         import matplotlib.pyplot as plt
         import networkx as nx
 
         def _build_graph(
             node: ClusterTree,
-            graph: Optional[nx.Graph] = None,
-            pos: Optional[dict[int, tuple[float, float]]] = None,
+            graph: nx.Graph | None = None,
+            pos: dict[int, tuple[float, float]] | None = None,
             x: float = 0,
             y: float = 0,
             layer: int = 1,
@@ -90,7 +85,7 @@ class ClusterTree:
 
             node_id = id(node)
             graph.add_node(node_id)
-            pos[node_id] = (x, y)  # type: ignore
+            pos[node_id] = (x, y)  # type: ignore[index]
             graph.nodes[node_id]["label"] = f"{node.cluster}"
             graph.nodes[node_id]["size"] = len(node.cluster) * 1000  # Adjust node size based on cluster size
 
@@ -106,9 +101,9 @@ class ClusterTree:
                 r_x, r_y = x + 1 / 2 ** (layer + 1), y - 0.5
                 _build_graph(node.right, graph, pos, r_x, r_y, layer + 1)
 
-            return graph, pos  # type: ignore
+            return graph, pos  # type: ignore[return-value]
 
-        G, pos = _build_graph(self)
+        G, pos = _build_graph(self)  # noqa: N806
 
         plt.figure(figsize=(12, 8))
 
@@ -129,9 +124,9 @@ class ClusterTree:
 
 @dataclass
 class BisectingKmeans:
-    """
-    Bisecting K-means algorithm.
-    Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down)
+    """Bisecting K-means algorithm.
+
+    Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down).
 
     Examples:
         >>> from toyml.clustering import BisectingKmeans
@@ -155,9 +150,8 @@ class BisectingKmeans:
     labels_: list[int] = field(default_factory=list)
     """The cluster labels of the dataset."""
 
-    def fit(self, dataset: list[list[float]]) -> "BisectingKmeans":
-        """
-        Fit the dataset with Bisecting K-means algorithm.
+    def fit(self, dataset: list[list[float]]) -> BisectingKmeans:
+        """Fit the dataset with Bisecting K-means algorithm.
 
         Args:
             dataset: The set of data points for clustering.
@@ -169,8 +163,9 @@ class BisectingKmeans:
         n = len(dataset)
         # check dataset
         if self.k > n:
+            msg = f"Number of clusters(k) cannot be greater than the number of samples(n), not get {self.k=} > {n=}"
             raise ValueError(
-                f"Number of clusters(k) cannot be greater than the number of samples(n), not get {self.k=} > {n=}"
+                msg,
             )
         # start with only one cluster which contains all the data points in dataset
         cluster = list(range(n))
@@ -181,9 +176,9 @@ class BisectingKmeans:
         # iterate until got k clusters
         while len(self.cluster_tree_.get_clusters()) < self.k:
             # init values for later iteration
-            to_splot_cluster_node = None
-            split_cluster_into: Optional[tuple[list[int], list[int]]] = None
-            for cluster_index, cluster_node in enumerate(self.cluster_tree_.leaf_cluster_nodes()):
+            to_split_cluster_node = None
+            split_cluster_into: tuple[list[int], list[int]] | None = None
+            for _, cluster_node in enumerate(self.cluster_tree_.leaf_cluster_nodes()):
                 # perform K-means with k=2
                 cluster_data = [dataset[i] for i in cluster_node.cluster]
                 # If the cluster cannot be split further, skip it
@@ -191,16 +186,18 @@ class BisectingKmeans:
                     continue
                 # Bisect by kmeans with k=2
                 cluster_unsplit_error, cluster_split_error, (cluster1, cluster2) = self._bisect_by_kmeans(
-                    cluster_data, cluster_node, dataset
+                    cluster_data,
+                    cluster_node,
+                    dataset,
                 )
                 new_total_error = total_error - cluster_unsplit_error + cluster_split_error
                 if new_total_error < total_error:
                     total_error = new_total_error
                     split_cluster_into = (cluster1, cluster2)
-                    to_splot_cluster_node = cluster_node
+                    to_split_cluster_node = cluster_node
 
-            if to_splot_cluster_node is not None and split_cluster_into is not None:
-                self._commit_split(to_splot_cluster_node, split_cluster_into, dataset)
+            if to_split_cluster_node is not None and split_cluster_into is not None:
+                self._commit_split(to_split_cluster_node, split_cluster_into, dataset)
                 self.labels_ = self._predict_dataset_labels(dataset)
             else:
                 break
@@ -208,8 +205,7 @@ class BisectingKmeans:
         return self
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
-        """
-        Fit and predict the cluster label of the dataset.
+        """Fit and predict the cluster label of the dataset.
 
         Args:
             dataset: The set of data points for clustering.
@@ -220,8 +216,7 @@ class BisectingKmeans:
         return self.fit(dataset).labels_
 
     def predict(self, points: list[list[float]]) -> list[int]:
-        """
-        Predict the cluster label of the given points.
+        """Predict the cluster label of the given points.
 
         Args:
             points: A list of data points to predict.
@@ -233,7 +228,8 @@ class BisectingKmeans:
             ValueError: If the model has not been fitted yet.
         """
         if self.cluster_tree_.centroid is None:
-            raise ValueError("The model has not been fitted yet.")
+            msg = "The model has not been fitted yet."
+            raise ValueError(msg)
 
         clusters = self.cluster_tree_.get_clusters()
         predictions = []
@@ -241,7 +237,8 @@ class BisectingKmeans:
             node = self.cluster_tree_
             while not node.is_leaf():
                 if node.left is None or node.right is None:
-                    raise ValueError("Invalid cluster tree structure.")
+                    msg = "Invalid cluster tree structure."
+                    raise ValueError(msg)
 
                 dist_left = euclidean_distance(point, node.left.centroid)  # type: ignore[arg-type]
                 dist_right = euclidean_distance(point, node.right.centroid)  # type: ignore[arg-type]
@@ -267,7 +264,7 @@ class BisectingKmeans:
         # split error calculation
         cluster_unsplit_error = sum_square_error([dataset[i] for i in cluster_node.cluster])
         cluster_split_error = sum_square_error([dataset[i] for i in cluster1]) + sum_square_error(
-            [dataset[i] for i in cluster2]
+            [dataset[i] for i in cluster2],
         )
         return cluster_unsplit_error, cluster_split_error, (cluster1, cluster2)
 
@@ -280,13 +277,15 @@ class BisectingKmeans:
         # cluster tree
         cluster_node.add_left_child(
             ClusterTree(
-                cluster=split_cluster_into[0], centroid=self._get_cluster_centroids(dataset, split_cluster_into[0])
-            )
+                cluster=split_cluster_into[0],
+                centroid=self._get_cluster_centroids(dataset, split_cluster_into[0]),
+            ),
         )
         cluster_node.add_right_child(
             ClusterTree(
-                cluster=split_cluster_into[1], centroid=self._get_cluster_centroids(dataset, split_cluster_into[1])
-            )
+                cluster=split_cluster_into[1],
+                centroid=self._get_cluster_centroids(dataset, split_cluster_into[1]),
+            ),
         )
 
     def _predict_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
@@ -299,23 +298,18 @@ class BisectingKmeans:
     @staticmethod
     def _get_cluster_centroids(dataset: list[list[float]], cluster: list[int]) -> list[float]:
         cluster_points = [dataset[i] for i in cluster]
-        centroid = [sum(t) / len(cluster) for t in zip(*cluster_points)]
+        centroid = [sum(t) / len(cluster) for t in zip(*cluster_points, strict=False)]
         return centroid
 
 
 def euclidean_distance(v1: list[float], v2: list[float]) -> float:
-    """
-    Calculate the L2 distance between two vectors
-
-    """
+    """Calculate the L2 distance between two vectors."""
     assert len(v1) == len(v2), f"{v1} and {v2} have different length!"
     return math.sqrt(sum(pow(v1[i] - v2[i], 2) for i in range(len(v1))))
 
 
 def sum_square_error(c: list[list[float]]) -> float:
-    """
-    Calc the sum of squared errors.
-    """
+    """Calc the sum of squared errors."""
     mean_c = [statistics.mean([v[i] for v in c]) for i in range(len(c[0]))]
     return sum(euclidean_distance(mean_c, v) ** 2 for v in c)
 

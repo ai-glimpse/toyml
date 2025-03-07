@@ -1,2 +1,2 @@
-class ToyMLException(Exception):
+class ToyMLError(Exception):
     pass

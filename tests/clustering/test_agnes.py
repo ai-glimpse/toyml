@@ -27,14 +27,14 @@ class TestAGNES:
 
     def test_linkage_methods(self, sample_dataset: list[list[float]]) -> None:
         for linkage in ["single", "complete", "average"]:
-            agnes = AGNES(n_cluster=2, linkage=linkage)  # type: ignore
+            agnes = AGNES(n_cluster=2, linkage=linkage)  # type: ignore[arg-type]
             labels = agnes.fit_predict(sample_dataset)
             assert len(labels) == len(sample_dataset)
             assert set(labels) == {0, 1}
 
     def test_invalid_linkage(self) -> None:
         with pytest.raises(ValueError, match="Invalid linkage method"):
-            AGNES(n_cluster=2, linkage="invalid")  # type: ignore
+            AGNES(n_cluster=2, linkage="invalid")  # type: ignore[arg-type]
 
     def test_cluster_tree(self) -> None:
         dataset = [[1.0, 0.0], [2.0, 0.0], [10.0, 0.0], [11.0, 0.0]]

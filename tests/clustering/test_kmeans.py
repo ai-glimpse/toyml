@@ -8,9 +8,7 @@ from toyml.clustering import Kmeans
 
 
 class TestKMeansSimple:
-    """
-    Test the k-means algorithm completely.
-    """
+    """Test the k-means algorithm completely."""
 
     @pytest.mark.parametrize("centroids_init_method", ["random", "kmeans++"])
     def test_fit(

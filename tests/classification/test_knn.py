@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -11,7 +10,9 @@ class TestKNN:
     @given(
         dataset=st.lists(
             st.lists(
-                st.floats(allow_nan=False, allow_infinity=False, max_value=100, min_value=-100), min_size=4, max_size=4
+                st.floats(allow_nan=False, allow_infinity=False, max_value=100, min_value=-100),
+                min_size=4,
+                max_size=4,
             ),
             min_size=2,
             max_size=10,
@@ -29,19 +30,24 @@ class TestKNN:
         knn.fit(dataset, labels)
 
         # Test prediction on a random point from the dataset
-        random_index = np.random.randint(0, len(dataset))
+        random_index = np.random.randint(0, len(dataset))  # noqa: NPY002
         prediction = knn.predict(dataset[random_index])
         assert prediction in labels
 
     @pytest.mark.parametrize(
-        "dataset, labels, k, test_point, expected_label",
+        ("dataset", "labels", "k", "test_point", "expected_label"),
         [
             ([[1.0], [2.0], [3.0], [4.0]], [0, 0, 1, 1], 3, [2.5], 0),
             ([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]], ["A", "A", "B", "B"], 2, [3.5, 3.5], "B"),
         ],
     )
     def test_knn_specific_cases(
-        self, dataset: list[list[float]], labels: list[int], k: int, test_point: list[float], expected_label: int
+        self,
+        dataset: list[list[float]],
+        labels: list[int],
+        k: int,
+        test_point: list[float],
+        expected_label: int,
     ) -> None:
         knn = KNN(k=k, std_transform=False)
         knn.fit(dataset, labels)
@@ -56,7 +62,7 @@ class TestKNN:
 
 class TestStandardizationer:
     @pytest.mark.parametrize(
-        "dataset, expected_means, expected_stds",
+        ("dataset", "expected_means", "expected_stds"),
         [
             ([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [3.0, 4.0], [2.0, 2.0]),
             ([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]], [1.0, 1.0], [1.0, 1.0]),
@@ -72,7 +78,7 @@ class TestStandardizationer:
         assert pytest.approx(standardizationer._stds) == expected_stds
 
     @pytest.mark.parametrize(
-        "dataset, input_data, expected_output",
+        ("dataset", "input_data", "expected_output"),
         [
             ([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[2.0, 3.0]], [[-0.5, -0.5]]),
             ([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]], [[1.5, 1.5]], [[0.5, 0.5]]),
@@ -80,7 +86,10 @@ class TestStandardizationer:
         ],
     )
     def test_transform(
-        self, dataset: list[list[float]], input_data: list[list[float]], expected_output: list[list[float]]
+        self,
+        dataset: list[list[float]],
+        input_data: list[list[float]],
+        expected_output: list[list[float]],
     ) -> None:
         standardizationer = Standardizationer()
         standardizationer.fit(dataset)
@@ -89,7 +98,7 @@ class TestStandardizationer:
         np.testing.assert_array_almost_equal(transformed, expected_output)
 
     @pytest.mark.parametrize(
-        "dataset, expected_output",
+        ("dataset", "expected_output"),
         [
             ([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]),
             ([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]], [[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]),

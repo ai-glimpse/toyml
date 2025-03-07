@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import math
 import statistics
-
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass, field
@@ -67,7 +66,7 @@ class BaseNaiveBayes(ABC):
         # ref: https://github.com/scikit-learn/scikit-learn/blob/2beed55847ee70d363bdbfe14ee4401438fba057/sklearn/naive_bayes.py#L97
         max_log_prob = max(raw_label_posteriors.values())
         logsumexp_prob = max_log_prob + math.log(
-            sum(math.exp(log_prob - max_log_prob) for log_prob in raw_label_posteriors.values())
+            sum(math.exp(log_prob - max_log_prob) for log_prob in raw_label_posteriors.values()),
         )
         label_posteriors = {
             label: raw_posterior - logsumexp_prob for label, raw_posterior in raw_label_posteriors.items()
@@ -81,12 +80,20 @@ class BaseNaiveBayes(ABC):
 
 @dataclass
 class GaussianNaiveBayes(BaseNaiveBayes):
-    """
-    Gaussian naive bayes classification algorithm implementation.
+    """Gaussian naive bayes classification algorithm implementation.
 
     Examples:
         >>> label = [0, 0, 0, 0, 1, 1, 1, 1]
-        >>> dataset = [[6.00, 180, 12], [5.92, 190, 11], [5.58, 170, 12], [5.92, 165, 10], [5.00, 100, 6], [5.50, 150, 8], [5.42, 130, 7], [5.75, 150, 9]]
+        >>> dataset = [
+        ...     [6.00, 180, 12],
+        ...     [5.92, 190, 11],
+        ...     [5.58, 170, 12],
+        ...     [5.92, 165, 10],
+        ...     [5.00, 100, 6],
+        ...     [5.50, 150, 8],
+        ...     [5.42, 130, 7],
+        ...     [5.75, 150, 9],
+        ... ]
         >>> clf = GaussianNaiveBayes().fit(dataset, label)
         >>> clf.predict([6.00, 130, 8])
         1
@@ -123,14 +130,12 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
         self.class_prior_ = {label: 1 / self.class_count_ for label in self.labels_}
-        self.epsilon_ = self.var_smoothing * max(self._variance(col) for col in zip(*dataset))
+        self.epsilon_ = self.var_smoothing * max(self._variance(col) for col in zip(*dataset, strict=False))
         self.means_, self.variances_ = self._get_classes_means_variances(dataset, labels)
         return self
 
     def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
-        """
-        Calculate the likelihood of each sample in each class
-        """
+        """Calculate the likelihood of each sample in each class."""
         label_likelihoods: dict[Class, float] = {}
         for label in self.labels_:
             label_means = self.means_[label]
@@ -151,22 +156,20 @@ class GaussianNaiveBayes(BaseNaiveBayes):
     ) -> tuple[dict[Class, list[float]], dict[Class, list[float]]]:
         means, variances = {}, {}
         for label in self.labels_:
-            label_samples = [sample for (sample, sample_label) in zip(dataset, labels) if sample_label == label]
+            label_samples = [
+                sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
+            ]
             means[label] = self._dataset_column_means(label_samples)
             variances[label] = self._dataset_column_variances(label_samples)
         return means, variances
 
     @staticmethod
     def _dataset_column_means(dataset: list[list[FeatureValue]]) -> list[float]:
-        """
-        Calculate vectors mean
-        """
+        """Calculate vectors mean."""
         return [statistics.mean(column) for column in zip(*dataset, strict=True)]
 
     def _dataset_column_variances(self, dataset: list[list[FeatureValue]]) -> list[float]:
-        """
-        Calculate vectors(every column) standard variance
-        """
+        """Calculate vectors(every column) standard variance."""
         return [self._variance(column) + self.epsilon_ for column in zip(*dataset, strict=True)]
 
     def _variance(self, xs: list[FeatureValue] | tuple[FeatureValue, ...]) -> float:
@@ -174,7 +177,7 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         mean = statistics.mean(xs)
         ss = sum((x - mean) ** 2 for x in xs)
         if self.unbiased_variance is True:
-            if n > 1:
+            if n > 1:  # noqa: SIM108
                 variance = ss / (len(xs) - 1)
             else:
                 variance = 0.0  # Variance is zero when there's only one sample
@@ -185,8 +188,7 @@ class GaussianNaiveBayes(BaseNaiveBayes):
 
 @dataclass
 class MultinomialNaiveBayes(BaseNaiveBayes):
-    """
-    Multinomial Naive Bayes classifier.
+    """Multinomial Naive Bayes classifier.
 
     Examples:
         >>> import random
@@ -231,9 +233,7 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
         return self
 
     def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
-        """
-        Calculate the likelihood of each sample in each class
-        """
+        """Calculate the likelihood of each sample in each class."""
         label_likelihoods: dict[int, float] = {}
         for label in self.labels_:
             likelihood = 0.0
@@ -250,7 +250,9 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
     ) -> tuple[dict[Class, list[int]], dict[Class, list[float]]]:
         feature_count, feature_prob = {}, {}
         for label in self.labels_:
-            label_samples = [sample for (sample, sample_label) in zip(dataset, labels) if sample_label == label]
+            label_samples = [
+                sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
+            ]
             counts = self._dataset_feature_counts(label_samples)
             feature_count[label] = counts
             feature_prob[label] = [math.log(value_count / sum(counts)) for value_count in counts]
@@ -258,16 +260,13 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
         return feature_count, feature_prob
 
     def _dataset_feature_counts(self, dataset: list[list[FeatureValue]]) -> list[int]:
-        """
-        Calculate feature value counts
-        """
+        """Calculate feature value counts."""
         return [sum(column) + self.alpha for column in zip(*dataset, strict=True)]
 
 
 @dataclass
 class CategoricalNaiveBayes(BaseNaiveBayes):
-    """
-    Categorical Naive Bayes classifier.
+    """Categorical Naive Bayes classifier.
 
     Examples:
         >>> import random
@@ -310,9 +309,7 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         return self
 
     def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
-        """
-        Calculate the likelihood of each sample in each class
-        """
+        """Calculate the likelihood of each sample in each class."""
         label_likelihoods: dict[Class, float] = {}
         for label in self.labels_:
             likelihood = 0.0
@@ -328,13 +325,15 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         labels: list[Class],
     ) -> tuple:  # type: ignore[type-arg]
         feature_smooth_count: dict[Dimension, dict[FeatureValue, float]] = {}
-        for dim, column in enumerate(zip(*dataset)):
+        for dim, column in enumerate(zip(*dataset, strict=False)):
             feature_smooth_count[dim] = {value: self.alpha for value in set(column)}
 
         feature_count: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
         feature_prob: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
         for label in self.labels_:
-            label_samples = [sample for (sample, sample_label) in zip(dataset, labels) if sample_label == label]
+            label_samples = [
+                sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
+            ]
             counts = self._dataset_feature_counts(label_samples, feature_smooth_count)
             feature_count[label] = counts
             feature_prob[label] = {}
@@ -351,9 +350,7 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         dataset: list[list[FeatureValue]],
         feature_smooth_count: dict[Dimension, dict[FeatureValue, float]],
     ) -> dict[Dimension, dict[FeatureValue, float]]:
-        """
-        Calculate feature value counts
-        """
+        """Calculate feature value counts."""
         # Note: here we should use deepcopy
         feature_value_count = copy.deepcopy(feature_smooth_count)
         for dim, column in enumerate(zip(*dataset, strict=True)):

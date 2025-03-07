@@ -61,7 +61,7 @@ class TestDbScan(unittest.TestCase):
         labels = dbscan.fit_predict(self.dataset)
 
         # Check the number of unique labels (excluding noise)
-        unique_labels = set(label for label in labels if label != -1)
+        unique_labels = {label for label in labels if label != -1}
         self.assertEqual(len(unique_labels), 2)
 
         # Check that the labels match the expected clustering

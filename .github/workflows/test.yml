@@ -34,10 +34,10 @@ jobs:
 
       - name: Install the project
         run: uv sync --extra dev --extra plot
-
       - name: Lint with Mypy
-        run: uv run mypy toyml tests
-
+        run: uv run mypy .
+      - name: Lint with Ruff
+        run: uv run ruff check
       - name: Run tests and generate coverage report
         run: uv run pytest --doctest-modules -v --cov=toyml --cov-fail-under 90 --cov-report=term --cov-report=xml --cov-report=html toyml tests
 

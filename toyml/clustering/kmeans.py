@@ -3,17 +3,15 @@ from __future__ import annotations
 import logging
 import math
 import random
-
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class Kmeans:
-    """
-    K-means algorithm (with Kmeans++ initialization as option).
+    """K-means algorithm (with Kmeans++ initialization as option).
 
     Examples:
         >>> from toyml.clustering import Kmeans
@@ -57,7 +55,7 @@ class Kmeans:
     """The tolerance for convergence."""
     centroids_init_method: Literal["random", "kmeans++"] = "random"
     """The method to initialize the centroids."""
-    random_seed: Optional[int] = None
+    random_seed: int | None = None
     """The random seed used to initialize the centroids."""
     distance_metric: Literal["euclidean"] = "euclidean"
     """The distance metric to use.(For now we only support euclidean)."""
@@ -72,9 +70,8 @@ class Kmeans:
     def __post_init__(self) -> None:
         random.seed(self.random_seed)
 
-    def fit(self, dataset: list[list[float]]) -> "Kmeans":
-        """
-        Fit the dataset with K-means algorithm.
+    def fit(self, dataset: list[list[float]]) -> Kmeans:
+        """Fit the dataset with K-means algorithm.
 
         Args:
             dataset: the set of data points for clustering
@@ -92,16 +89,13 @@ class Kmeans:
         return self
 
     def _iter_step(self, dataset: list[list[float]]) -> None:
-        """
-        Can be used to control the fitting process step by step.
-        """
+        """Can be used to control the fitting process step by step."""
         self.clusters_ = self._get_clusters(dataset)
         self.centroids_ = self._get_centroids(dataset)
         self.labels_ = self._predict_dataset_labels(dataset)
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
-        """
-        Fit and predict the cluster label of the dataset.
+        """Fit and predict the cluster label of the dataset.
 
         Args:
             dataset: the set of data points for clustering
@@ -112,8 +106,7 @@ class Kmeans:
         return self.fit(dataset).labels_
 
     def predict(self, point: list[float]) -> int:
-        """
-        Predict the label of the point.
+        """Predict the label of the point.
 
         Args:
             point: The data point to predict.
@@ -123,15 +116,16 @@ class Kmeans:
 
         """
         if len(self.centroids_) == 0:
-            raise ValueError("The model is not fitted yet")
+            msg = "The model is not fitted yet"
+            raise ValueError(msg)
         return self._get_point_centroid_label(point, self.centroids_)
 
     def _calc_distance(self, x: list[float], y: list[float]) -> float:
         assert len(x) == len(y), f"{x} and {y} have different length!"
         if self.distance_metric == "euclidean":
             return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
-        else:
-            raise ValueError(f"Distance metric {self.distance_metric} not supported!")
+        msg = f"Distance metric {self.distance_metric} not supported!"
+        raise ValueError(msg)
 
     def _predict_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
         labels = [-1] * len(dataset)
@@ -141,19 +135,16 @@ class Kmeans:
         return labels
 
     def _get_initial_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        """
-        get initial centroids by a simple random selection
-        """
+        """Get initial centroids by a simple random selection."""
         if self.centroids_init_method == "random":
             return self._get_initial_centroids_random(dataset)
-        elif self.centroids_init_method == "kmeans++":
+        if self.centroids_init_method == "kmeans++":
             return self._get_initial_centroids_kmeans_plus(dataset)
-        else:
-            raise ValueError(f"Invalid centroids initialization method: {self.centroids_init_method}")
+        msg = f"Invalid centroids initialization method: {self.centroids_init_method}"
+        raise ValueError(msg)
 
     def _is_converged(self, prev_centroids: dict[int, list[float]]) -> bool:
-        """
-        Check if the centroids converged.
+        """Check if the centroids converged.
 
         Args:
             prev_centroids: previous centroids
@@ -171,8 +162,7 @@ class Kmeans:
         return True
 
     def _get_initial_centroids_random(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        """
-        Get initial centroids by a simple random selection.
+        """Get initial centroids by a simple random selection.
 
         Args:
             dataset: The dataset for clustering
@@ -181,12 +171,11 @@ class Kmeans:
             The initial centroids
         """
         data_points = random.sample(dataset, self.k)
-        centroids = {i: data_point for i, data_point in enumerate(data_points)}
+        centroids = dict(enumerate(data_points))
         return centroids
 
     def _get_initial_centroids_kmeans_plus(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        """
-        Get initial centroids by k-means++ algorithm.
+        """Get initial centroids by k-means++ algorithm.
 
         Args:
             dataset: The dataset for clustering
@@ -194,7 +183,7 @@ class Kmeans:
         Returns:
             The initial centroids
         """
-        self.centroids_ = dict()
+        self.centroids_ = {}
         self.centroids_[0] = random.choice(dataset)
         for i in range(1, self.k):
             min_distances = [self._get_min_square_distance(point) for point in dataset]
@@ -204,8 +193,7 @@ class Kmeans:
         return self.centroids_
 
     def _get_min_square_distance(self, point: list[float]) -> float:
-        """
-        Get the minimum square distance from the point to current centroids.
+        """Get the minimum square distance from the point to current centroids.
 
         Args:
             point: The point to calculate the distance.
@@ -219,9 +207,7 @@ class Kmeans:
         )
 
     def _get_point_centroid_label(self, point: list[float], centroids: dict[int, list[float]]) -> int:
-        """
-        Get the label of the centroid, which is closest to the point
-        """
+        """Get the label of the centroid, which is closest to the point."""
         distances = [(i, self._calc_distance(point, centroid)) for i, centroid in centroids.items()]
         return min(distances, key=lambda x: x[1])[0]
 
@@ -236,6 +222,6 @@ class Kmeans:
         centroids: dict[int, list[float]] = {i: [] for i in range(self.k)}
         for cluster_i, cluster in self.clusters_.items():
             cluster_points = [dataset[i] for i in cluster]
-            centroid = [sum(t) / len(cluster) for t in zip(*cluster_points)]
+            centroid = [sum(t) / len(cluster) for t in zip(*cluster_points, strict=False)]
             centroids[cluster_i] = centroid
         return centroids
