@@ -95,10 +95,6 @@ testpaths = [
     "tests",
 ]
 
-[tool.coverage.run]
-omit = [
-    "./toyml/utils/*",  # TODO: remove from omit
-]
 
 [tool.coverage.report]
 exclude_lines = [
