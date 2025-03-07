@@ -32,7 +32,7 @@ class TestKNN:
         # Test prediction on a random point from the dataset
         random_index = np.random.randint(0, len(dataset))  # noqa: NPY002
         prediction = knn.predict(dataset[random_index])
-        assert prediction in labels  # type: ignore[comparison-overlap]
+        assert prediction in labels
 
     @pytest.mark.parametrize(
         ("dataset", "labels", "k", "test_point", "expected_label"),
@@ -52,7 +52,7 @@ class TestKNN:
         knn = KNN(k=k, std_transform=False)
         knn.fit(dataset, labels)
         prediction = knn.predict(test_point)
-        assert prediction == expected_label  # type: ignore[comparison-overlap]
+        assert prediction == expected_label
 
     def test_knn_not_fitted(self) -> None:
         knn = KNN(k=3)

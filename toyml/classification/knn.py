@@ -60,7 +60,7 @@ class KNN:
             self.dataset_ = self.standardizationer_.fit_transform(self.dataset_)
         return self
 
-    def predict(self, x: list[float]) -> Any:
+    def predict(self, x: list[float]) -> Any:  # noqa: ANN401
         """Predict the label of the input data.
 
         Args:
@@ -87,7 +87,7 @@ class KNN:
             label for _, label in sorted(zip(distances, self.labels_, strict=False), key=lambda x: x[0])
         ][:: self.k]
         label = Counter(k_nearest_labels).most_common(1)[0][0]
-        return label  # type: ignore[no-any-return]
+        return label
 
     @staticmethod
     def _calculate_distance(x: list[float], y: list[float]) -> float:
