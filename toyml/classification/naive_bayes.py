@@ -129,7 +129,7 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         """
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
-        self.class_prior_ = {label: 1 / self.class_count_ for label in self.labels_}
+        self.class_prior_ = dict.fromkeys(self.labels_, 1 / self.class_count_)
         self.epsilon_ = self.var_smoothing * max(self._variance(col) for col in zip(*dataset, strict=False))
         self.means_, self.variances_ = self._get_classes_means_variances(dataset, labels)
         return self
@@ -326,7 +326,7 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
     ) -> tuple:  # type: ignore[type-arg]
         feature_smooth_count: dict[Dimension, dict[FeatureValue, float]] = {}
         for dim, column in enumerate(zip(*dataset, strict=False)):
-            feature_smooth_count[dim] = {value: self.alpha for value in set(column)}
+            feature_smooth_count[dim] = dict.fromkeys(set(column), self.alpha)
 
         feature_count: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
         feature_prob: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
