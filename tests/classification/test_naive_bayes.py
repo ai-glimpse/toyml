@@ -40,8 +40,8 @@ def wikipedia_person_classification_sample() -> list[float]:
 def sklearn_example_random_dataset_label() -> tuple[list[list[int]], list[int]]:
     """References: https://scikit-learn.org/1.5/modules/generated/sklearn.naive_bayes.MultinomialNB.html#multinomialnb."""
     rng = np.random.RandomState(1)
-    dataset = rng.randint(5, size=(6, 100)).tolist()
-    label = np.array([1, 2, 3, 4, 5, 6]).tolist()
+    dataset: list[list[int]] = rng.randint(5, size=(6, 100)).tolist()
+    label: list[int] = np.array([1, 2, 3, 4, 5, 6]).tolist()
     return dataset, label
 
 
