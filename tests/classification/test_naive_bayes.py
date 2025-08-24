@@ -42,7 +42,7 @@ def sklearn_example_random_dataset_label() -> tuple[list[list[int]], list[int]]:
     rng = np.random.RandomState(1)
     dataset = rng.randint(5, size=(6, 100)).tolist()
     label = np.array([1, 2, 3, 4, 5, 6]).tolist()
-    return dataset, label  # type: ignore[return-value]
+    return dataset, label
 
 
 class TestGaussianNaiveBayesIntegration:
