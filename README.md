@@ -16,11 +16,22 @@
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
-![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg)
+<!-- ![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg) -->
 
 
 There are machine learning algorithms implemented from scratch.
 Let's learn machine learning with simple toy code.
+
+
+## Models
+
+- [x] Clustering: K-means
+- [x] Clustering: DBSCAN
+- [x] Clustering: Hierarchical(DIANA(Bisecting-Kmeans) & AGNES)
+- [x] Classification: KNN
+- [x] Classification: Naive Bayes
+- [x] Ensemble: AdaBoost
+- [x] Ensemble: Isolation Forest
 
 
 ## Installation
