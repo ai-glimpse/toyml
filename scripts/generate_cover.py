@@ -5,7 +5,13 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
 
-def clifford_attractor(a, b, c, d, n_points=5000000):
+def clifford_attractor(
+    a: float,
+    b: float,
+    c: float,
+    d: float,
+    n_points: int = 5000000,
+) -> tuple[np.ndarray, np.ndarray]:
     # Initialize arrays
     x = np.zeros(n_points)
     y = np.zeros(n_points)
@@ -38,7 +44,7 @@ def clifford_attractor(a, b, c, d, n_points=5000000):
     return x, y
 
 
-def generate_cover():
+def generate_cover() -> None:
     # Parameters for a more "Silk/Fabric" look, elegant and flowing
     a, b, c, d = -1.3, -1.3, -1.8, -1.9
 
@@ -61,11 +67,11 @@ def generate_cover():
     # 2D Histogram with higher resolution
     print("Rendering density map...")
     nbins = 1200
-    H, xedges, yedges = np.histogram2d(x, y, bins=nbins)
-    H = np.log(H + 1)  # Log scale
+    hist, _xedges, _yedges = np.histogram2d(x, y, bins=nbins)
+    hist = np.log(hist + 1)  # Log scale
 
     # Render with bicubic interpolation for smoothness
-    ax.imshow(H.T, origin="lower", cmap=cmap, interpolation="bicubic", extent=[-2.5, 2.5, -2.5, 2.5])
+    ax.imshow(hist.T, origin="lower", cmap=cmap, interpolation="bicubic", extent=[-2.5, 2.5, -2.5, 2.5])
 
     # Ensure assets directory exists
     assets_dir = Path(__file__).parent.parent / "assets"

@@ -178,6 +178,12 @@ pydocstyle = { convention = "google" }
     "PT009",  # Use a regular `assert` instead of unittest-style `assertEqual`
     "INP001",
 ]
+'examples/*' = [
+    "INP001", # Private member accessed
+]
+'scripts/*' = [
+    "INP001", # Private member accessed
+]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

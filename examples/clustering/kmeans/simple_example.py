@@ -1,6 +1,5 @@
 import math
 
-
 # data points
 points = [
     [1, 1],
