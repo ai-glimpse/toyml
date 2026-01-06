@@ -84,6 +84,7 @@ namespaces = false
 [tool.mypy]
 ignore_missing_imports = true
 strict = true
+exclude = ["scripts"]
 
 
 [tool.pytest.ini_options]
