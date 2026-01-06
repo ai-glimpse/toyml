@@ -1,9 +1,13 @@
 # ToyML: Machine Learning from Scratch
 
+<p align="center">
+  <img src="assets/cover.png" alt="ToyML Cover" width="200">
+</p>
+
+<p align="center">
 
 [![Python](https://img.shields.io/pypi/pyversions/toyml.svg?color=%2334D058)](https://pypi.org/project/toyml/)
 [![PyPI](https://img.shields.io/pypi/v/toyml?color=%2334D058&label=pypi%20package)](https://pypi.org/project/toyml/)
-
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
 [![Build Docs](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml)
 [![Test](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml)
@@ -18,6 +22,7 @@
 
 <!-- ![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg) -->
 
+</p>
 
 There are machine learning algorithms implemented from scratch.
 Let's learn machine learning with simple toy code.
