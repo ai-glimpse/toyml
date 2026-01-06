@@ -30,7 +30,10 @@ classifiers=[
 requires-python = ">= 3.10"
 dependencies = []
 
-[project.optional-dependencies]
+[tool.uv]
+default-groups = ["dev", "docs", "plot"]
+
+[dependency-groups]
 dev = [
     "pre-commit",
     "ipython",
@@ -81,6 +84,7 @@ namespaces = false
 [tool.mypy]
 ignore_missing_imports = true
 strict = true
+exclude = ["scripts"]
 
 
 [tool.pytest.ini_options]
@@ -174,6 +178,12 @@ pydocstyle = { convention = "google" }
     "S101",   # assert
     "PT009",  # Use a regular `assert` instead of unittest-style `assertEqual`
     "INP001",
+]
+'examples/*' = [
+    "INP001", # Private member accessed
+]
+'scripts/*' = [
+    "INP001", # Private member accessed
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

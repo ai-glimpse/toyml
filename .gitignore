@@ -1,3 +1,6 @@
+# lock
+uv.lock
+
 # IDE config
 .idea
 

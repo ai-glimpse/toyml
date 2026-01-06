@@ -123,7 +123,6 @@ plugins:
   - git-committers:
       repository: ai-glimpse/toyml
       branch: master
-      token: !!python/object/apply:os.getenv ["ORG_MKDOCS_GIT_COMMITTERS_APIKEY"]
   - bibtex:
       bib_file: "docs/references.bib"
       csl_file: "docs/ieee.csl"
@@ -131,7 +130,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          import:
+          inventories:
           - https://docs.python-requests.org/en/master/objects.inv
           - https://docs.python.org/3/objects.inv
           - https://mkdocstrings.github.io/objects.inv

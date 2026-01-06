@@ -34,7 +34,7 @@ jobs:
             **/pyproject.toml
 
       - name: Install the project
-        run: uv sync --extra dev --extra plot
+        run: uv sync --all-extras --dev
       - name: Lint with Mypy
         run: uv run mypy .
       - name: Lint with Ruff
