@@ -46,6 +46,7 @@ class IsolationTree:
 
     def fit(self, samples: list[list[float]]) -> IsolationTree:
         """Fit the isolation tree."""
+        # Refit from the same seed rather than from the end of the previous fit's stream.
         if self.random_seed is not None:
             self.random_state.seed(self.random_seed)
         self.sample_size_ = len(samples)
@@ -102,6 +103,8 @@ class IsolationTree:
             # need to keep proper binary tree property: all internal nodes have exactly two children
             if len(left_samples) > 0 and len(right_samples) > 0:
                 self.split_at_, self.split_value_ = split_at, split_value
+                # Derive separate child streams so the root seed controls every split,
+                # without sharing mutable RNG state or falling back to system entropy.
                 left_itree = IsolationTree(
                     max_height=self.max_height - 1, random_seed=self.random_state.getrandbits(64)
                 ).fit(left_samples)
@@ -161,6 +164,7 @@ class IsolationForest:
 
     def fit(self, dataset: list[list[float]]) -> IsolationForest:
         """Fit the isolation forest model."""
+        # Replay integer-seeded fits; None retains the instance's independent ongoing stream.
         if self.random_seed is not None:
             self.random_state.seed(self.random_seed)
         if self.max_samples is None or self.max_samples > len(dataset):
@@ -212,6 +216,8 @@ class IsolationForest:
         assert self.max_samples is not None, "Please fit the model before score sample!"
         samples = self.random_state.sample(dataset, self.max_samples)
         itree_max_height = math.ceil(math.log2(len(samples)))
+        # Reusing the forest seed for every tree repeats split decisions on a full sample.
+        # Derived seeds preserve both reproducibility and diversity between trees.
         return IsolationTree(max_height=itree_max_height, random_seed=self.random_state.getrandbits(64)).fit(samples)
 
 

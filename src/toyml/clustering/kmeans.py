@@ -79,6 +79,7 @@ class KMeans:
         Returns:
             self.
         """
+        # Replay integer-seeded fits; unseeded instances keep advancing their private stream.
         if self.random_seed is not None:
             self.random_state.seed(self.random_seed)
         self.iter_ = 0

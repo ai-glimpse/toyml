@@ -27,6 +27,7 @@ PROPERTY_SETTINGS = settings(max_examples=50, derandomize=True, database=None, d
 @contextmanager
 def random_environment(entropy_seed: int) -> Generator[None, None, None]:
     """Make implicit seeding replayable without changing explicit seeds."""
+    # Hypothesis must replay a failing case while shrinking it; real OS entropy would make that flaky.
     entropy = Random(entropy_seed)
     global_state = random.getstate()
     original_seed = random.seed
