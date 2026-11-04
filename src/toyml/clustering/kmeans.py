@@ -56,7 +56,7 @@ class KMeans:
     centroids_init_method: Literal["random", "kmeans++"] = "random"
     """The method to initialize the centroids."""
     random_seed: int | None = None
-    """The random seed used to initialize the centroids."""
+    """Integer seeds reproduce each fit; None keeps an independent random stream."""
     distance_metric: Literal["euclidean"] = "euclidean"
     """The distance metric to use.(For now we only support euclidean)."""
     iter_: int = 0
@@ -68,7 +68,7 @@ class KMeans:
     """The cluster labels of the dataset."""
 
     def __post_init__(self) -> None:
-        random.seed(self.random_seed)
+        self.random_state = random.Random(self.random_seed)
 
     def fit(self, dataset: list[list[float]]) -> KMeans:
         """Fit the dataset with K-means algorithm.
@@ -79,6 +79,9 @@ class KMeans:
         Returns:
             self.
         """
+        if self.random_seed is not None:
+            self.random_state.seed(self.random_seed)
+        self.iter_ = 0
         self.centroids_ = self._get_initial_centroids(dataset)
         for _ in range(self.max_iter):
             self.iter_ += 1
@@ -170,7 +173,7 @@ class KMeans:
         Returns:
             The initial centroids
         """
-        data_points = random.sample(dataset, self.k)
+        data_points = self.random_state.sample(dataset, self.k)
         centroids = dict(enumerate(data_points))
         return centroids
 
@@ -184,12 +187,12 @@ class KMeans:
             The initial centroids
         """
         self.centroids_ = {}
-        self.centroids_[0] = random.choice(dataset)
+        self.centroids_[0] = self.random_state.choice(dataset)
         for i in range(1, self.k):
             min_distances = [self._get_min_square_distance(point) for point in dataset]
             total_dist = sum(min_distances)
             weights = [dist / total_dist for dist in min_distances]
-            self.centroids_[i] = random.choices(dataset, weights)[0]
+            self.centroids_[i] = self.random_state.choices(dataset, weights)[0]
         return self.centroids_
 
     def _get_min_square_distance(self, point: list[float]) -> float:
