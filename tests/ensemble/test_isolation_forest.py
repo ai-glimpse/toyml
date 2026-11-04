@@ -69,6 +69,12 @@ class TestIsolationTree:
 
 
 class TestIsolationForest:
+    def test_full_sample_trees_have_different_splits(self) -> None:
+        samples = [[float(i), float(i % 3)] for i in range(12)]
+        model = IsolationForest(n_itree=5, max_samples=len(samples), random_seed=0).fit(samples)
+        splits = {(tree.split_at_, tree.split_value_) for tree in model.itrees_}
+        assert len(splits) > 1
+
     @pytest.fixture
     def simple_dataset(self) -> list[list[float]]:
         return [[-1.1], [0.3], [0.5], [100.0]]

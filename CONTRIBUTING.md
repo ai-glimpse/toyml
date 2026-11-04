@@ -87,6 +87,13 @@ The runnable K-means example uses the public API for fitting, centroids, and pre
 uv run --locked python examples/clustering/kmeans.py
 ```
 
+For models with `random_seed`, an integer must reproduce the fitted state and predictions
+on the same ordered input, including repeated `fit` calls, within the same implementation
+and environment. Instances own independent random streams and must not change the global
+generator. `None` keeps an independent, non-reproducible stream; different seeds need not
+produce different results. `tests/test_random_reproducibility.py` checks these contracts
+with Hypothesis, controlling implicit entropy so counterexamples can be replayed and shrunk.
+
 ## Documentation
 
 Zensical reads `zensical.toml` and generates API documentation from the source using

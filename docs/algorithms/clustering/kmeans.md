@@ -19,8 +19,10 @@ centroids from those assignments. Initialization affects which local solution is
 - Distances are Euclidean; scale features first when their units differ.
 - Choose `centroids_init_method="random"` or `"kmeans++"`. The current K-means++
   initializer cannot handle data whose remaining distance weights are all zero.
-- `random_seed` seeds the process-wide random generator. `predict` accepts one sample;
-  `fit_predict` returns one label per training observation.
+- An integer `random_seed` reproduces each fit on the same data, including refits.
+  Every instance owns its random stream and leaves the process-wide generator unchanged.
+  `None` uses an independent stream without promising repeatable results.
+- `predict` accepts one sample; `fit_predict` returns one label per training observation.
 
 ## Minimal example
 
