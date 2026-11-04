@@ -109,7 +109,7 @@ class GaussianNaiveBayes(BaseNaiveBayes):
     class_count_: int = 0
     """The number of classes in training dataset"""
     class_prior_: dict[Class, float] = field(default_factory=dict)
-    """The prior probability of each class in training dataset"""
+    """Class prior probabilities estimated from training label frequencies."""
     means_: dict[Class, list[float]] = field(default_factory=dict)
     """The means of each class in training dataset"""
     variances_: dict[Class, list[float]] = field(default_factory=dict)
@@ -129,7 +129,7 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         """
         self.labels_ = sorted(set(labels))
         self.class_count_ = len(set(labels))
-        self.class_prior_ = dict.fromkeys(self.labels_, 1 / self.class_count_)
+        self.class_prior_ = {label: count / len(dataset) for label, count in Counter(labels).items()}
         self.epsilon_ = self.var_smoothing * max(self._variance(col) for col in zip(*dataset, strict=False))
         self.means_, self.variances_ = self._get_classes_means_variances(dataset, labels)
         return self
