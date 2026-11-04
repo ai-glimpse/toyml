@@ -85,7 +85,7 @@ class KNN:
         # get k-nearest neighbors' label
         k_nearest_labels = [
             label for _, label in sorted(zip(distances, self.labels_, strict=False), key=lambda x: x[0])
-        ][:: self.k]
+        ][: self.k]
         label = Counter(k_nearest_labels).most_common(1)[0][0]
         return label
 

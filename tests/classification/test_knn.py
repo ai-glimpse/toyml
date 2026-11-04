@@ -2,11 +2,24 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from sklearn.neighbors import KNeighborsClassifier
 
 from toyml.classification.knn import KNN, Standardizer
 
 
 class TestKNN:
+    @pytest.mark.parametrize(("k", "expected_label"), [(1, 0), (3, 1), (5, 1)])
+    def test_votes_over_nearest_k_neighbors(self, k: int, expected_label: int) -> None:
+        dataset = [[4.0], [2.0], [0.0], [3.0], [1.0]]
+        labels = [0, 1, 0, 1, 1]
+        query = [0.1]
+
+        prediction = KNN(k=k, std_transform=False).fit(dataset, labels).predict(query)
+        reference = KNeighborsClassifier(n_neighbors=k).fit(dataset, labels).predict([query])[0]
+
+        assert prediction == expected_label
+        assert prediction == reference
+
     @given(
         dataset=st.lists(
             st.lists(
