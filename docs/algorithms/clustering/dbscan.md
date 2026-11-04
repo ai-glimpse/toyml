@@ -12,8 +12,8 @@ the number of clusters in advance; isolated observations are noise.
 - Pass non-empty, equally sized numeric feature lists, `eps > 0`, and `min_samples >= 1`.
 - Distances are Euclidean; feature scale strongly affects the radius.
 - This implementation stores all pairwise distances and is intended for small datasets.
-- Each fit replaces previous clusters and labels; all-noise inputs receive one `-1` per sample.
-- `noises_` can still contain non-core border points that belong to a cluster.
+- Noise samples receive label `-1`.
+- `noises_` can contain non-core border points that belong to a cluster.
 
 ## Minimal example
 
