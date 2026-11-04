@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import sys
 from dataclasses import asdict
 from typing import Literal
 
@@ -200,3 +201,17 @@ def test_sampling_probabilities_follow_squared_distance(exponent: int) -> None:
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(model.random_state, "choices", choose)
         assert model._sample_next_centroid(samples, [0.0, 2 * scale, 4 * scale]) == samples[1]
+
+
+@pytest.mark.parametrize("value", [1e308, -1e308, sys.float_info.max, -sys.float_info.max, 5e-324, -5e-324])
+def test_duplicate_extreme_coordinates_keep_their_mean(value: float) -> None:
+    model = KMeans(k=2, centroids_init_method="kmeans++", random_seed=0).fit([[value]] * 3)
+    assert all(center == [value] for center in model.centroids_.values())
+
+
+@given(values=st.lists(st.integers(-100, 100), min_size=1, max_size=10), exponent=st.integers(-250, 250))
+def test_centroid_mean_respects_coordinate_scale(values: list[int], exponent: int) -> None:
+    scale = 10.0**exponent
+    column = tuple(value * scale for value in values)
+    expected = (sum(values) / len(values)) * scale
+    assert KMeans._mean(column) == pytest.approx(expected, rel=1e-14, abs=1e-14 * scale)

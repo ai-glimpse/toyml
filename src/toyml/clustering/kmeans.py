@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import math
 import random
-import statistics
 from dataclasses import dataclass, field
 from typing import Literal
 
@@ -255,11 +254,21 @@ class KMeans:
 
     def _get_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
         centroids = {
-            label: [statistics.mean(column) for column in zip(*(dataset[i] for i in members), strict=True)]
+            label: [self._mean(column) for column in zip(*(dataset[i] for i in members), strict=True)]
             for label, members in self.clusters_.items()
             if members
         }
         return self._fill_empty_centroids(centroids)
+
+    @staticmethod
+    def _mean(values: tuple[float, ...]) -> float:
+        """Average finite coordinates with accurate summation and a scaled overflow fallback."""
+        try:
+            return math.fsum(values) / len(values)
+        except OverflowError:
+            # Normalize only on overflow; the common path preserves subnormal coordinates.
+            scale = max(abs(value) for value in values)
+            return (math.fsum(value / scale for value in values) / len(values)) * scale
 
     def _relocate_empty_clusters(self, dataset: list[list[float]]) -> None:
         """Seed empty clusters with farthest samples, leaving every donor nonempty."""
