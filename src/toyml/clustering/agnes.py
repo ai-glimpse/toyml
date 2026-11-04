@@ -44,15 +44,15 @@ class AGNES:
     """The linkage method to use."""
     distance_metric: Literal["euclidean"] = "euclidean"
     """The distance metric to use.(For now we only support euclidean)."""
-    distance_matrix_: list[list[float]] = field(default_factory=list)
+    distance_matrix_: list[list[float]] = field(default_factory=list, init=False)
     """The distance matrix."""
-    clusters_: list[ClusterTree] = field(default_factory=list)
+    clusters_: list[ClusterTree] = field(default_factory=list, init=False)
     """The clusters."""
-    labels_: list[int] = field(default_factory=list)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The labels of each sample."""
-    cluster_tree_: ClusterTree | None = None
-    linkage_matrix: list[list[float]] = field(default_factory=list)
-    _cluster_index: int = 0
+    cluster_tree_: ClusterTree | None = field(default=None, init=False)
+    linkage_matrix_: list[list[float]] = field(default_factory=list, init=False)
+    _cluster_index: int = field(default=0, init=False)
 
     def __post_init__(self) -> None:
         # check the linkage method
@@ -67,6 +67,7 @@ class AGNES:
     def fit(self, dataset: list[list[float]]) -> AGNES:
         """Fit the model."""
         self._validate(dataset)
+        self.linkage_matrix_ = []
         n = len(dataset)
         self.clusters_ = [ClusterTree(cluster_index=i, sample_indices=[i]) for i in range(n)]
         self._cluster_index = n
@@ -86,7 +87,7 @@ class AGNES:
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
         """Fit the model and return the labels of each sample."""
         self.fit(dataset)
-        return self.labels_
+        return self.labels_.copy()
 
     def _validate(self, dataset: list[list[float]]) -> None:
         """Validate the dataset."""
@@ -178,7 +179,7 @@ class AGNES:
         self.clusters_.pop(j)
 
         # linkage matrix
-        self.linkage_matrix.append(
+        self.linkage_matrix_.append(
             [cluster_i.cluster_index, cluster_j.cluster_index, cluster_ij_distance, len(parent_cluster.sample_indices)],
         )
 
@@ -237,7 +238,7 @@ class AGNES:
             raise ValueError(msg)
         # Plot the dendrogram
         plt.figure(figsize=(10, 7))
-        dendrogram(np.array(self.linkage_matrix))
+        dendrogram(np.array(self.linkage_matrix_))
         plt.title("AGNES Dendrogram")
         plt.xlabel("Sample Index")
         plt.ylabel("Distance")

@@ -39,9 +39,9 @@ class KNN:
 
     k: int
     std_transform: bool = True
-    dataset_: list[list[float]] | None = None
-    labels_: list[Any] | None = None
-    standardizer_: Standardizer | None = None
+    dataset_: list[list[float]] | None = field(default=None, init=False)
+    labels_: list[Any] | None = field(default=None, init=False)
+    standardizer_: Standardizer | None = field(default=None, init=False)
 
     def fit(self, dataset: list[list[float]], labels: list[Any]) -> KNN:
         """Fit the KNN model to the given dataset and labels.
@@ -53,11 +53,14 @@ class KNN:
         Returns:
             The fitted KNN instance.
         """
-        self.dataset_ = dataset
-        self.labels_ = labels
+        # Retain our own containers; scalar labels themselves can be shared.
+        self.labels_ = labels.copy()
+        self.standardizer_ = None
         if self.std_transform:
             self.standardizer_ = Standardizer()
-            self.dataset_ = self.standardizer_.fit_transform(self.dataset_)
+            self.dataset_ = self.standardizer_.fit_transform(dataset)
+        else:
+            self.dataset_ = [row.copy() for row in dataset]
         return self
 
     def predict(self, x: list[float]) -> Any:  # noqa: ANN401
@@ -118,9 +121,9 @@ class Standardizer:
     in a single step.
     """
 
-    _means: list[float] = field(default_factory=list)
-    _stds: list[float] = field(default_factory=list)
-    _dimension: int | None = None
+    _means: list[float] = field(default_factory=list, init=False)
+    _stds: list[float] = field(default_factory=list, init=False)
+    _dimension: int | None = field(default=None, init=False)
 
     def fit(self, dataset: list[list[float]]) -> Standardizer:
         """Fit the standardization model to the given dataset.
@@ -146,7 +149,7 @@ class Standardizer:
             dataset: The input dataset to transform.
 
         Returns:
-            The standardized dataset.
+            New standardized rows; the input dataset is unchanged.
 
         Raises:
             ValueError: If the model has not been fitted yet.
@@ -163,7 +166,7 @@ class Standardizer:
             dataset: The input dataset to fit and transform.
 
         Returns:
-            The standardized dataset.
+            New standardized rows; the input dataset is unchanged.
         """
         self.fit(dataset)
         return self.transform(dataset)
@@ -180,7 +183,7 @@ class Standardizer:
             dataset: The input dataset to standardize.
 
         Returns:
-            The standardized dataset.
+            New standardized rows; the input dataset is unchanged.
 
         Raises:
             ValueError: If the model has not been fitted yet.
@@ -188,14 +191,11 @@ class Standardizer:
         if self._dimension is None:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
-        for j, column in enumerate(zip(*dataset, strict=False)):
-            mean, std = self._means[j], self._stds[j]
-            # ref: https://github.com/scikit-learn/scikit-learn/blob/7389dbac82d362f296dc2746f10e43ffa1615660/sklearn/preprocessing/data.py#L70
-            if math.isclose(std, 0, abs_tol=1e-9):
-                std = 1
-            for i, value in enumerate(column):
-                dataset[i][j] = (value - mean) / std
-        return dataset
+        scales = [1.0 if math.isclose(std, 0, abs_tol=1e-9) else std for std in self._stds]
+        return [
+            [(value - mean) / scale for value, mean, scale in zip(row, self._means, scales, strict=True)]
+            for row in dataset
+        ]
 
     @staticmethod
     def _get_dataset_dimension(dataset: list[list[float]]) -> int:

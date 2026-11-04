@@ -42,13 +42,13 @@ class DBSCAN:
     DBSCAN will find denser clusters, whereas if it is set to a lower value, the found clusters will be more sparse.
     (same as sklearn)
     """
-    clusters_: list[list[int]] = field(default_factory=list)
+    clusters_: list[list[int]] = field(default_factory=list, init=False)
     """The clusters found by the DBSCAN algorithm."""
-    core_objects_: set[int] = field(default_factory=set)
+    core_objects_: set[int] = field(default_factory=set, init=False)
     """The core objects found by the DBSCAN algorithm."""
-    noises_: list[int] = field(default_factory=list)
+    noises_: list[int] = field(default_factory=list, init=False)
     """The noises found by the DBSCAN algorithm."""
-    labels_: list[int] = field(default_factory=list)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The cluster labels found by the DBSCAN algorithm."""
 
     def fit(self, data: list[list[float]]) -> DBSCAN:
@@ -61,6 +61,8 @@ class DBSCAN:
             self: The fitted DBSCAN model.
         """
         dataset = Dataset(data)
+        self.clusters_ = []
+        self.labels_ = [-1] * dataset.n
 
         # initialize the unvisited set
         unvisited = set(range(dataset.n))
@@ -109,7 +111,7 @@ class DBSCAN:
         Returns:
             The cluster labels.
         """
-        return self.fit(data).labels_
+        return self.fit(data).labels_.copy()
 
 
 @dataclass

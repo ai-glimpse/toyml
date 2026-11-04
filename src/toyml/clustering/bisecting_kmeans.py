@@ -146,9 +146,9 @@ class BisectingKMeans:
 
     k: int
     """The number of clusters, specified by user."""
-    cluster_tree_: ClusterTree = field(default_factory=ClusterTree)
+    cluster_tree_: ClusterTree = field(default_factory=ClusterTree, init=False)
     """The cluster tree"""
-    labels_: list[int] = field(default_factory=list)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The cluster labels of the dataset."""
 
     def fit(self, dataset: list[list[float]]) -> BisectingKMeans:
@@ -169,6 +169,7 @@ class BisectingKMeans:
                 msg,
             )
         # start with only one cluster which contains all the data points in dataset
+        self.cluster_tree_ = ClusterTree()
         cluster = list(range(n))
         self.cluster_tree_.cluster = cluster
         self.cluster_tree_.centroid = self._get_cluster_centroids(dataset, cluster)
@@ -214,7 +215,7 @@ class BisectingKMeans:
         Returns:
             Cluster labels of the dataset samples.
         """
-        return self.fit(dataset).labels_
+        return self.fit(dataset).labels_.copy()
 
     def predict(self, points: list[list[float]]) -> list[int]:
         """Predict the cluster label of the given points.

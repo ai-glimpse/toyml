@@ -1,6 +1,8 @@
 import math
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.metrics import adjusted_rand_score
 
@@ -48,3 +50,12 @@ def test_fit_predict_matches_sklearn(dataset: list[list[float]], eps: float, min
         i for i, label in enumerate(expected) if label == -1
     ]
     assert model.labels_ == labels
+
+
+@given(offset=st.integers(-20, 20), count=st.integers(2, 8))
+def test_refit_to_all_noise_replaces_previous_clusters(offset: int, count: int) -> None:
+    model = DBSCAN(eps=0.1, min_samples=2).fit([[0.0], [0.01]])
+    samples = [[float(offset + i)] for i in range(count)]
+    assert model.fit_predict(samples) == [-1] * count
+    assert model.clusters_ == []
+    assert model.noises_ == list(range(count))

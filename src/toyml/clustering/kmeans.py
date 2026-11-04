@@ -59,12 +59,12 @@ class KMeans:
     """Integer seeds reproduce each fit; None keeps an independent random stream."""
     distance_metric: Literal["euclidean"] = "euclidean"
     """The distance metric to use.(For now we only support euclidean)."""
-    iter_: int = 0
-    clusters_: dict[int, list[int]] = field(default_factory=dict)
+    iter_: int = field(default=0, init=False)
+    clusters_: dict[int, list[int]] = field(default_factory=dict, init=False)
     """The clusters of the dataset."""
-    centroids_: dict[int, list[float]] = field(default_factory=dict)
+    centroids_: dict[int, list[float]] = field(default_factory=dict, init=False)
     """The centroids of the clusters."""
-    labels_: list[int] = field(default_factory=list)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The cluster labels of the dataset."""
 
     def __post_init__(self) -> None:
@@ -107,7 +107,7 @@ class KMeans:
         Returns:
             Cluster labels of the dataset samples.
         """
-        return self.fit(dataset).labels_
+        return self.fit(dataset).labels_.copy()
 
     def predict(self, point: list[float]) -> int:
         """Predict the label of the point.

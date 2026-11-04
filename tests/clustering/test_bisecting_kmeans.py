@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from toyml.clustering.bisecting_kmeans import BisectingKMeans, ClusterTree
 
@@ -136,3 +138,20 @@ def test_predict_rejects_incomplete_tree(missing: str) -> None:
         right.centroid = None
     with pytest.raises(ValueError, match="Invalid cluster tree structure"):
         model.predict([[0.0]])
+
+
+@given(offset=st.integers(-20, 20))
+def test_refit_rebuilds_tree_for_shorter_data(offset: int) -> None:
+    first = [[float(offset + i)] for i in range(4)]
+    second = [[float(offset + 10)], [float(offset + 20)]]
+    model = BisectingKMeans(k=2).fit(first).fit(second)
+    fresh = BisectingKMeans(k=2).fit(second)
+    assert sorted(map(sorted, model.cluster_tree_.get_clusters())) == sorted(
+        map(sorted, fresh.cluster_tree_.get_clusters())
+    )
+    assert len(model.labels_) == 2
+    centroids = []
+    for node in model.cluster_tree_.leaf_cluster_nodes():
+        assert node.centroid is not None
+        centroids.append(node.centroid)
+    assert sorted(centroids) == second

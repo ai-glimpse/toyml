@@ -4,15 +4,14 @@
 
 Bisecting K-means starts with all observations in one cluster, then uses two-way
 K-means splits to reduce total within-cluster squared error. The splits form a binary
-cluster tree. This is divisive hierarchical clustering; the splitting rule differs
-from the DIANA algorithm.
+cluster tree.
 
 ## Inputs and limitations
 
 - Pass a non-empty rectangular list of numeric observations and `1 <= k <= len(samples)`.
 - The implementation uses Euclidean distance and random K-means initialization.
 - Splitting stops when no candidate reduces the error, so fewer than `k` clusters may result.
-- Construct a fresh model for each fit. `predict` accepts a list of samples.
+- `predict` accepts a list of samples.
 - Tree plotting needs the optional `toyml[plot]` dependencies.
 
 ## Minimal example

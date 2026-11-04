@@ -1,6 +1,8 @@
 import math
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from toyml.ensemble.isolation_forest import IsolationForest, IsolationTree
 
@@ -139,3 +141,28 @@ class TestIsolationForest:
 
         assert math.isclose(max(scores), scores[-1])
         assert all(0 <= score <= 1 for score in scores) is True
+
+
+@pytest.mark.parametrize("max_samples", [None, 6])
+@given(first_count=st.integers(2, 5), second_count=st.integers(6, 10))
+def test_refit_recomputes_sample_count_without_changing_configuration(
+    max_samples: int | None, first_count: int, second_count: int
+) -> None:
+    model = IsolationForest(n_itree=3, max_samples=max_samples, random_seed=0)
+    model.fit([[float(i)] for i in range(first_count)])
+    model.fit([[float(i)] for i in range(second_count)])
+    expected = second_count if max_samples is None else max_samples
+    assert model.max_samples == max_samples
+    assert model.max_samples_ == expected
+    assert all(tree.sample_size_ == expected for tree in model.itrees_)
+
+
+@given(value=st.integers(-20, 20), count=st.integers(1, 5))
+def test_tree_refit_to_leaf_discards_previous_splits(value: int, count: int) -> None:
+    model = IsolationTree(max_height=4, random_seed=0).fit([[0.0], [1.0], [2.0], [3.0]])
+    model.fit([[float(value)]] * count)
+    assert model.is_external_node()
+    assert model.left_ is None
+    assert model.right_ is None
+    assert model.split_at_ is None
+    assert model.split_value_ is None

@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from copy import deepcopy
 from typing import Literal
 
 import pytest
@@ -31,6 +30,6 @@ def test_kmeans_partition_matches_sklearn(initialization: Literal["random", "kme
 )
 def test_clustering_fit_preserves_input(fit: Callable[[list[list[float]]], object]) -> None:
     samples = [[0.0], [0.1], [4.0], [4.1]]
-    original = deepcopy(samples)
+    original = [row.copy() for row in samples]
     fit(samples)
     assert samples == original

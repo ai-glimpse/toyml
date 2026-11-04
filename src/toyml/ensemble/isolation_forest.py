@@ -25,17 +25,17 @@ class IsolationTree:
     """The maximum height of the tree."""
     random_seed: int | None = None
     """Controls feature selection, split values, and derived child seeds."""
-    sample_size_: int | None = None
+    sample_size_: int | None = field(default=None, init=False)
     """The sample size."""
-    feature_num_: int | None = None
+    feature_num_: int | None = field(default=None, init=False)
     """The number of features at each sample."""
-    left_: IsolationTree | None = None
+    left_: IsolationTree | None = field(default=None, init=False)
     """The left child of the tree."""
-    right_: IsolationTree | None = None
+    right_: IsolationTree | None = field(default=None, init=False)
     """The right child of the tree."""
-    split_at_: int | None = None
+    split_at_: int | None = field(default=None, init=False)
     """The index of feature which is used to split the tree's samples into children."""
-    split_value_: float | None = None
+    split_value_: float | None = field(default=None, init=False)
     """The value of split_at feature that use to split samples"""
 
     def __post_init__(self) -> None:
@@ -49,6 +49,8 @@ class IsolationTree:
         # Refit from the same seed rather than from the end of the previous fit's stream.
         if self.random_seed is not None:
             self.random_state.seed(self.random_seed)
+        self.left_ = self.right_ = None
+        self.split_at_ = self.split_value_ = None
         self.sample_size_ = len(samples)
         self.feature_num_ = len(samples[0])
         # exNode
@@ -68,6 +70,9 @@ class IsolationTree:
         Returns:
             The path length of the sample.
         """
+        if self.sample_size_ is None:
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
         if self.is_external_node():
             assert self.sample_size_ is not None
             if self.sample_size_ == 1:
@@ -156,7 +161,9 @@ class IsolationForest:
     otherwise, the sample is normal(predict return 1)"""
     random_seed: int | None = None
     """Controls sampling and the derived seeds of all isolation trees."""
-    itrees_: list[IsolationTree] = field(default_factory=list)
+    max_samples_: int | None = field(default=None, init=False)
+    """The actual sample count used by each fitted tree."""
+    itrees_: list[IsolationTree] = field(default_factory=list, init=False)
     """The isolation trees in the forest."""
 
     def __post_init__(self) -> None:
@@ -167,8 +174,7 @@ class IsolationForest:
         # Replay integer-seeded fits; None retains the instance's independent ongoing stream.
         if self.random_seed is not None:
             self.random_state.seed(self.random_seed)
-        if self.max_samples is None or self.max_samples > len(dataset):
-            self.max_samples = len(dataset)
+        self.max_samples_ = len(dataset) if self.max_samples is None else min(self.max_samples, len(dataset))
 
         self.itrees_ = self._fit_itrees(dataset)
         return self
@@ -182,11 +188,12 @@ class IsolationForest:
         Returns:
             The anomaly score.
         """
-        assert len(self.itrees_) == self.n_itree, "Please fit the model before score sample!"
-        assert self.max_samples is not None, "Please fit the model before score sample!"
+        if self.max_samples_ is None:
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
         itree_path_lengths = [itree.get_sample_path_length(sample) for itree in self.itrees_]
         expect_path_length = sum(itree_path_lengths) / len(itree_path_lengths)
-        score: float = 2 ** (-expect_path_length / bst_expect_length(self.max_samples))
+        score: float = 2 ** (-expect_path_length / bst_expect_length(self.max_samples_))
         return score
 
     def predict(self, sample: list[float]) -> int:
@@ -213,8 +220,8 @@ class IsolationForest:
         return itrees
 
     def _fit_itree(self, dataset: list[list[float]]) -> IsolationTree:
-        assert self.max_samples is not None, "Please fit the model before score sample!"
-        samples = self.random_state.sample(dataset, self.max_samples)
+        assert self.max_samples_ is not None, "Please fit the model before score sample!"
+        samples = self.random_state.sample(dataset, self.max_samples_)
         itree_max_height = math.ceil(math.log2(len(samples)))
         # Reusing the forest seed for every tree repeats split decisions on a full sample.
         # Derived seeds preserve both reproducibility and diversity between trees.
