@@ -78,6 +78,10 @@ runtime requirements.
 `toyml/py.typed`, the license, and all Python modules in the wheel. Test an installed
 wheel from outside the checkout to avoid accidentally importing the working tree.
 
+Maintain release notes in [GitHub Releases](https://github.com/ai-glimpse/toyml/releases).
+When preparing a release, generate notes from the merged pull requests and edit them
+to highlight user-facing changes and migration steps.
+
 The Publish to PyPI workflow checks the release tag against `pyproject.toml`, builds the
 package without installing development dependencies, and publishes using the
 existing PyPI trusted publisher in the `pypi` environment.

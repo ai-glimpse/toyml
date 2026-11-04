@@ -58,5 +58,6 @@ See the [contributing guide](https://github.com/ai-glimpse/toyml/blob/master/CON
 for individual lint, test, build, and Zensical preview commands.
 
 
-## Changelog
-[https://ai-glimpse.github.io/toyml/changelog/](https://ai-glimpse.github.io/toyml/changelog/)
+## Release notes
+
+See [GitHub Releases](https://github.com/ai-glimpse/toyml/releases) for version history and release notes.

@@ -36,7 +36,7 @@ Homepage = "https://github.com/ai-glimpse/toyml"
 "Bug Tracker" = "https://github.com/ai-glimpse/toyml/issues"
 Documentation = "https://ai-glimpse.github.io/toyml/"
 "Source Code" = "https://github.com/ai-glimpse/toyml"
-"Release Notes" = "https://ai-glimpse.github.io/toyml/changelog/"
+"Release Notes" = "https://github.com/ai-glimpse/toyml/releases"
 
 [dependency-groups]
 dev = ["prek>=0.5.10", { include-group = "lint" }, { include-group = "test" }]
@@ -55,7 +55,7 @@ docs = ["zensical>=0.0.74", "mkdocstrings-python>=2.0.10", "pymdown-extensions>=
 
 [tool.uv.build-backend]
 module-root = ""
-source-include = ["tests/**", "examples/**", "CHANGELOG.md"]
+source-include = ["tests/**", "examples/**"]
 
 [tool.ty.src]
 include = ["toyml", "tests", "examples"]

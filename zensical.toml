@@ -28,7 +28,7 @@ nav = [
             { "Isolation Forest" = "algorithms/ensemble/iforest.md" },
         ] },
     ] },
-    { Changelog = "changelog.md" },
+    { Releases = "https://github.com/ai-glimpse/toyml/releases" },
 ]
 
 [project.theme]
