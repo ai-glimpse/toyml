@@ -2,82 +2,44 @@ name: Docs
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build docs (python-${{ matrix.python-version }}, ${{ matrix.os }})
-    strategy:
-      matrix:
-        python-version:
-          #          - "3.10"
-          #          - "3.11"
-          #          - "3.12"
-          - "3.13"
-        os:
-          - ubuntu-latest
-
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    env:
-      UV_HTTP_TIMEOUT: 900 # max 15min to install deps
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup pandoc
-        uses: pandoc/actions/setup@v1
       - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v10
         with:
-          fetch-depth: 0
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
+          version: "0.13.7"
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
-
-      - name: Install the project
-        run: uv sync --all-extras --dev
-
-      - name: Build docs
-        run: uv run mkdocs build
-
-      - name: Minimize uv cache
-        run: uv cache prune --ci
+      - run: uv sync --locked --no-default-groups --group docs
+      - run: uv run --locked --no-default-groups --group docs zensical build --strict
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
 
   deploy:
-    name: Deploy docs
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    env:
-      UV_HTTP_TIMEOUT: 900 # max 15min to install deps
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Setup pandoc
-        uses: pandoc/actions/setup@v1
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: "Set up Python"
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: "pyproject.toml"
-
-      - name: Install the project
-        run: uv sync --extra docs
-
-      - name: Deploy docs
-        run: uv run mkdocs gh-deploy --force
-
-      - name: Minimize uv cache
-        run: uv cache prune --ci
+      - uses: actions/configure-pages@v6
+      - name: Deploy the built site
+        id: deployment
+        uses: actions/deploy-pages@v5

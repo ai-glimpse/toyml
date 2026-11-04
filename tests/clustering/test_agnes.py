@@ -26,15 +26,16 @@ class TestAGNES:
         assert labels[0] != labels[3]
 
     def test_linkage_methods(self, sample_dataset: list[list[float]]) -> None:
-        for linkage in ["single", "complete", "average"]:
-            agnes = AGNES(n_cluster=2, linkage=linkage)  # type: ignore[arg-type]
+        for linkage in ("single", "complete", "average"):
+            agnes = AGNES(n_cluster=2, linkage=linkage)
             labels = agnes.fit_predict(sample_dataset)
             assert len(labels) == len(sample_dataset)
             assert set(labels) == {0, 1}
 
     def test_invalid_linkage(self) -> None:
         with pytest.raises(ValueError, match="Invalid linkage method"):
-            AGNES(n_cluster=2, linkage="invalid")  # type: ignore[arg-type]
+            # Deliberately violate the annotation to check runtime validation.
+            AGNES(n_cluster=2, linkage="invalid")  # ty: ignore[invalid-argument-type]
 
     def test_cluster_tree(self) -> None:
         dataset = [[1.0, 0.0], [2.0, 0.0], [10.0, 0.0], [11.0, 0.0]]

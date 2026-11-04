@@ -7,48 +7,62 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MPLBACKEND: Agg
+
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
-    env:
-      UV_HTTP_TIMEOUT: 900 # max 15min to install deps
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.7"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run --locked prek run --all-files
+
+  test:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v10
         with:
+          version: "0.13.7"
           python-version: ${{ matrix.python-version }}
-
-      - name: Pre-Commit Check
-        uses: pre-commit/action@v3.0.1
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
           enable-cache: true
-          cache-dependency-glob: |
-            **/pyproject.toml
-
-      - name: Install the project
-        run: uv sync --all-extras --dev
-      - name: Lint with Mypy
-        run: uv run mypy .
-      - name: Lint with Ruff
-        run: uv run ruff check
-      - name: Run tests and generate coverage report
-        run: uv run pytest --doctest-modules -v --cov=toyml --cov-fail-under 90 --cov-report=term --cov-report=xml --cov-report=html toyml tests
-
-      - name: Upload coverage to Codecov
+      - run: uv sync --locked --no-default-groups --group test
+      - run: uv run --locked --no-default-groups --group test pytest --cov-report=xml
+      - name: Upload coverage
+        if: matrix.python-version == '3.14'
         uses: codecov/codecov-action@v5
-        if: matrix.python-version == '3.12'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: true
-          verbose: true
-      - name: Build wheel
-        run: uv build
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.7"
+      - run: uv build --no-sources
+      - name: Check wheel installation outside the checkout
+        run: |
+          uv venv /tmp/toyml-wheel
+          uv pip install --python /tmp/toyml-wheel/bin/python dist/*.whl
+          cd /tmp
+          /tmp/toyml-wheel/bin/python -c 'from importlib.resources import files; from toyml.clustering import Kmeans; assert files("toyml").joinpath("py.typed").is_file(); assert len(Kmeans(k=2, random_seed=42).fit_predict([[0.0], [1.0], [10.0], [11.0]])) == 4'

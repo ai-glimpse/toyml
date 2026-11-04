@@ -161,7 +161,7 @@ class Dataset:
         Args:
             eps: The maximum distance between two samples for one to be considered as in the neighborhood of the other.
             min_samples: The number of samples (or total weight) in a neighborhood
-            for a point to be considered as a core point.
+                for a point to be considered as a core point.
 
         Returns:
             core_objects: The indices of the core objects.

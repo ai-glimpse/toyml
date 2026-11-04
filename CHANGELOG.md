@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Require Python 3.11 or later; Python 3.10 has reached end of life.
+- Use uv's build backend, a committed dependency lockfile, Ruff, ty, and prek.
+- Build and deploy documentation with Zensical and its native TOML configuration.
+
+### Added
+- Install plotting dependencies with `pip install "toyml[plot]"`.
+- Add `just` commands for development, testing, documentation, and packaging.
+
 ## [0.4.0] - 2024-10-29
 
 ### Added

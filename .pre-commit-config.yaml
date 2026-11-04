@@ -4,26 +4,26 @@ repos:
     hooks:
       - id: check-toml
       - id: check-yaml
-        exclude: mkdocs\.yml
       - id: end-of-file-fixer
       - id: trailing-whitespace
         exclude: .+\.csv
       - id: mixed-line-ending
         args: [--fix=lf]
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
-    rev: v0.14.10
+  - repo: local
     hooks:
-      # Run the linter.
-      - id: ruff
-        args: ["--config=pyproject.toml"]
-      # Run the formatter.
+      - id: ruff-check
+        name: Ruff lint
+        entry: uv run --locked ruff check
+        language: system
+        types_or: [python, pyi, jupyter]
       - id: ruff-format
-        args: ["--config=pyproject.toml"]
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1  # Use the sha / tag you want to point at
-    hooks:
-      - id: mypy
-        args: ["--install-types", "--non-interactive", "--ignore-missing-imports", "--check-untyped-defs",
-               "--allow-untyped-decorators",
-        ]
+        name: Ruff format
+        entry: uv run --locked ruff format --check
+        language: system
+        types_or: [python, pyi, jupyter, markdown]
+      - id: ty
+        name: ty check
+        entry: uv run --locked ty check
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false

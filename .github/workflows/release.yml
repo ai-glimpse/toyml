@@ -4,31 +4,26 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      UV_HTTP_TIMEOUT: 900 # max 15min to install deps
     environment:
       name: pypi
       url: https://pypi.org/p/toyml
     permissions:
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v6
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v10
         with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: "Set up Python"
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: "pyproject.toml"
-
-      - name: Install the project
-        run: uv sync --all-extras --dev
-      - name: Build package
-        run: uv build
-      - name: Publish
+          version: "0.13.7"
+      - name: Check the release version
+        run: test "${GITHUB_REF_NAME#v}" = "$(uv version --short)"
+      - name: Build the package
+        run: uv build --no-sources
+      - name: Publish with PyPI trusted publishing
         uses: pypa/gh-action-pypi-publish@release/v1

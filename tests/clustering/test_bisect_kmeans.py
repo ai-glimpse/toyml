@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from toyml.clustering.bisect_kmeans import BisectingKmeans, ClusterTree
@@ -89,15 +91,48 @@ class TestClusterTree:
         assert leaf_cluster_nodes[0].cluster == [1, 2, 3]
         assert leaf_cluster_nodes[1].cluster == [4, 5]
 
-        tree.left.add_left_child(ClusterTree(cluster=[1, 2]))  # type: ignore[union-attr]
+        assert tree.left is not None
+        tree.left.add_left_child(ClusterTree(cluster=[1, 2]))
         leaf_cluster_nodes = tree.leaf_cluster_nodes()
         assert len(leaf_cluster_nodes) == 2
         assert leaf_cluster_nodes[0].cluster == [1, 2]
         assert leaf_cluster_nodes[1].cluster == [4, 5]
 
-        tree.left.add_right_child(ClusterTree(cluster=[3]))  # type: ignore[union-attr]
+        tree.left.add_right_child(ClusterTree(cluster=[3]))
         leaf_cluster_nodes = tree.leaf_cluster_nodes()
         assert len(leaf_cluster_nodes) == 3
         assert leaf_cluster_nodes[0].cluster == [1, 2]
         assert leaf_cluster_nodes[1].cluster == [3]
         assert leaf_cluster_nodes[2].cluster == [4, 5]
+
+    def test_plot(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        import matplotlib.pyplot as plt
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(plt, "show", lambda: None)
+        tree = ClusterTree(cluster=[0, 1])
+        tree.add_left_child(ClusterTree(cluster=[0]))
+        tree.add_right_child(ClusterTree(cluster=[1]))
+        try:
+            tree.plot()
+            assert (tmp_path / "cluster_tree.png").stat().st_size > 0
+        finally:
+            plt.close("all")
+
+
+@pytest.mark.parametrize("missing", ["left", "right", "left-centroid", "right-centroid"])
+def test_predict_rejects_incomplete_tree(missing: str) -> None:
+    model = BisectingKmeans(2)
+    left = ClusterTree(cluster=[0], centroid=[0.0])
+    right = ClusterTree(cluster=[1], centroid=[1.0])
+    model.cluster_tree_ = ClusterTree(cluster=[0, 1], centroid=[0.5])
+    if missing != "left":
+        model.cluster_tree_.add_left_child(left)
+    if missing != "right":
+        model.cluster_tree_.add_right_child(right)
+    if missing == "left-centroid":
+        left.centroid = None
+    if missing == "right-centroid":
+        right.centroid = None
+    with pytest.raises(ValueError, match="Invalid cluster tree structure"):
+        model.predict([[0.0]])
