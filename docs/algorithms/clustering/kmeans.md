@@ -15,10 +15,11 @@ centroids from those assignments. Initialization affects which local solution is
 
 ## Inputs and limitations
 
-- Pass a non-empty rectangular list of numeric observations and `1 <= k <= len(samples)`.
+- Pass a non-empty rectangular list of finite numeric observations and an integer `1 <= k <= len(samples)`.
 - Distances are Euclidean; scale features first when their units differ.
-- Choose `centroids_init_method="random"` or `"kmeans++"`. The current K-means++
-  initializer cannot handle data whose remaining distance weights are all zero.
+- Choose `centroids_init_method="random"` or `"kmeans++"`.
+- Duplicate locations can produce fewer non-empty clusters than `k`, with a warning log.
+  All `k` centers retain valid coordinates.
 - Set `random_seed` to an integer for reproducible fits.
 - `predict` accepts one sample; `fit_predict` returns one label per training observation.
 
