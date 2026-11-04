@@ -81,11 +81,12 @@ class ClusterTree:
         ) -> tuple[nx.Graph, dict[int, tuple[float, float]]]:
             if graph is None:
                 graph = nx.Graph()
+            if pos is None:
                 pos = {}
 
             node_id = id(node)
             graph.add_node(node_id)
-            pos[node_id] = (x, y)  # type: ignore[index]
+            pos[node_id] = (x, y)
             graph.nodes[node_id]["label"] = f"{node.cluster}"
             graph.nodes[node_id]["size"] = len(node.cluster) * 1000  # Adjust node size based on cluster size
 
@@ -101,7 +102,7 @@ class ClusterTree:
                 r_x, r_y = x + 1 / 2 ** (layer + 1), y - 0.5
                 _build_graph(node.right, graph, pos, r_x, r_y, layer + 1)
 
-            return graph, pos  # type: ignore[return-value]
+            return graph, pos
 
         G, pos = _build_graph(self)  # noqa: N806
 
@@ -126,7 +127,7 @@ class ClusterTree:
 class BisectingKmeans:
     """Bisecting K-means algorithm.
 
-    Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down).
+    A divisive hierarchical clustering algorithm using top-down K-means splits.
 
     Examples:
         >>> from toyml.clustering import BisectingKmeans
@@ -236,12 +237,12 @@ class BisectingKmeans:
         for point in points:
             node = self.cluster_tree_
             while not node.is_leaf():
-                if node.left is None or node.right is None:
+                if node.left is None or node.right is None or node.left.centroid is None or node.right.centroid is None:
                     msg = "Invalid cluster tree structure."
                     raise ValueError(msg)
 
-                dist_left = euclidean_distance(point, node.left.centroid)  # type: ignore[arg-type]
-                dist_right = euclidean_distance(point, node.right.centroid)  # type: ignore[arg-type]
+                dist_left = euclidean_distance(point, node.left.centroid)
+                dist_right = euclidean_distance(point, node.right.centroid)
 
                 node = node.left if dist_left < dist_right else node.right
             cluster_index = clusters.index(node.cluster)
@@ -298,7 +299,7 @@ class BisectingKmeans:
     @staticmethod
     def _get_cluster_centroids(dataset: list[list[float]], cluster: list[int]) -> list[float]:
         cluster_points = [dataset[i] for i in cluster]
-        centroid = [sum(t) / len(cluster) for t in zip(*cluster_points, strict=False)]
+        centroid: list[float] = [sum(t) / len(cluster) for t in zip(*cluster_points, strict=False)]
         return centroid
 
 

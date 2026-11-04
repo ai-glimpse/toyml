@@ -112,7 +112,8 @@ class IsolationTree:
         split_at: int,
         split_value: float,
     ) -> tuple[list[list[float]], list[list[float]]]:
-        left_samples, right_samples = [], []
+        left_samples: list[list[float]] = []
+        right_samples: list[list[float]] = []
         for sample in samples:
             if sample[split_at] < split_value:
                 left_samples.append(sample)
@@ -173,7 +174,7 @@ class IsolationForest:
         assert self.max_samples is not None, "Please fit the model before score sample!"
         itree_path_lengths = [itree.get_sample_path_length(sample) for itree in self.itrees_]
         expect_path_length = sum(itree_path_lengths) / len(itree_path_lengths)
-        score = 2 ** (-expect_path_length / bst_expect_length(self.max_samples))
+        score: float = 2 ** (-expect_path_length / bst_expect_length(self.max_samples))
         return score
 
     def predict(self, sample: list[float]) -> int:

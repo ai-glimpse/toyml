@@ -1,28 +1,21 @@
 # ToyML: Machine Learning from Scratch
 
 <p align="center">
-  <img src="assets/cover.png" alt="ToyML Cover" width="200">
+  <img src="https://raw.githubusercontent.com/ai-glimpse/toyml/master/docs/assets/cover.png" alt="ToyML Cover" width="200" height="200">
 </p>
 
-<p align="center">
+<!-- --8<-- [start:overview] -->
 
 [![Python](https://img.shields.io/pypi/pyversions/toyml.svg?color=%2334D058)](https://pypi.org/project/toyml/)
 [![PyPI](https://img.shields.io/pypi/v/toyml?color=%2334D058&label=pypi%20package)](https://pypi.org/project/toyml/)
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
-[![Build Docs](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml)
-[![Test](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml)
+[![Documentation](https://github.com/ai-glimpse/toyml/actions/workflows/docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/docs.yml)
+[![Python CI](https://github.com/ai-glimpse/toyml/actions/workflows/ci.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/ci.yml)
 
-[//]: # (![GitHub License]&#40;https://img.shields.io/github/license/ai-glimpse/toyml&#41;)
-
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
-[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
-
-<!-- ![Waka Time](https://wakatime.com/badge/user/b1a6ec36-190a-4135-b888-17ab5663e841/project/250b9a9d-dd00-432d-b69f-041d1611b5b6.svg) -->
-
-</p>
+[![ty](https://img.shields.io/badge/types-ty-blue)](https://docs.astral.sh/ty/)
+[![prek](https://img.shields.io/badge/hooks-prek-blue)](https://prek.j178.dev/)
+[![Zensical](https://img.shields.io/badge/docs-Zensical-blue)](https://zensical.org/)
 
 There are machine learning algorithms implemented from scratch.
 Let's learn machine learning with simple toy code.
@@ -32,7 +25,7 @@ Let's learn machine learning with simple toy code.
 
 - [x] Clustering: K-means
 - [x] Clustering: DBSCAN
-- [x] Clustering: Hierarchical(DIANA(Bisecting-Kmeans) & AGNES)
+- [x] Clustering: Hierarchical (Bisecting K-means & AGNES)
 - [x] Classification: KNN
 - [x] Classification: Naive Bayes
 - [x] Ensemble: AdaBoost
@@ -40,10 +33,35 @@ Let's learn machine learning with simple toy code.
 
 
 ## Installation
+
+Requires Python 3.11 or later. The core package has no runtime dependencies.
+
 ```bash
 pip install toyml
 ```
 
+For dendrograms and cluster-tree plots:
 
-## Changelog
-[https://ai-glimpse.github.io/toyml/changelog/](https://ai-glimpse.github.io/toyml/changelog/)
+```bash
+pip install "toyml[plot]"
+```
+
+## Development
+
+Use uv for the locked environment and just for development commands:
+
+```bash
+just setup
+just hooks
+just check
+```
+
+See the [contributing guide](https://github.com/ai-glimpse/toyml/blob/master/CONTRIBUTING.md)
+for individual lint, test, build, and Zensical preview commands.
+
+
+## Release notes
+
+See [GitHub Releases](https://github.com/ai-glimpse/toyml/releases) for version history and release notes.
+
+<!-- --8<-- [end:overview] -->

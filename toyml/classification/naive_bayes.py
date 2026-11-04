@@ -154,7 +154,8 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         dataset: list[list[FeatureValue]],
         labels: list[Class],
     ) -> tuple[dict[Class, list[float]], dict[Class, list[float]]]:
-        means, variances = {}, {}
+        means: dict[Class, list[float]] = {}
+        variances: dict[Class, list[float]] = {}
         for label in self.labels_:
             label_samples = [
                 sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
@@ -248,7 +249,8 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
         dataset: list[list[FeatureValue]],
         labels: list[Class],
     ) -> tuple[dict[Class, list[int]], dict[Class, list[float]]]:
-        feature_count, feature_prob = {}, {}
+        feature_count: dict[Class, list[int]] = {}
+        feature_prob: dict[Class, list[float]] = {}
         for label in self.labels_:
             label_samples = [
                 sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
@@ -323,7 +325,10 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         self,
         dataset: list[list[FeatureValue]],
         labels: list[Class],
-    ) -> tuple:  # type: ignore[type-arg]
+    ) -> tuple[
+        dict[Class, dict[Dimension, dict[FeatureValue, float]]],
+        dict[Class, dict[Dimension, dict[FeatureValue, float]]],
+    ]:
         feature_smooth_count: dict[Dimension, dict[FeatureValue, float]] = {}
         for dim, column in enumerate(zip(*dataset, strict=False)):
             feature_smooth_count[dim] = dict.fromkeys(set(column), self.alpha)

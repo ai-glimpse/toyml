@@ -1,0 +1,36 @@
+#:schema https://www.schemastore.org/prek.json
+
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "check-toml" },
+    { id = "check-yaml" },
+    { id = "end-of-file-fixer" },
+    { id = "trailing-whitespace", exclude = '.+\.csv' },
+    { id = "mixed-line-ending", args = ["--fix=lf"] },
+]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "ruff-check"
+name = "Ruff lint"
+entry = "uv run --locked ruff check"
+language = "system"
+types_or = ["python", "pyi", "jupyter"]
+
+[[repos.hooks]]
+id = "ruff-format"
+name = "Ruff format"
+entry = "uv run --locked ruff format --check"
+language = "system"
+types_or = ["python", "pyi", "jupyter", "markdown"]
+
+[[repos.hooks]]
+id = "ty"
+name = "ty check"
+entry = "uv run --locked ty check"
+language = "system"
+types_or = ["python", "pyi"]
+pass_filenames = false

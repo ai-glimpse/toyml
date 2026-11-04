@@ -149,7 +149,8 @@ class OneDimensionClassifier(BaseWeakLeaner):
     Ref: Li Hang, 1 ed, E8.1.3
     """
 
-    class SignMode(str, Enum):  # noqa: D106
+    # Keep Enum's existing string representation for compatibility.
+    class SignMode(str, Enum):  # noqa: D106, UP042
         POS_NEG = "POS_NEG"
         NEG_POS = "NEG_POS"
 
