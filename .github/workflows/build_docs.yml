@@ -22,9 +22,9 @@ jobs:
         with:
           version: "0.13.7"
           enable-cache: true
-      - run: uv sync --locked --no-default-groups --group docs
       - run: uv run --locked --no-default-groups --group docs zensical build --strict
       - uses: actions/upload-pages-artifact@v5
+        if: github.ref == 'refs/heads/master'
         with:
           path: site
 

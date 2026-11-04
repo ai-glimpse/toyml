@@ -13,6 +13,14 @@ just hooks
 with dependency changes. Run `uv lock --upgrade` deliberately to update dependencies;
 CI uses `--locked` and rejects an outdated lockfile.
 
+Pull requests run two CI jobs: checks/tests/packaging on the development Python
+version from `.python-version`, and a strict Zensical build. When changing compatibility
+or dependencies, use `--python` to repeat the tests locally for Python 3.11–3.15:
+
+```sh
+MPLBACKEND=Agg uv run --locked --python 3.11 pytest
+```
+
 ## Development
 
 ```sh

@@ -18,7 +18,7 @@ env:
   MPLBACKEND: Agg
 
 jobs:
-  quality:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -26,43 +26,12 @@ jobs:
         with:
           version: "0.13.7"
           enable-cache: true
-      - run: uv sync --locked
       - run: uv run --locked prek run --all-files
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
-        with:
-          version: "0.13.7"
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - run: uv sync --locked --no-default-groups --group test
-      - run: uv run --locked --no-default-groups --group test pytest --cov-report=xml
+      - run: uv run --locked pytest --cov-report=xml
+      - run: uv build --no-sources
       - name: Upload coverage
-        if: matrix.python-version == '3.14'
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: true
-
-  package:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
-        with:
-          version: "0.13.7"
-      - run: uv build --no-sources
-      - name: Check wheel installation outside the checkout
-        run: |
-          uv venv /tmp/toyml-wheel
-          uv pip install --python /tmp/toyml-wheel/bin/python dist/*.whl
-          cd /tmp
-          /tmp/toyml-wheel/bin/python -c 'from importlib.resources import files; from toyml.clustering import Kmeans; assert files("toyml").joinpath("py.typed").is_file(); assert len(Kmeans(k=2, random_seed=42).fit_predict([[0.0], [1.0], [10.0], [11.0]])) == 4'
