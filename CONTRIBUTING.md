@@ -35,6 +35,8 @@ uv run --locked --no-default-groups --group test pytest
 uv run --locked --no-default-groups --group docs zensical build --strict
 ```
 
+`prek.toml` is the native hook configuration. Basic file checks use prek's built-in
+hooks, without fetching a separate hook repository or installing Python hook environments.
 Ruff and ty run from the locked project environment in both Git hooks and CI. ty
 checks the entire `toyml/`, `tests/`, and `examples/` trees. Keep deliberately invalid
 inputs in runtime validation tests documented with specific `ty: ignore[...]` comments.

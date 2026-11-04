@@ -10,7 +10,7 @@ keywords = ["machine learning", "statistics", "engineering"]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 readme = "README.md"
-authors = [{ name = "Xiangzhuang Shen", email = "datahonor@gmail.com" }]
+authors = [{ name = "Xiangzhuang Shen", email = "shenxiangzhuang@gmail.com" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",

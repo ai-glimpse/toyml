@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Require Python 3.11 or later; Python 3.10 has reached end of life.
-- Use uv's build backend, a committed dependency lockfile, Ruff, ty, and prek.
+- Use uv's build backend, a committed dependency lockfile, Ruff, ty, and prek with native TOML configuration and built-in file checks.
 - Build and deploy documentation with Zensical and its native TOML configuration.
 
 ### Added
