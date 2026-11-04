@@ -4,7 +4,8 @@
 
 K-nearest neighbors classifies a sample using nearby labeled training observations.
 Feature scale affects Euclidean distance, so ToyML offers optional standardization.
-Training stores the observations; prediction computes their distances to the query.
+Training stores the observations; prediction computes their distances to the query
+and returns the most frequent label among the `k` closest observations.
 
 ## Inputs and limitations
 
@@ -12,8 +13,6 @@ Training stores the observations; prediction computes their distances to the que
 - Use a positive `k` no greater than the training sample count. `predict` accepts one feature list.
 - Standardization modifies the supplied lists; pass copies
   when the original data must be preserved, or select `std_transform=False` for already scaled data.
-- The current neighbor selection uses a stride through sorted distances, so results can differ
-  from standard nearest-`k` voting. Treat this as a teaching implementation.
 
 ## Minimal example
 

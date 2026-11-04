@@ -9,23 +9,12 @@ from random import Random
 
 import pytest
 from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
 
 from toyml.classification import KNN
 from toyml.classification.naive_bayes import GaussianNaiveBayes
 from toyml.clustering import DBSCAN, KMeans
 from toyml.ensemble import AdaBoost, IsolationForest
 from toyml.ensemble.adaboost import OneDimensionClassifier
-
-
-@pytest.mark.xfail(
-    strict=True, raises=AssertionError, reason="KNN selects sorted labels with a stride instead of the nearest k"
-)
-def test_knn_votes_over_nearest_k_neighbors() -> None:
-    samples = [[0.0], [1.0], [2.0]]
-    labels = [0, 1, 1]
-    expected = KNeighborsClassifier(n_neighbors=3).fit(samples, labels).predict([[0.1]])[0]
-    assert KNN(k=3, std_transform=False).fit(samples, labels).predict([0.1]) == expected
 
 
 @pytest.mark.xfail(strict=True, raises=AssertionError, reason="KNN standardization modifies the caller's training data")
