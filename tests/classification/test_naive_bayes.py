@@ -46,6 +46,35 @@ def sklearn_example_random_dataset_label() -> tuple[list[list[int]], list[int]]:
 
 
 class TestGaussianNaiveBayesIntegration:
+    @pytest.mark.parametrize(
+        ("class_pairs", "expected_priors"),
+        [
+            ((4, 1), {2: 0.2, 5: 0.8}),
+            ((1, 4), {2: 0.8, 5: 0.2}),
+            ((1, 1), {2: 0.5, 5: 0.5}),
+        ],
+    )
+    def test_class_priors_follow_training_frequencies(
+        self, class_pairs: tuple[int, int], expected_priors: dict[int, float]
+    ) -> None:
+        # Both classes have identical feature distributions, so the posterior equals the prior.
+        dataset = [[-1.0], [1.0]] * sum(class_pairs)
+        labels = [5] * (2 * class_pairs[0]) + [2] * (2 * class_pairs[1])
+        model = GaussianNaiveBayes(unbiased_variance=False, var_smoothing=0).fit(dataset, labels)
+        reference = GaussianNB(var_smoothing=0).fit(dataset, labels)
+        probabilities = model.predict_proba([0.0])
+
+        assert GaussianNaiveBayes().fit(dataset, labels).class_prior_ == pytest.approx(expected_priors)
+        assert model.class_prior_ == pytest.approx(expected_priors)
+        assert probabilities == pytest.approx(expected_priors)
+        assert model.predict_log_proba([0.0]) == pytest.approx(
+            {label: math.log(prior) for label, prior in expected_priors.items()}
+        )
+        assert model.predict([0.0]) == reference.predict([[0.0]])[0]
+        assert [probabilities[int(label)] for label in reference.classes_] == pytest.approx(
+            reference.predict_proba([[0.0]])[0]
+        )
+
     def test_same_result_with_wikipedia(
         self,
         wikipedia_person_classification_dataset_label: tuple[list[list[float]], list[int]],

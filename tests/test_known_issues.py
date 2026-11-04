@@ -8,10 +8,8 @@ from copy import deepcopy
 from random import Random
 
 import pytest
-from sklearn.naive_bayes import GaussianNB
 
 from toyml.classification import KNN
-from toyml.classification.naive_bayes import GaussianNaiveBayes
 from toyml.clustering import DBSCAN, KMeans
 from toyml.ensemble import AdaBoost, IsolationForest
 from toyml.ensemble.adaboost import OneDimensionClassifier
@@ -49,17 +47,6 @@ def test_dbscan_refit_matches_fresh_model() -> None:
     samples = [[0.0], [0.1], [4.0], [4.1]]
     model = DBSCAN(eps=0.2, min_samples=2).fit(samples)
     assert model.fit_predict(samples) == DBSCAN(eps=0.2, min_samples=2).fit_predict(samples)
-
-
-@pytest.mark.xfail(
-    strict=True, raises=AssertionError, reason="GaussianNaiveBayes uses uniform rather than empirical class priors"
-)
-def test_gaussian_naive_bayes_imbalanced_priors_match_sklearn() -> None:
-    samples = [[-1.0], [1.0]] * 5
-    labels = [0] * 8 + [1] * 2
-    expected = GaussianNB(var_smoothing=0).fit(samples, labels).predict_proba([[0.0]])[0]
-    actual = GaussianNaiveBayes(unbiased_variance=False, var_smoothing=0).fit(samples, labels).predict_proba([0.0])
-    assert [actual[0], actual[1]] == pytest.approx(expected)
 
 
 @pytest.mark.xfail(strict=True, raises=AssertionError, reason="KMeans seeds the process-wide random generator")

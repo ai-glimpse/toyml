@@ -11,7 +11,7 @@ and categorical likelihoods for discrete feature values.
 
 - Pass a non-empty rectangular list of features and an equally long list of integer labels.
 - Gaussian training needs at least two observations per class with the default unbiased
-  variance estimate. The current implementation uses uniform class priors.
+  variance estimate. Class priors are estimated from the training label frequencies.
 - Multinomial inputs should be non-negative counts. Categorical inputs should use the same
   category encoding at training and prediction; unseen values currently contribute zero
   log-likelihood, so keep prediction categories within the training vocabulary.
