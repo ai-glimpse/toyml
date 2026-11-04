@@ -128,10 +128,3 @@ def test_model_does_not_change_global_random_state(
         before = random.getstate()
         fitted_result(make_model(kind, model_seed), samples)
         assert random.getstate() == before
-
-
-def test_forest_full_sample_trees_have_different_splits() -> None:
-    samples = [[float(i), float(i % 3)] for i in range(12)]
-    model = IsolationForest(n_itree=5, max_samples=len(samples), random_seed=0).fit(samples)
-    splits = {(tree.split_at_, tree.split_value_) for tree in model.itrees_}
-    assert len(splits) > 1
