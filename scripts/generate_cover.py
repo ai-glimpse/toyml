@@ -56,7 +56,7 @@ def generate_cover() -> None:
     # Setup the figure with transparent background
     fig = plt.figure(figsize=(10, 10))
     fig.patch.set_alpha(0)
-    ax = fig.add_axes([0, 0, 1, 1])
+    ax = fig.add_axes((0, 0, 1, 1))
     ax.set_axis_off()
     ax.patch.set_alpha(0)
 
@@ -71,19 +71,21 @@ def generate_cover() -> None:
     hist = np.log(hist + 1)  # Log scale
 
     # Render with bicubic interpolation for smoothness
-    ax.imshow(hist.T, origin="lower", cmap=cmap, interpolation="bicubic", extent=[-2.5, 2.5, -2.5, 2.5])
+    ax.imshow(hist.T, origin="lower", cmap=cmap, interpolation="bicubic", extent=(-2.5, 2.5, -2.5, 2.5))
 
     # Ensure assets directory exists
     assets_dir = Path(__file__).parent.parent / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
+    docs_assets_dir = Path(__file__).parent.parent / "docs/assets"
+    docs_assets_dir.mkdir(parents=True, exist_ok=True)
 
     # Output paths
     # PDF for LaTeX (vector format - scalable)
-    pdf_path = Path(__file__).parent.parent.parent / "figures/general/cover.pdf"
+    pdf_path = assets_dir / "cover.pdf"
     # SVG for web (vector format - scalable)
     svg_path = assets_dir / "cover.svg"
-    # PNG for general use (raster - use high DPI for quality)
-    png_path = assets_dir / "cover.png"
+    # A 400px PNG covers the 200px web display at 2x pixel density.
+    png_path = docs_assets_dir / "cover.png"
 
     # Save as PDF (vector, ideal for LaTeX/print)
     plt.savefig(pdf_path, format="pdf", dpi=300, transparent=True, bbox_inches="tight", pad_inches=0)
@@ -93,8 +95,8 @@ def generate_cover() -> None:
     plt.savefig(svg_path, format="svg", transparent=True, bbox_inches="tight", pad_inches=0)
     print(f"SVG cover generated at {svg_path}")
 
-    # Save as PNG (raster, high DPI for quality when scaling)
-    plt.savefig(png_path, format="png", dpi=300, transparent=True, bbox_inches="tight", pad_inches=0)
+    # Keep the published web asset small; the SVG retains the full-resolution source.
+    plt.savefig(png_path, format="png", dpi=40, transparent=True, bbox_inches="tight", pad_inches=0)
     print(f"PNG cover generated at {png_path}")
 
 

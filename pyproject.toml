@@ -53,12 +53,15 @@ test = [
 ]
 docs = ["zensical>=0.0.74", "mkdocstrings-python>=2.0.10", "pymdown-extensions>=12.3"]
 
+[tool.uv]
+required-version = "==0.13.7"
+
 [tool.uv.build-backend]
 module-root = ""
 source-include = ["tests/**", "examples/**"]
 
 [tool.ty.src]
-include = ["toyml", "tests", "examples"]
+include = ["toyml", "tests", "examples", "scripts"]
 
 [tool.ty.rules]
 dynamic-function-decorator-return = "error"

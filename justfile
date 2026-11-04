@@ -37,5 +37,9 @@ docs *args:
 build:
     uv build --no-sources
 
+# Verify wheel metadata, isolated installation, and an sdist rebuild.
+verify-dist:
+    uv run --locked python scripts/verify_dist.py
+
 # Run all checks used before a release.
-check: lint test docs-build build
+check: lint test docs-build build verify-dist

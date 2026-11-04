@@ -1,8 +1,10 @@
 # ToyML: Machine Learning from Scratch
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ai-glimpse/toyml/master/assets/cover.png" alt="ToyML Cover" width="200">
+  <img src="https://raw.githubusercontent.com/ai-glimpse/toyml/master/docs/assets/cover.png" alt="ToyML Cover" width="200" height="200">
 </p>
+
+<!-- --8<-- [start:overview] -->
 
 [![Python](https://img.shields.io/pypi/pyversions/toyml.svg?color=%2334D058)](https://pypi.org/project/toyml/)
 [![PyPI](https://img.shields.io/pypi/v/toyml?color=%2334D058&label=pypi%20package)](https://pypi.org/project/toyml/)
@@ -23,7 +25,7 @@ Let's learn machine learning with simple toy code.
 
 - [x] Clustering: K-means
 - [x] Clustering: DBSCAN
-- [x] Clustering: Hierarchical(DIANA(Bisecting-Kmeans) & AGNES)
+- [x] Clustering: Hierarchical (Bisecting K-means & AGNES)
 - [x] Classification: KNN
 - [x] Classification: Naive Bayes
 - [x] Ensemble: AdaBoost
@@ -61,3 +63,5 @@ for individual lint, test, build, and Zensical preview commands.
 ## Release notes
 
 See [GitHub Releases](https://github.com/ai-glimpse/toyml/releases) for version history and release notes.
+
+<!-- --8<-- [end:overview] -->

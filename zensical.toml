@@ -15,7 +15,7 @@ nav = [
     { Algorithms = [
         { Clustering = [
             { "K-means" = "algorithms/clustering/kmeans.md" },
-            { DIANA = "algorithms/clustering/diana.md" },
+            { "Bisecting K-means" = "algorithms/clustering/diana.md" },
             { AGNES = "algorithms/clustering/agnes.md" },
             { DBSCAN = "algorithms/clustering/dbscan.md" },
         ] },

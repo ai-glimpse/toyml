@@ -19,8 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
-        with:
-          version: "0.13.7"
       - name: Check the release version
         run: test "${GITHUB_REF_NAME#v}" = "$(uv version --short)"
       - name: Build the package

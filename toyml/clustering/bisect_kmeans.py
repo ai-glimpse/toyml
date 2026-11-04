@@ -127,7 +127,7 @@ class ClusterTree:
 class BisectingKmeans:
     """Bisecting K-means algorithm.
 
-    Belong to Divisive hierarchical clustering (DIANA) algorithm.(top-down).
+    A divisive hierarchical clustering algorithm using top-down K-means splits.
 
     Examples:
         >>> from toyml.clustering import BisectingKmeans
