@@ -29,7 +29,7 @@ print(model.predict([8.0]))
 
 ## API
 
-::: toyml.ensemble.iforest
+::: toyml.ensemble.isolation_forest
     options:
         members:
         - IsolationForest

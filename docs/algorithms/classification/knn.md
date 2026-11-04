@@ -10,7 +10,7 @@ Training stores the observations; prediction computes their distances to the que
 
 - Pass a non-empty list of equally sized numeric feature lists and one label per observation.
 - Use a positive `k` no greater than the training sample count. `predict` accepts one feature list.
-- Standardization modifies the supplied lists and requires non-constant features; pass copies
+- Standardization modifies the supplied lists; pass copies
   when the original data must be preserved, or select `std_transform=False` for already scaled data.
 - The current neighbor selection uses a stride through sorted distances, so results can differ
   from standard nearest-`k` voting. Treat this as a teaching implementation.

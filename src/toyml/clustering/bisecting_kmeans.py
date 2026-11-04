@@ -4,7 +4,7 @@ import math
 import statistics
 from dataclasses import dataclass, field
 
-from toyml.clustering.kmeans import Kmeans
+from toyml.clustering.kmeans import KMeans
 
 
 @dataclass
@@ -124,17 +124,17 @@ class ClusterTree:
 
 
 @dataclass
-class BisectingKmeans:
+class BisectingKMeans:
     """Bisecting K-means algorithm.
 
     A divisive hierarchical clustering algorithm using top-down K-means splits.
 
     Examples:
-        >>> from toyml.clustering import BisectingKmeans
+        >>> from toyml.clustering import BisectingKMeans
         >>> dataset = [[1.0, 1.0], [1.0, 2.0], [2.0, 1.0], [10.0, 1.0], [10.0, 2.0], [11.0, 1.0]]
-        >>> bisect_kmeans = BisectingKmeans(k=3)
-        >>> labels = bisect_kmeans.fit_predict(dataset)
-        >>> clusters = bisect_kmeans.cluster_tree_.get_clusters()
+        >>> model = BisectingKMeans(k=3)
+        >>> labels = model.fit_predict(dataset)
+        >>> clusters = model.cluster_tree_.get_clusters()
 
     References:
         1. Harrington
@@ -151,7 +151,7 @@ class BisectingKmeans:
     labels_: list[int] = field(default_factory=list)
     """The cluster labels of the dataset."""
 
-    def fit(self, dataset: list[list[float]]) -> BisectingKmeans:
+    def fit(self, dataset: list[list[float]]) -> BisectingKMeans:
         """Fit the dataset with Bisecting K-means algorithm.
 
         Args:
@@ -256,7 +256,7 @@ class BisectingKmeans:
         cluster_node: ClusterTree,
         dataset: list[list[float]],
     ) -> tuple[float, float, tuple[list[int], list[int]]]:
-        kmeans = Kmeans(k=2).fit(cluster_data)
+        kmeans = KMeans(k=2).fit(cluster_data)
         assert kmeans.clusters_ is not None
         cluster1, cluster2 = kmeans.clusters_[0], kmeans.clusters_[1]
         # Note: map the cluster's inner index to the truth index in dataset
@@ -319,8 +319,8 @@ if __name__ == "__main__":
     dataset: list[list[float]] = [[1.0, 1.0], [1.0, 2.0], [2.0, 1.0], [10.0, 1.0], [10.0, 2.0], [11.0, 1.0]]
     k = 6
     # Bisecting K-means testing
-    diana = BisectingKmeans(k).fit(dataset)
-    print(diana.cluster_tree_.get_clusters())
-    print(diana.labels_)
-    # diana.cluster_tree.plot()
-    print(diana.predict(dataset))
+    model = BisectingKMeans(k).fit(dataset)
+    print(model.cluster_tree_.get_clusters())
+    print(model.labels_)
+    # model.cluster_tree.plot()
+    print(model.predict(dataset))

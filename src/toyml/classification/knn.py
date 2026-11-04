@@ -26,7 +26,7 @@ class KNN:
         std_transform: Whether to standardize the input data (default: True).
         dataset_: The fitted dataset (standardized if std_transform is True).
         labels_: The labels corresponding to the fitted dataset.
-        standardizationer_: The Standardizationer instance if std_transform is True.
+        standardizer_: The Standardizer instance if std_transform is True.
 
 
     References:
@@ -41,7 +41,7 @@ class KNN:
     std_transform: bool = True
     dataset_: list[list[float]] | None = None
     labels_: list[Any] | None = None
-    standardizationer_: Standardizationer | None = None
+    standardizer_: Standardizer | None = None
 
     def fit(self, dataset: list[list[float]], labels: list[Any]) -> KNN:
         """Fit the KNN model to the given dataset and labels.
@@ -56,8 +56,8 @@ class KNN:
         self.dataset_ = dataset
         self.labels_ = labels
         if self.std_transform:
-            self.standardizationer_ = Standardizationer()
-            self.dataset_ = self.standardizationer_.fit_transform(self.dataset_)
+            self.standardizer_ = Standardizer()
+            self.dataset_ = self.standardizer_.fit_transform(self.dataset_)
         return self
 
     def predict(self, x: list[float]) -> Any:  # noqa: ANN401
@@ -77,10 +77,10 @@ class KNN:
             raise ValueError(msg)
 
         if self.std_transform:
-            if self.standardizationer_ is None:
+            if self.standardizer_ is None:
                 msg = "Cannot find the standardization!"
                 raise ValueError(msg)
-            x = self.standardizationer_.transform([x])[0]
+            x = self.standardizer_.transform([x])[0]
         distances = [self._calculate_distance(x, point) for point in self.dataset_]
         # get k-nearest neighbors' label
         k_nearest_labels = [
@@ -110,7 +110,7 @@ class KNN:
 
 
 @dataclass
-class Standardizationer:
+class Standardizer:
     """A class for standardizing numerical datasets.
 
     Provides methods to fit a standardization model to a dataset,
@@ -122,14 +122,14 @@ class Standardizationer:
     _stds: list[float] = field(default_factory=list)
     _dimension: int | None = None
 
-    def fit(self, dataset: list[list[float]]) -> Standardizationer:
+    def fit(self, dataset: list[list[float]]) -> Standardizer:
         """Fit the standardization model to the given dataset.
 
         Args:
             dataset: The input dataset to fit the model to.
 
         Returns:
-            The fitted Standardizationer instance.
+            The fitted Standardizer instance.
 
         Raises:
             ValueError: If the dataset has inconsistent dimensions.

@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Kmeans:
-    """K-means algorithm (with Kmeans++ initialization as option).
+class KMeans:
+    """K-means algorithm (with KMeans++ initialization as option).
 
     Examples:
-        >>> from toyml.clustering import Kmeans
+        >>> from toyml.clustering import KMeans
         >>> dataset = [[1.0, 2.0], [1.0, 4.0], [1.0, 0.0], [10.0, 2.0], [10.0, 4.0], [11.0, 0.0]]
-        >>> kmeans = Kmeans(k=2, random_seed=42).fit(dataset)
+        >>> kmeans = KMeans(k=2, random_seed=42).fit(dataset)
         >>> kmeans.clusters_
         {0: [3, 4, 5], 1: [0, 1, 2]}
         >>> kmeans.centroids_
@@ -31,9 +31,9 @@ class Kmeans:
     There is a `fit_predict` method that can be used to fit and predict.
 
     Examples:
-        >>> from toyml.clustering import Kmeans
+        >>> from toyml.clustering import KMeans
         >>> dataset = [[1, 0], [1, 1], [1, 2], [10, 0], [10, 1], [10, 2]]
-        >>> Kmeans(k=2, random_seed=42).fit_predict(dataset)
+        >>> KMeans(k=2, random_seed=42).fit_predict(dataset)
         [1, 1, 1, 0, 0, 0]
 
     Tip: References
@@ -44,7 +44,7 @@ class Kmeans:
         Here we just implement the naive K-means algorithm.
 
     See Also:
-      - Bisecting K-means algorithm: [toyml.clustering.bisect_kmeans][kmeans-bisect]
+      - Bisecting K-means algorithm: [toyml.clustering.bisecting_kmeans][kmeans-bisect]
     """
 
     k: int
@@ -70,7 +70,7 @@ class Kmeans:
     def __post_init__(self) -> None:
         random.seed(self.random_seed)
 
-    def fit(self, dataset: list[list[float]]) -> Kmeans:
+    def fit(self, dataset: list[list[float]]) -> KMeans:
         """Fit the dataset with K-means algorithm.
 
         Args:

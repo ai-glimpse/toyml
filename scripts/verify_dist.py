@@ -39,8 +39,10 @@ def verify_wheel(path: Path, root: Path) -> dict[str, bytes]:
     assert "toyml/py.typed" in contents, "Missing PEP 561 marker"
     license_path = metadata_path.removesuffix("METADATA") + "licenses/LICENSE"
     assert contents[license_path] == (root / "LICENSE").read_bytes(), "Missing or changed license"
-    for module in (root / "toyml").rglob("*.py"):
-        name = module.relative_to(root).as_posix()
+    modules = list((root / "src/toyml").rglob("*.py"))
+    assert modules, "Missing package sources under src/toyml"
+    for module in modules:
+        name = module.relative_to(root / "src").as_posix()
         assert contents.get(name) == module.read_bytes(), f"Missing or changed module: {name}"
     return contents
 
