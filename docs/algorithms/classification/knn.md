@@ -9,8 +9,8 @@ and returns the most frequent label among the `k` closest observations.
 
 ## Inputs and limitations
 
-- Pass a non-empty list of equally sized numeric feature lists and one label per observation.
-- Use a positive `k` no greater than the training sample count. `predict` accepts one feature list.
+- Pass a non-empty list of equally sized finite numeric feature lists and one label per observation.
+- Use a positive integer `k` no greater than the training sample count. `predict` accepts one feature list.
 - Labels should be immutable, hashable values.
 - Select `std_transform=False` for already scaled data.
 
@@ -23,6 +23,12 @@ samples = [[0.0], [0.2], [4.0], [4.2]]
 model = KNN(k=2, std_transform=False).fit(samples, ["near", "near", "far", "far"])
 print(model.predict([0.1]))
 ```
+
+## Numerical stability
+
+::: toyml.classification.knn.KNN._calculate_distance
+    options:
+        show_source: true
 
 ## API
 

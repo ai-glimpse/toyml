@@ -7,6 +7,28 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
+def _validate_dataset(dataset: list[list[float]], dimension: int | None = None) -> int:
+    """Validate finite, non-empty numeric rows, optionally against a fitted dimension."""
+    if not dataset or not dataset[0]:
+        msg = "The dataset must contain at least one sample and one feature"
+        raise ValueError(msg)
+    width = len(dataset[0])
+    if any(len(row) != width for row in dataset):
+        msg = "All rows must have the same number of columns"
+        raise ValueError(msg)
+    if dimension is not None and width != dimension:
+        msg = "Feature dimension does not match the training data"
+        raise ValueError(msg)
+    try:
+        finite = all(isinstance(value, (int, float)) and math.isfinite(value) for row in dataset for value in row)
+    except OverflowError:
+        finite = False
+    if not finite:
+        msg = "Features must be finite numeric values"
+        raise ValueError(msg)
+    return width
+
+
 @dataclass
 class KNN:
     """K-Nearest Neighbors classification algorithm implementation.
@@ -52,16 +74,42 @@ class KNN:
 
         Returns:
             The fitted KNN instance.
+
+        Raises:
+            ValueError: If features, labels, or the neighbor count are invalid.
+            TypeError: If std_transform is not a boolean.
         """
-        # Retain our own containers; scalar labels themselves can be shared.
-        self.labels_ = labels.copy()
-        self.standardizer_ = None
+        _validate_dataset(dataset)
+        self._validate_k(len(dataset))
+        if not isinstance(self.std_transform, bool):
+            msg = "std_transform must be a boolean"
+            raise TypeError(msg)
+        if len(labels) != len(dataset):
+            msg = "The number of labels must match the number of samples"
+            raise ValueError(msg)
+        try:
+            for label in labels:
+                hash(label)
+        except TypeError as exc:
+            msg = "Each label must be hashable"
+            raise ValueError(msg) from exc
+
+        standardizer = None
         if self.std_transform:
-            self.standardizer_ = Standardizer()
-            self.dataset_ = self.standardizer_.fit_transform(dataset)
+            standardizer = Standardizer()
+            fitted_data = standardizer.fit_transform(dataset)
         else:
-            self.dataset_ = [row.copy() for row in dataset]
+            fitted_data = [row.copy() for row in dataset]
+        # Commit a complete fit; validation or preprocessing failures leave the old model intact.
+        self.dataset_ = fitted_data
+        self.labels_ = labels.copy()
+        self.standardizer_ = standardizer
         return self
+
+    def _validate_k(self, sample_count: int) -> None:
+        if isinstance(self.k, bool) or not isinstance(self.k, int) or not 1 <= self.k <= sample_count:
+            msg = "k must be an integer between 1 and the training sample count"
+            raise ValueError(msg)
 
     def predict(self, x: list[float]) -> Any:  # noqa: ANN401
         """Predict the label of the input data.
@@ -73,12 +121,14 @@ class KNN:
             The predicted label.
 
         Raises:
-            ValueError: If the model is not fitted yet.
+            ValueError: If the model is unfitted or the query or neighbor count is invalid.
         """
         if self.dataset_ is None or self.labels_ is None:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
 
+        self._validate_k(len(self.dataset_))
+        _validate_dataset([x], len(self.dataset_[0]))
         if self.std_transform:
             if self.standardizer_ is None:
                 msg = "Cannot find the standardization!"
@@ -87,29 +137,34 @@ class KNN:
         distances = [self._calculate_distance(x, point) for point in self.dataset_]
         # get k-nearest neighbors' label
         k_nearest_labels = [
-            label for _, label in sorted(zip(distances, self.labels_, strict=False), key=lambda x: x[0])
+            label for _, label in sorted(zip(distances, self.labels_, strict=True), key=lambda x: x[0])
         ][: self.k]
         label = Counter(k_nearest_labels).most_common(1)[0][0]
         return label
 
     @staticmethod
     def _calculate_distance(x: list[float], y: list[float]) -> float:
-        """Calculate the Euclidean distance between two points using a numerically stable method.
+        r"""Compute a scaled Euclidean norm for validated finite coordinates.
 
-        This implementation avoids overflow by using the two-pass algorithm.
+        With $d_i = |x_i - y_i|$ and finite $s = \max_i d_i > 0$:
+
+        $$
+        \sqrt{\sum_i d_i^2}
+        = \sqrt{s^2 \sum_i (d_i / s)^2}
+        = s \sqrt{\sum_i (d_i / s)^2}.
+        $$
+
+        Scaling keeps the largest squared term at one; fsum reduces summation error.
+        Zero distance is handled before division. An overflowing coordinate difference
+        returns infinity rather than evaluating inf / inf.
         """
-        assert len(x) == len(y), f"{x} and {y} have different length!"
-
-        # First pass: find the maximum absolute difference
-        max_diff = max(abs(xi - yi) for xi, yi in zip(x, y, strict=False))
-
-        if math.isclose(max_diff, 0, abs_tol=1e-9):
-            return 0.0  # All elements are identical
-
-        # Second pass: calculate the normalized sum of squares
-        sum_squares = sum(((xi - yi) / max_diff) ** 2 for xi, yi in zip(x, y, strict=False))
-
-        return max_diff * math.sqrt(sum_squares)
+        differences = [abs(xi - yi) for xi, yi in zip(x, y, strict=True)]
+        scale = max(differences, default=0.0)
+        if scale == 0.0:
+            return 0.0
+        if math.isinf(scale):
+            return math.inf
+        return scale * math.sqrt(math.fsum((difference / scale) ** 2 for difference in differences))
 
 
 @dataclass
@@ -135,11 +190,18 @@ class Standardizer:
             The fitted Standardizer instance.
 
         Raises:
-            ValueError: If the dataset has inconsistent dimensions.
+            ValueError: If features are empty, inconsistent, non-finite, or cannot be scaled.
         """
-        self._dimension = self._get_dataset_dimension(dataset)
-        self._means = self._dataset_column_means(dataset)
-        self._stds = self._dataset_column_stds(dataset)
+        dimension = _validate_dataset(dataset)
+        try:
+            means = self._dataset_column_means(dataset)
+            stds = self._dataset_column_stds(dataset)
+        except OverflowError as exc:
+            msg = "Standardization statistics exceed the floating-point range"
+            raise ValueError(msg) from exc
+        self._dimension = dimension
+        self._means = means
+        self._stds = stds
         return self
 
     def transform(self, dataset: list[list[float]]) -> list[list[float]]:
@@ -152,7 +214,7 @@ class Standardizer:
             New standardized rows; the input dataset is unchanged.
 
         Raises:
-            ValueError: If the model has not been fitted yet.
+            ValueError: If unfitted or given invalid or unrepresentable feature values.
         """
         if self._dimension is None:
             msg = "The model is not fitted yet!"
@@ -191,19 +253,17 @@ class Standardizer:
         if self._dimension is None:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
-        scales = [1.0 if math.isclose(std, 0, abs_tol=1e-9) else std for std in self._stds]
-        return [
+        _validate_dataset(dataset, self._dimension)
+        # Small nonzero standard deviations carry real variation regardless of feature units.
+        scales = [1.0 if std == 0.0 else std for std in self._stds]
+        result = [
             [(value - mean) / scale for value, mean, scale in zip(row, self._means, scales, strict=True)]
             for row in dataset
         ]
-
-    @staticmethod
-    def _get_dataset_dimension(dataset: list[list[float]]) -> int:
-        dimension = len(dataset[0])
-        if not all(len(row) == dimension for row in dataset):
-            msg = "All rows must have the same number of columns"
+        if not all(math.isfinite(value) for row in result for value in row):
+            msg = "Standardized values exceed the floating-point range"
             raise ValueError(msg)
-        return dimension
+        return result
 
     @staticmethod
     def _dataset_column_means(dataset: list[list[float]]) -> list[float]:
@@ -212,8 +272,8 @@ class Standardizer:
 
     @staticmethod
     def _dataset_column_stds(dataset: list[list[float]]) -> list[float]:
-        """Calculate vectors(every column) standard variance."""
-        return [statistics.stdev(column) for column in zip(*dataset, strict=False)]
+        """Compute sample standard deviations, using zero for a single observation."""
+        return [statistics.stdev(column) if len(column) > 1 else 0.0 for column in zip(*dataset, strict=True)]
 
 
 if __name__ == "__main__":
