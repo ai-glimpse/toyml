@@ -15,6 +15,8 @@ The resulting hierarchy can be visualized as a dendrogram.
 - Pairwise distances require quadratic memory, so use small teaching datasets.
 - Plotting requires `pip install "toyml[plot]"`; clustering itself has no runtime dependencies.
 
+The fitted linkage matrix is available as `linkage_matrix_` and is rebuilt on each fit.
+
 ## Minimal example
 
 ```python

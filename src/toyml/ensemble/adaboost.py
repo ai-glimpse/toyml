@@ -60,36 +60,32 @@ class AdaBoost:
     """
     The number of weak learners to be used in the AdaBoost algorithm.
     """
-    predict_labels_: list[int] | None = None
+    predict_labels_: list[int] | None = field(default=None, init=False)
     """
     The prediction labels of the training dataset.
     """
-    training_error_rate_: float | None = None
+    training_error_rate_: float | None = field(default=None, init=False)
     """
     The error rate of the training dataset.
     """
 
-    _n: int = -1
+    _n: int = field(default=-1, init=False)
     """
     The number of samples in the training dataset.
     """
-    _labels: list[int] = field(default_factory=list)
-    """
-    The labels of the training dataset.
-    """
-    _weights: list[float] = field(default_factory=list)
+    _weights: list[float] = field(default_factory=list, init=False)
     """
     The weights of samples in the training dataset.
     """
-    _base_clf_labels: list[list[int]] = field(default_factory=list)
+    _base_clf_labels: list[list[int]] = field(default_factory=list, init=False)
     """
     The prediction labels of the base classifiers.
     """
-    _weak_learner_predicts: list[Callable[..., Any]] = field(default_factory=list)
+    _weak_learner_predicts: list[Callable[..., Any]] = field(default_factory=list, init=False)
     """
     The prediction functions of the weak learners.
     """
-    _alphas: list[float] = field(default_factory=list)
+    _alphas: list[float] = field(default_factory=list, init=False)
     """
     The alpha values of the weak learners.
     """
@@ -100,7 +96,6 @@ class AdaBoost:
         labels: list[int],
     ) -> AdaBoost:
         """Fit the AdaBoost model."""
-        self._labels = labels
         # for model training(Gm)
         self._n = len(labels)
         self._weights: Any = [1.0 / self._n] * self._n
@@ -112,7 +107,7 @@ class AdaBoost:
         self._alphas = [0.0] * self.n_weak_learner
 
         for m in range(self.n_weak_learner):
-            model = self.weak_learner().fit(dataset, self._weights, self._labels)
+            model = self.weak_learner().fit(dataset, self._weights, labels)
             self._base_clf_labels[m] = model.get_predict_labels()
             self._weak_learner_predicts.append(model.predict)
             error_rate = model.get_error_rate()
@@ -124,15 +119,18 @@ class AdaBoost:
             # update the weights
             weights = [0.0] * self._n
             for i in range(self._n):
-                weights[i] = self._weights[i] * math.exp(-alpha * self._labels[i] * self._base_clf_labels[m][i])
+                weights[i] = self._weights[i] * math.exp(-alpha * labels[i] * self._base_clf_labels[m][i])
             self._weights = [weight / sum(weights) for weight in weights]
         # collect training dataset result
         self.predict_labels_ = [self.predict(x) for x in dataset]
-        self.training_error_rate_ = sum(self.predict_labels_[i] != self._labels[i] for i in range(self._n)) / self._n
+        self.training_error_rate_ = sum(self.predict_labels_[i] != labels[i] for i in range(self._n)) / self._n
         return self
 
     def predict(self, x: list[float]) -> int:
         """Predict the label of the input sample."""
+        if not self._weak_learner_predicts:
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
         ensemble_predict = 0
         for m in range(self.n_weak_learner):
             model_predict = self._weak_learner_predicts[m]
@@ -154,10 +152,10 @@ class OneDimensionClassifier(BaseWeakLearner):
         POS_NEG = "POS_NEG"
         NEG_POS = "NEG_POS"
 
-    _sign_mode: SignMode = SignMode.POS_NEG
-    _best_cut: float = math.inf
-    error_rate_: float = math.inf
-    predict_labels_: list[int] | None = None
+    _sign_mode: SignMode = field(default=SignMode.POS_NEG, init=False)
+    _best_cut: float | None = field(default=None, init=False)
+    error_rate_: float = field(default=math.inf, init=False)
+    predict_labels_: list[int] | None = field(default=None, init=False)
 
     def fit(
         self,
@@ -192,7 +190,7 @@ class OneDimensionClassifier(BaseWeakLearner):
 
     def get_error_rate(self) -> float:
         """Get the error rate of the training dataset."""
-        if self.error_rate_ is None:
+        if self.predict_labels_ is None:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
         return self.error_rate_
@@ -202,7 +200,7 @@ class OneDimensionClassifier(BaseWeakLearner):
         if self.predict_labels_ is None:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
-        return self.predict_labels_
+        return self.predict_labels_.copy()
 
     @staticmethod
     def _get_candidate_cuts(points: list[float]) -> list[float]:

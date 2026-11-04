@@ -43,7 +43,7 @@ class TestAGNES:
         assert isinstance(agnes.cluster_tree_, ClusterTree)
         print(agnes.cluster_tree_.children)
         assert len(agnes.cluster_tree_.children) == 2
-        assert len(agnes.linkage_matrix) == 3  # n-1 merges for n data points
+        assert len(agnes.linkage_matrix_) == 3  # n-1 merges for n data points
 
     @pytest.mark.parametrize("n_cluster", [2, 3, 4, 5])
     def test_distance_matrix(self, sample_dataset: list[list[float]], n_cluster: int) -> None:
@@ -92,8 +92,8 @@ class TestAGNES:
 
     def test_linkage_matrix(self, sample_dataset: list[list[float]]) -> None:
         agnes = AGNES(n_cluster=1).fit(sample_dataset)
-        assert len(agnes.linkage_matrix) == len(sample_dataset) - 1
-        for row in agnes.linkage_matrix:
+        assert len(agnes.linkage_matrix_) == len(sample_dataset) - 1
+        for row in agnes.linkage_matrix_:
             assert len(row) == 4  # Each row should have 4 elements
 
     def test_cluster_indices(self, sample_dataset: list[list[float]]) -> None:

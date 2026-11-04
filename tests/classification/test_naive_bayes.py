@@ -2,6 +2,8 @@ import math
 
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 from sklearn.naive_bayes import CategoricalNB, GaussianNB, MultinomialNB
 
 from toyml.classification.naive_bayes import (
@@ -177,3 +179,16 @@ class TestCategoricalNaiveBayesIntegration:
         sklearn_prob = sklearn_clf.predict_proba([test_sample])
         for i in range(6):
             assert math.isclose(sut_prob[i + 1], sklearn_prob[0][i])
+
+
+@given(rows=st.lists(st.tuples(st.integers(0, 3), st.integers(0, 3)), min_size=1, max_size=8))
+def test_categorical_counts_own_nested_dictionaries(rows: list[tuple[int, int]]) -> None:
+    samples = [[float(x), float(y)] for x, y in rows]
+    template = {dim: dict.fromkeys(map(float, range(4)), 1.0) for dim in range(2)}
+    first = CategoricalNaiveBayes._dataset_feature_counts(samples, template)
+    second = CategoricalNaiveBayes._dataset_feature_counts(samples, template)
+    expected = {dim: counts.copy() for dim, counts in second.items()}
+    first[0][0.0] = 999.0
+    first[1].clear()
+    assert second == expected
+    assert all(count == 1.0 for counts in template.values() for count in counts.values())

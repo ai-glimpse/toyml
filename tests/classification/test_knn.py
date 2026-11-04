@@ -131,3 +131,13 @@ class TestStandardizer:
         standardizer = Standardizer()
         with pytest.raises(ValueError, match="All rows must have the same number of columns"):
             standardizer.fit([[1.0, 2.0], [3.0, 4.0, 5.0]])
+
+
+@given(offset=st.integers(-100, 100))
+def test_refit_without_standardization_drops_previous_standardizer(offset: int) -> None:
+    samples = [[float(offset + i)] for i in range(4)]
+    model = KNN(k=1).fit(samples, [0, 0, 1, 1])
+    model.std_transform = False
+    model.fit(samples, [0, 0, 1, 1])
+    assert model.standardizer_ is None
+    assert model.predict(samples[0]) == 0

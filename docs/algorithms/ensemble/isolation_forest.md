@@ -13,6 +13,8 @@ lengths across trees reduces the influence of a single random partition.
 - `score` and `predict` accept one sample. Higher scores are more anomalous;
   `predict` returns `-1` for outliers and `1` for normal observations.
 - `score_threshold` is a score cutoff, not an expected fraction of outliers.
+- `max_samples` remains the requested configuration; `max_samples_` records the actual
+  sample count for the latest fit. Refit sampling is resolved against the new dataset.
 - An integer `random_seed` controls sampling and all tree splits, reproducing each fit
   on the same data. Tree and child seeds are derived from independent per-instance streams.
   `None` keeps an independent stream without promising repeatable results.

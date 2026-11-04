@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import math
 import statistics
 from abc import ABC, abstractmethod
@@ -14,7 +13,7 @@ FeatureValue = float
 
 @dataclass
 class BaseNaiveBayes(ABC):
-    class_prior_: dict[Class, float] = field(default_factory=dict)
+    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
     """The prior probability of each class in training dataset"""
 
     @abstractmethod
@@ -57,6 +56,9 @@ class BaseNaiveBayes(ABC):
         Returns:
             dict[int, float]: Dictionary mapping class labels to their predicted log probabilities.
         """
+        if not self.class_prior_:
+            msg = "The model is not fitted yet!"
+            raise ValueError(msg)
         label_likelihoods = self._log_likelihood(sample)
         raw_label_posteriors: dict[int, float] = {}
         for label, likelihood in label_likelihoods.items():
@@ -104,17 +106,17 @@ class GaussianNaiveBayes(BaseNaiveBayes):
     """Use the unbiased variance estimation or not. Default is True."""
     var_smoothing: float = 1e-9
     """Portion of the largest variance of all features that is added to variances for calculation stability."""
-    labels_: list[Class] = field(default_factory=list)
+    labels_: list[Class] = field(default_factory=list, init=False)
     """The labels in training dataset"""
-    class_count_: int = 0
+    class_count_: int = field(default=0, init=False)
     """The number of classes in training dataset"""
-    class_prior_: dict[Class, float] = field(default_factory=dict)
+    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
     """Class prior probabilities estimated from training label frequencies."""
-    means_: dict[Class, list[float]] = field(default_factory=dict)
+    means_: dict[Class, list[float]] = field(default_factory=dict, init=False)
     """The means of each class in training dataset"""
-    variances_: dict[Class, list[float]] = field(default_factory=dict)
+    variances_: dict[Class, list[float]] = field(default_factory=dict, init=False)
     """The variance of each class in training dataset"""
-    epsilon_: float = 0
+    epsilon_: float = field(default=0, init=False)
     """The absolute additive value to variances."""
 
     def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> GaussianNaiveBayes:
@@ -204,15 +206,15 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
 
     alpha: float = 1.0
     """Additive (Laplace/Lidstone) smoothing parameter"""
-    labels_: list[Class] = field(default_factory=list)
+    labels_: list[Class] = field(default_factory=list, init=False)
     """The labels in training dataset"""
-    class_count_: int = 0
+    class_count_: int = field(default=0, init=False)
     """The number of classes in training dataset"""
-    class_prior_: dict[Class, float] = field(default_factory=dict)
+    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
     """The prior probability of each class in training dataset"""
-    class_feature_count_: dict[Class, list[int]] = field(default_factory=dict)
+    class_feature_count_: dict[Class, list[int]] = field(default_factory=dict, init=False)
     """The feature value counts of each class in training dataset"""
-    class_feature_log_prob_: dict[Class, list[float]] = field(default_factory=dict)
+    class_feature_log_prob_: dict[Class, list[float]] = field(default_factory=dict, init=False)
     """The feature value probability of each class in training dataset"""
 
     def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> MultinomialNaiveBayes:
@@ -282,15 +284,19 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
 
     alpha: float = 1.0
     """Additive (Laplace/Lidstone) smoothing parameter"""
-    labels_: list[Class] = field(default_factory=list)
+    labels_: list[Class] = field(default_factory=list, init=False)
     """The labels in training dataset"""
-    class_count_: int = 0
+    class_count_: int = field(default=0, init=False)
     """The number of classes in training dataset"""
-    class_prior_: dict[Class, float] = field(default_factory=dict)
+    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
     """The prior probability of each class in training dataset"""
-    class_feature_count_: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = field(default_factory=dict)
+    class_feature_count_: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = field(
+        default_factory=dict, init=False
+    )
     """The feature value counts of each class in training dataset"""
-    class_feature_log_prob_: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = field(default_factory=dict)
+    class_feature_log_prob_: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = field(
+        default_factory=dict, init=False
+    )
     """The feature value probability of each class in training dataset"""
 
     def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> CategoricalNaiveBayes:
@@ -356,8 +362,8 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         feature_smooth_count: dict[Dimension, dict[FeatureValue, float]],
     ) -> dict[Dimension, dict[FeatureValue, float]]:
         """Calculate feature value counts."""
-        # Note: here we should use deepcopy
-        feature_value_count = copy.deepcopy(feature_smooth_count)
+        # Each class owns its per-feature counts; numeric keys and counts can be shared.
+        feature_value_count = {dim: counts.copy() for dim, counts in feature_smooth_count.items()}
         for dim, column in enumerate(zip(*dataset, strict=True)):
             for value, count in Counter(column).items():
                 feature_value_count[dim][value] += count

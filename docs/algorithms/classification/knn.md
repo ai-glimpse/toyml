@@ -11,8 +11,9 @@ and returns the most frequent label among the `k` closest observations.
 
 - Pass a non-empty list of equally sized numeric feature lists and one label per observation.
 - Use a positive `k` no greater than the training sample count. `predict` accepts one feature list.
-- Standardization modifies the supplied lists; pass copies
-  when the original data must be preserved, or select `std_transform=False` for already scaled data.
+- Training and prediction preserve the supplied lists. The model owns copies of the training
+  rows and label container; labels should be immutable, hashable values.
+- Standardization returns new lists. Select `std_transform=False` for already scaled data.
 
 ## Minimal example
 

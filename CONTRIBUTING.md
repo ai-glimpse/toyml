@@ -94,6 +94,26 @@ generator. `None` keeps an independent, non-reproducible stream; different seeds
 produce different results. `tests/test_random_reproducibility.py` checks these contracts
 with Hypothesis, controlling implicit entropy so counterexamples can be replayed and shrunk.
 
+Model constructors accept configuration only. Mark fitted/internal dataclass fields
+with `init=False`; normal tree-node data structures may still accept node contents.
+Keep configuration unchanged during fitting and store resolved values separately
+(e.g. IsolationForest's `max_samples_`). A successful `fit` replaces previous fitted
+state, including on paths that produce a leaf or all-noise result.
+
+Methods preserve caller inputs. Copy retained numeric matrices row by row and copy
+scalar label lists with `.copy()`; construct transformation outputs directly. Use
+`deepcopy` only when recursive isolation of a complex mutable structure is required.
+KNN labels should be immutable, hashable values; their container is copied, not arbitrary
+label objects. Do not retain inputs used only during fitting. Label lists returned by
+`fit_predict` and `get_predict_labels` are independent containers; public fitted
+attributes remain directly accessible and mutable. Inference before fitting raises
+`ValueError`. Shared properties live in `tests/test_model_ownership.py`, while
+model-specific refit/leaf/sampling regressions stay with each model's tests.
+
+AGNES exposes its fitted linkage as `linkage_matrix_` (the former `linkage_matrix`
+name is removed). IsolationForest's `max_samples` retains its constructor value;
+`max_samples_` reports the actual fitted sample count.
+
 ## Documentation
 
 Zensical reads `zensical.toml` and generates API documentation from the source using
