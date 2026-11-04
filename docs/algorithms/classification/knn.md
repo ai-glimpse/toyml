@@ -9,8 +9,8 @@ and returns the most frequent label among the `k` closest observations.
 
 ## Inputs and limitations
 
-- Pass a non-empty list of equally sized numeric feature lists and one label per observation.
-- Use a positive `k` no greater than the training sample count. `predict` accepts one feature list.
+- Pass a non-empty list of equally sized finite numeric feature lists and one label per observation.
+- Use a positive integer `k` no greater than the training sample count. `predict` accepts one feature list.
 - Labels should be immutable, hashable values.
 - Select `std_transform=False` for already scaled data.
 
