@@ -7,8 +7,8 @@
 [![Python](https://img.shields.io/pypi/pyversions/toyml.svg?color=%2334D058)](https://pypi.org/project/toyml/)
 [![PyPI](https://img.shields.io/pypi/v/toyml?color=%2334D058&label=pypi%20package)](https://pypi.org/project/toyml/)
 ![Codecov](https://codecov.io/gh/ai-glimpse/toyml/branch/master/graph/badge.svg)
-[![Build Docs](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/build_docs.yml)
-[![Test](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/test.yml)
+[![Documentation](https://github.com/ai-glimpse/toyml/actions/workflows/docs.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/docs.yml)
+[![Python CI](https://github.com/ai-glimpse/toyml/actions/workflows/ci.yml/badge.svg)](https://github.com/ai-glimpse/toyml/actions/workflows/ci.yml)
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![ty](https://img.shields.io/badge/types-ty-blue)](https://docs.astral.sh/ty/)

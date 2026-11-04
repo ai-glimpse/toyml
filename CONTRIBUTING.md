@@ -13,8 +13,9 @@ just hooks
 with dependency changes. Run `uv lock --upgrade` deliberately to update dependencies;
 CI uses `--locked` and rejects an outdated lockfile.
 
-Pull requests run two CI jobs: checks/tests/packaging on the development Python
-version from `.python-version`, and a strict Zensical build. When changing compatibility
+Pull requests run two jobs: [Python CI](.github/workflows/ci.yml) runs checks/tests/packaging
+on the development Python version from `.python-version`, and
+[Documentation](.github/workflows/docs.yml) runs a strict Zensical build. When changing compatibility
 or dependencies, use `--python` to repeat the tests locally for Python 3.11–3.15:
 
 ```sh
@@ -63,7 +64,7 @@ The site is built into `site/`. When changing documentation configuration, check
 home page, algorithm API pages, AGNES image, K-means formulas, search, light/dark
 modes, and the configured `/toyml/` URL prefix.
 
-The Docs workflow builds once and uploads a GitHub Pages artifact. Pull requests
+The Documentation workflow builds once and uploads a GitHub Pages artifact. Pull requests
 only build; pushes to `master` deploy the same artifact. The repository's Pages
 source must be set to **GitHub Actions** in Settings → Pages.
 
@@ -77,6 +78,6 @@ runtime requirements.
 `toyml/py.typed`, the license, and all Python modules in the wheel. Test an installed
 wheel from outside the checkout to avoid accidentally importing the working tree.
 
-The Release workflow checks the release tag against `pyproject.toml`, builds the
+The Publish to PyPI workflow checks the release tag against `pyproject.toml`, builds the
 package without installing development dependencies, and publishes using the
 existing PyPI trusted publisher in the `pypi` environment.
