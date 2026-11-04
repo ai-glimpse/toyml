@@ -127,7 +127,7 @@ class IsolationForest:
     """Isolation Forest.
 
     Examples:
-        >>> from toyml.ensemble.iforest import IsolationForest
+        >>> from toyml.ensemble.isolation_forest import IsolationForest
         >>> dataset = [[-1.1], [0.3], [0.5], [100.0]]
         >>> IsolationForest(n_itree=100, max_samples=4).fit_predict(dataset)
         [1, 1, 1, -1]

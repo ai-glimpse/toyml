@@ -57,11 +57,10 @@ docs = ["zensical>=0.0.74", "mkdocstrings-python>=2.0.10", "pymdown-extensions>=
 required-version = "==0.13.7"
 
 [tool.uv.build-backend]
-module-root = ""
-source-include = ["tests/**", "examples/**"]
+source-include = ["tests/**", "examples/**", "scripts/**"]
 
 [tool.ty.src]
-include = ["toyml", "tests", "examples", "scripts"]
+include = ["src", "tests", "examples", "scripts"]
 
 [tool.ty.rules]
 dynamic-function-decorator-return = "error"
@@ -71,8 +70,8 @@ unsound-return-statement = "error"
 unused-ignore-comment = "warn"
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --cov=toyml --cov-report=term-missing"
-testpaths = ["toyml", "tests"]
+addopts = "--import-mode=importlib --doctest-modules --cov=toyml --cov-report=term-missing"
+testpaths = ["src/toyml", "tests"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -96,9 +95,6 @@ select = [
 ]
 ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107"]
 pydocstyle = { convention = "google" }
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["PT009"]
 
 [tool.ruff.format]
 docstring-code-format = true

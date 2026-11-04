@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from toyml.ensemble.iforest import IsolationForest, IsolationTree
+from toyml.ensemble.isolation_forest import IsolationForest, IsolationTree
 
 
 class TestIsolationTree:

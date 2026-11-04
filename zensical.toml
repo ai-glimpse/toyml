@@ -15,7 +15,7 @@ nav = [
     { Algorithms = [
         { Clustering = [
             { "K-means" = "algorithms/clustering/kmeans.md" },
-            { "Bisecting K-means" = "algorithms/clustering/diana.md" },
+            { "Bisecting K-means" = "algorithms/clustering/bisecting_kmeans.md" },
             { AGNES = "algorithms/clustering/agnes.md" },
             { DBSCAN = "algorithms/clustering/dbscan.md" },
         ] },
@@ -25,7 +25,7 @@ nav = [
         ] },
         { Ensemble = [
             { AdaBoost = "algorithms/ensemble/adaboost.md" },
-            { "Isolation Forest" = "algorithms/ensemble/iforest.md" },
+            { "Isolation Forest" = "algorithms/ensemble/isolation_forest.md" },
         ] },
     ] },
     { Releases = "https://github.com/ai-glimpse/toyml/releases" },
@@ -88,7 +88,7 @@ toc = { permalink = true }
 [project.plugins.autorefs]
 
 [project.plugins.mkdocstrings.handlers.python]
-paths = ["."]
+paths = ["src"]
 
 [project.plugins.mkdocstrings.handlers.python.options]
 docstring_style = "google"

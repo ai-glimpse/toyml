@@ -18,10 +18,10 @@ from the DIANA algorithm.
 ## Minimal example
 
 ```python
-from toyml.clustering import BisectingKmeans
+from toyml.clustering import BisectingKMeans
 
 samples = [[0.0], [0.1], [4.0], [4.1]]
-model = BisectingKmeans(k=2)
+model = BisectingKMeans(k=2)
 print(model.fit_predict(samples))
 print(model.cluster_tree_.get_clusters())
 ```
@@ -29,7 +29,7 @@ print(model.cluster_tree_.get_clusters())
 ## API
 
 [](){#kmeans-bisect}
-::: toyml.clustering.bisect_kmeans
+::: toyml.clustering.bisecting_kmeans
     options:
         members:
-        - BisectingKmeans
+        - BisectingKMeans

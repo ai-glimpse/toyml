@@ -25,10 +25,10 @@ centroids from those assignments. Initialization affects which local solution is
 ## Minimal example
 
 ```python
-from toyml.clustering import Kmeans
+from toyml.clustering import KMeans
 
 samples = [[0.0], [0.1], [4.0], [4.1]]
-model = Kmeans(k=2, random_seed=42)
+model = KMeans(k=2, random_seed=42)
 print(model.fit_predict(samples))
 print(model.predict([0.2]))
 ```

@@ -3,7 +3,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from toyml.classification.knn import KNN, Standardizationer
+from toyml.classification.knn import KNN, Standardizer
 
 
 class TestKNN:
@@ -26,12 +26,11 @@ class TestKNN:
         dataset = dataset[: len(labels)]
         labels = labels[: len(dataset)]
 
-        knn = KNN(k=k, std_transform=std_transform)
+        query = dataset[0].copy()
+        knn = KNN(k=min(k, len(dataset)), std_transform=std_transform)
         knn.fit(dataset, labels)
 
-        # Test prediction on a random point from the dataset
-        random_index = np.random.randint(0, len(dataset))  # noqa: NPY002
-        prediction = knn.predict(dataset[random_index])
+        prediction = knn.predict(query)
         assert prediction in labels
 
     @pytest.mark.parametrize(
@@ -60,7 +59,7 @@ class TestKNN:
             knn.predict([1.0, 2.0])
 
 
-class TestStandardizationer:
+class TestStandardizer:
     @pytest.mark.parametrize(
         ("dataset", "expected_means", "expected_stds"),
         [
@@ -70,12 +69,12 @@ class TestStandardizationer:
         ],
     )
     def test_fit(self, dataset: list[list[float]], expected_means: list[float], expected_stds: list[float]) -> None:
-        standardizationer = Standardizationer()
-        standardizationer.fit(dataset)
+        standardizer = Standardizer()
+        standardizer.fit(dataset)
 
-        assert standardizationer._dimension == len(dataset[0])
-        assert pytest.approx(standardizationer._means) == expected_means
-        assert pytest.approx(standardizationer._stds) == expected_stds
+        assert standardizer._dimension == len(dataset[0])
+        assert pytest.approx(standardizer._means) == expected_means
+        assert pytest.approx(standardizer._stds) == expected_stds
 
     @pytest.mark.parametrize(
         ("dataset", "input_data", "expected_output"),
@@ -91,10 +90,10 @@ class TestStandardizationer:
         input_data: list[list[float]],
         expected_output: list[list[float]],
     ) -> None:
-        standardizationer = Standardizationer()
-        standardizationer.fit(dataset)
+        standardizer = Standardizer()
+        standardizer.fit(dataset)
 
-        transformed = standardizationer.transform(input_data)
+        transformed = standardizer.transform(input_data)
         np.testing.assert_array_almost_equal(transformed, expected_output)
 
     @pytest.mark.parametrize(
@@ -106,16 +105,16 @@ class TestStandardizationer:
         ],
     )
     def test_fit_transform(self, dataset: list[list[float]], expected_output: list[list[float]]) -> None:
-        standardizationer = Standardizationer()
-        transformed = standardizationer.fit_transform(dataset)
+        standardizer = Standardizer()
+        transformed = standardizer.fit_transform(dataset)
         np.testing.assert_array_almost_equal(transformed, expected_output)
 
     def test_not_fitted(self) -> None:
-        standardizationer = Standardizationer()
+        standardizer = Standardizer()
         with pytest.raises(ValueError, match="The model is not fitted yet!"):
-            standardizationer.transform([[1.0, 2.0]])
+            standardizer.transform([[1.0, 2.0]])
 
     def test_inconsistent_dimensions(self) -> None:
-        standardizationer = Standardizationer()
+        standardizer = Standardizer()
         with pytest.raises(ValueError, match="All rows must have the same number of columns"):
-            standardizationer.fit([[1.0, 2.0], [3.0, 4.0, 5.0]])
+            standardizer.fit([[1.0, 2.0], [3.0, 4.0, 5.0]])

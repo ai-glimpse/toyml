@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class BaseWeakLeaner:
+class BaseWeakLearner:
     @abc.abstractmethod
-    def fit(self, dataset: list[list[float]], weights: list[float], labels: list[int]) -> BaseWeakLeaner:
+    def fit(self, dataset: list[list[float]], weights: list[float], labels: list[int]) -> BaseWeakLearner:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -52,7 +52,7 @@ class AdaBoost:
         2. Zhou Zhihua
     """
 
-    weak_learner: type[BaseWeakLeaner]
+    weak_learner: type[BaseWeakLearner]
     """
     The weak learner to be used in the AdaBoost algorithm.
     """
@@ -143,7 +143,7 @@ class AdaBoost:
 
 
 @dataclass
-class OneDimensionClassifier(BaseWeakLeaner):
+class OneDimensionClassifier(BaseWeakLearner):
     """Binary classifier with one dimension feature.
 
     Ref: Li Hang, 1 ed, E8.1.3

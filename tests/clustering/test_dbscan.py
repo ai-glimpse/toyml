@@ -1,76 +1,50 @@
 import math
-import unittest
+
+import pytest
+from sklearn.cluster import DBSCAN as SklearnDBSCAN
+from sklearn.metrics import adjusted_rand_score
 
 from toyml.clustering.dbscan import DBSCAN, Dataset
 
 
-class TestDbScan(unittest.TestCase):
-    def setUp(self) -> None:
-        self.dataset = [[1.0, 2.0], [2.0, 2.0], [2.0, 3.0], [8.0, 7.0], [8.0, 8.0], [25.0, 80.0]]
-
-    def test_dbscan_clustering(self) -> None:
-        dbscan = DBSCAN(eps=3, min_samples=2).fit(self.dataset)
-        clusters = dbscan.clusters_
-
-        # Check the number of clusters
-        self.assertEqual(len(clusters), 2)
-
-        # Check the content of clusters
-        self.assertIn([0, 1, 2], clusters)
-        self.assertIn([3, 4], clusters)
-
-        # Check that the last point is not in any cluster (noise)
-        self.assertTrue(all(5 not in cluster for cluster in clusters))
-
-    def test_dbscan_edge_cases(self) -> None:
-        # Test with all points as noise
-        dbscan = DBSCAN(eps=0.1, min_samples=2).fit(self.dataset)
-        clusters = dbscan.clusters_
-        self.assertEqual(len(clusters), 0)
-
-        # Test with all points in one cluster
-        dbscan = DBSCAN(eps=100, min_samples=2).fit(self.dataset)
-        clusters = dbscan.clusters_
-        self.assertEqual(len(clusters), 1)
-        self.assertEqual(len(clusters[0]), len(self.dataset))
-
-    def test_dataset(self) -> None:
-        dataset = Dataset(self.dataset)
-
-        # Test dataset initialization
-        self.assertEqual(dataset.n, 6)
-        self.assertEqual(len(dataset.distance_matrix_), 6)
-        self.assertEqual(len(dataset.distance_matrix_[0]), 6)
-
-        # Test distance matrix calculation
-        expected_distance = math.sqrt(2)  # Distance between [1.0, 2.0] and [2.0, 3.0]
-        self.assertAlmostEqual(dataset.distance_matrix_[0][2], expected_distance)
-
-        # Test get_neighbors method
-        neighbors = dataset.get_neighbors(0, 2.0)
-        # The neighbors don't include the point itself
-        self.assertEqual(set(neighbors), {1, 2})
-
-        # Test get_core_objects method
-        core_objects, noises = dataset.get_core_objects(3, 2)
-        self.assertEqual(core_objects, {0, 1, 2, 3, 4})
-        self.assertEqual(set(noises), {5})
-
-    def test_fit_predict(self) -> None:
-        dbscan = DBSCAN(eps=3, min_samples=2)
-        labels = dbscan.fit_predict(self.dataset)
-
-        # Check the number of unique labels (excluding noise)
-        unique_labels = {label for label in labels if label != -1}
-        self.assertEqual(len(unique_labels), 2)
-
-        # Check that the labels match the expected clustering
-        expected_labels = [0, 0, 0, 1, 1, -1]
-        self.assertEqual(labels, expected_labels)
-
-        # Check that the labels_ attribute is set correctly
-        self.assertEqual(dbscan.labels_, expected_labels)
+@pytest.fixture
+def dataset() -> list[list[float]]:
+    return [[1.0, 2.0], [2.0, 2.0], [2.0, 3.0], [8.0, 7.0], [8.0, 8.0], [25.0, 80.0]]
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_clustering(dataset: list[list[float]]) -> None:
+    model = DBSCAN(eps=3, min_samples=2).fit(dataset)
+    assert {frozenset(cluster) for cluster in model.clusters_} == {frozenset({0, 1, 2}), frozenset({3, 4})}
+    assert model.noises_ == [5]
+
+
+@pytest.mark.parametrize(("eps", "expected_clusters"), [(0.1, 0), (100.0, 1)])
+def test_cluster_counts(dataset: list[list[float]], eps: float, expected_clusters: int) -> None:
+    model = DBSCAN(eps=eps, min_samples=2).fit(dataset)
+    assert len(model.clusters_) == expected_clusters
+    if expected_clusters:
+        assert set(model.clusters_[0]) == set(range(len(dataset)))
+
+
+def test_distance_matrix(dataset: list[list[float]]) -> None:
+    samples = Dataset(dataset)
+    assert samples.n == 6
+    assert len(samples.distance_matrix_) == 6
+    assert all(len(row) == 6 for row in samples.distance_matrix_)
+    assert samples.distance_matrix_[0][2] == pytest.approx(math.sqrt(2))
+    assert set(samples.get_neighbors(0, 2.0)) == {1, 2}
+    core_objects, non_core_objects = samples.get_core_objects(3, 2)
+    assert core_objects == {0, 1, 2, 3, 4}
+    assert non_core_objects == [5]
+
+
+@pytest.mark.parametrize(("eps", "min_samples"), [(3.0, 2), (100.0, 2), (3.0, 3)])
+def test_fit_predict_matches_sklearn(dataset: list[list[float]], eps: float, min_samples: int) -> None:
+    model = DBSCAN(eps=eps, min_samples=min_samples)
+    labels = model.fit_predict(dataset)
+    expected = SklearnDBSCAN(eps=eps, min_samples=min_samples).fit_predict(dataset).tolist()
+    assert adjusted_rand_score(expected, labels) == 1.0
+    assert [i for i, label in enumerate(labels) if label == -1] == [
+        i for i, label in enumerate(expected) if label == -1
+    ]
+    assert model.labels_ == labels

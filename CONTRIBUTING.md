@@ -53,11 +53,39 @@ uv run --locked --no-default-groups --group docs zensical build --strict
 `prek.toml` is the native hook configuration. Basic file checks use prek's built-in
 hooks, without fetching a separate hook repository or installing Python hook environments.
 Ruff and ty run from the locked project environment in both Git hooks and CI. ty
-checks the entire `toyml/`, `tests/`, `examples/`, and `scripts/` trees. Keep deliberately invalid
+checks the entire `src/`, `tests/`, `examples/`, and `scripts/` trees. Keep deliberately invalid
 inputs in runtime validation tests documented with specific `ty: ignore[...]` comments.
 
 `.editorconfig` defines UTF-8, LF, final newlines, and space indentation (four spaces,
 or two for YAML). `.gitattributes` keeps text checkouts on LF and marks binary assets.
+
+## Layout, API names, and tests
+
+Library code lives in `src/toyml/`. `uv sync --locked` installs it in editable mode;
+run commands with `uv run --locked` rather than adding the checkout to `PYTHONPATH`.
+pytest uses importlib mode, so tests exercise the installed package.
+
+Use the canonical names `KMeans`, `BisectingKMeans`, `Standardizer`, and
+`BaseWeakLearner`. The modules are `toyml.clustering.bisecting_kmeans` and
+`toyml.ensemble.isolation_forest`; KNN's fitted standardizer is `standardizer_`.
+The previous spellings and module paths have been removed. Documentation follows
+the same names in `bisecting_kmeans.md` and `isolation_forest.md`.
+
+Tests use pytest fixtures, parametrization, and plain assertions. Compare clustering
+partitions rather than arbitrary cluster label numbers. `tests/test_known_issues.py`
+records deferred algorithm bugs with a reason, the expected failure type, and
+`xfail(strict=True)`. Unexpected failures and unexpected passes fail the suite;
+remove the relevant marker when fixing an algorithm. Review the pending cases with:
+
+```sh
+uv run --locked pytest tests/test_known_issues.py -rx
+```
+
+The runnable K-means example uses the public API for fitting, centroids, and prediction:
+
+```sh
+uv run --locked python examples/clustering/kmeans.py
+```
 
 ## Documentation
 
@@ -79,6 +107,12 @@ The 400 × 400 cover in `docs/assets/cover.png` is displayed at 200 × 200; the 
 serves it locally, while the README uses its GitHub raw URL for GitHub/PyPI rendering.
 `assets/cover.svg` is the full-resolution source. Regenerate the cover with
 `uv run --locked python scripts/generate_cover.py`; PDF/SVG outputs stay in `assets/`.
+The script uses a non-interactive backend and closes its figure after saving.
+For a quick preview without overwriting the published assets, use:
+
+```sh
+uv run --locked python scripts/generate_cover.py --points 1000 --output-root .cache/cover-preview
+```
 
 The Documentation workflow builds once and uploads a GitHub Pages artifact. Pull requests
 only build; pushes to `master` deploy the same artifact. The repository's Pages
