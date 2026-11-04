@@ -24,6 +24,12 @@ model = KNN(k=2, std_transform=False).fit(samples, ["near", "near", "far", "far"
 print(model.predict([0.1]))
 ```
 
+## Numerical stability
+
+::: toyml.classification.knn.KNN._calculate_distance
+    options:
+        show_source: true
+
 ## API
 
 ::: toyml.classification.knn
