@@ -1,7 +1,5 @@
 """Build and verify release artifacts without importing the working tree."""
 
-from __future__ import annotations
-
 import email
 import subprocess
 import sys

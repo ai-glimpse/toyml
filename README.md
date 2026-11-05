@@ -34,7 +34,7 @@ Let's learn machine learning with simple toy code.
 
 ## Installation
 
-Requires Python 3.11 or later. The core package has no runtime dependencies.
+Requires Python 3.15 or later. The core package has no runtime dependencies.
 
 ```bash
 pip install toyml

@@ -1,8 +1,10 @@
-from __future__ import annotations
-
 import math
 from dataclasses import dataclass, field
 from typing import Literal
+
+lazy import matplotlib.pyplot as plt
+lazy import numpy as np
+lazy from scipy.cluster.hierarchy import dendrogram
 
 
 @dataclass
@@ -229,10 +231,6 @@ class AGNES:
         Note:
             This method requires matplotlib and scipy to be installed.
         """
-        import matplotlib.pyplot as plt
-        import numpy as np
-        from scipy.cluster.hierarchy import dendrogram
-
         if self.n_cluster != 1:
             msg = "The number of clusters should be 1 to plot dendrogram"
             raise ValueError(msg)
