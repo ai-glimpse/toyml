@@ -25,8 +25,8 @@ class BaseNaiveBayes(ABC):
         Returns:
             int: Predicted class label.
         """
-        class_probs = self.predict_proba(sample)
-        label = max(class_probs, key=lambda label: class_probs[label])
+        class_posteriors = self.predict_proba(sample)
+        label = max(class_posteriors, key=lambda label: class_posteriors[label])
         return label
 
     def predict_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
@@ -38,7 +38,8 @@ class BaseNaiveBayes(ABC):
                 joint probabilities (or densities for Gaussian features). Default is True.
 
         Returns:
-            dict[int, float]: Dictionary mapping class labels to their predicted probabilities.
+            dict[int, float]: Posterior probabilities by class label when normalized;
+                otherwise, unnormalized joint probabilities or densities.
         """
         class_log_probs = self.predict_log_proba(sample, normalization)
         return {label: math.exp(log_prob) for label, log_prob in class_log_probs.items()}
@@ -52,7 +53,8 @@ class BaseNaiveBayes(ABC):
                 joint log probabilities (or log densities for Gaussian features). Default is True.
 
         Returns:
-            dict[int, float]: Dictionary mapping class labels to their predicted log probabilities.
+            dict[int, float]: Log posterior probabilities by class label when normalized;
+                otherwise, unnormalized joint log probabilities or log densities.
         """
         if not self.class_prior_:
             msg = "The model is not fitted yet!"
@@ -64,14 +66,14 @@ class BaseNaiveBayes(ABC):
         if normalization is False:
             return class_log_joint_probs
         # ref: https://github.com/scikit-learn/scikit-learn/blob/2beed55847ee70d363bdbfe14ee4401438fba057/sklearn/naive_bayes.py#L97
-        max_log_prob = max(class_log_joint_probs.values())
-        log_evidence = max_log_prob + math.log(
-            sum(math.exp(log_prob - max_log_prob) for log_prob in class_log_joint_probs.values()),
+        max_log_joint_prob = max(class_log_joint_probs.values())
+        log_evidence = max_log_joint_prob + math.log(
+            sum(math.exp(log_joint_prob - max_log_joint_prob) for log_joint_prob in class_log_joint_probs.values()),
         )
-        class_log_probs = {
+        class_log_posteriors = {
             label: log_joint_prob - log_evidence for label, log_joint_prob in class_log_joint_probs.items()
         }
-        return class_log_probs
+        return class_log_posteriors
 
     @abstractmethod
     def _log_likelihood(self, sample: list[float]) -> dict[int, float]:
