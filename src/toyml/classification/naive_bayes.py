@@ -6,21 +6,17 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass, field
 
-Class = int
-Dimension = int
-FeatureValue = float
-
 
 @dataclass
 class BaseNaiveBayes(ABC):
-    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
+    class_prior_: dict[int, float] = field(default_factory=dict, init=False)
     """The prior probability of each class in training dataset"""
 
     @abstractmethod
-    def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> BaseNaiveBayes:
+    def fit(self, dataset: list[list[float]], labels: list[int]) -> BaseNaiveBayes:
         raise NotImplementedError
 
-    def predict(self, sample: list[FeatureValue]) -> int:
+    def predict(self, sample: list[float]) -> int:
         """Predict the class label for a given sample.
 
         Args:
@@ -29,54 +25,58 @@ class BaseNaiveBayes(ABC):
         Returns:
             int: Predicted class label.
         """
-        label_posteriors = self.predict_proba(sample)
-        label = max(label_posteriors, key=lambda k: label_posteriors[k])
+        class_posteriors = self.predict_proba(sample)
+        label = max(class_posteriors, key=lambda label: class_posteriors[label])
         return label
 
-    def predict_proba(self, sample: list[FeatureValue], normalization: bool = True) -> dict[Class, float]:
+    def predict_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
         """Predict class probabilities for a given sample.
 
         Args:
             sample: A single sample to predict, represented as a list of feature values.
-            normalization: Whether to normalize the probabilities. Default is True.
+            normalization: Whether to normalize the probabilities. If False, return
+                joint probabilities (or densities for Gaussian features). Default is True.
 
         Returns:
-            dict[int, float]: Dictionary mapping class labels to their predicted probabilities.
+            dict[int, float]: Posterior probabilities by class label when normalized;
+                otherwise, unnormalized joint probabilities or densities.
         """
-        label_posteriors = self.predict_log_proba(sample, normalization)
-        return {label: math.exp(log_prob) for label, log_prob in label_posteriors.items()}
+        class_log_probs = self.predict_log_proba(sample, normalization)
+        return {label: math.exp(log_prob) for label, log_prob in class_log_probs.items()}
 
-    def predict_log_proba(self, sample: list[FeatureValue], normalization: bool = True) -> dict[Class, float]:
+    def predict_log_proba(self, sample: list[float], normalization: bool = True) -> dict[int, float]:
         """Predict log probabilities for a given sample.
 
         Args:
             sample: A single sample to predict, represented as a list of feature values.
-            normalization: Whether to normalize the log probabilities. Default is True.
+            normalization: Whether to normalize the log probabilities. If False, return
+                joint log probabilities (or log densities for Gaussian features). Default is True.
 
         Returns:
-            dict[int, float]: Dictionary mapping class labels to their predicted log probabilities.
+            dict[int, float]: Log posterior probabilities by class label when normalized;
+                otherwise, unnormalized joint log probabilities or log densities.
         """
         if not self.class_prior_:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
-        label_likelihoods = self._log_likelihood(sample)
-        raw_label_posteriors: dict[int, float] = {}
-        for label, likelihood in label_likelihoods.items():
-            raw_label_posteriors[label] = likelihood + math.log(self.class_prior_[label])
+        class_log_likelihoods = self._log_likelihood(sample)
+        class_log_joint_probs: dict[int, float] = {}
+        for label, log_likelihood in class_log_likelihoods.items():
+            class_log_joint_probs[label] = log_likelihood + math.log(self.class_prior_[label])
         if normalization is False:
-            return raw_label_posteriors
+            return class_log_joint_probs
         # ref: https://github.com/scikit-learn/scikit-learn/blob/2beed55847ee70d363bdbfe14ee4401438fba057/sklearn/naive_bayes.py#L97
-        max_log_prob = max(raw_label_posteriors.values())
-        logsumexp_prob = max_log_prob + math.log(
-            sum(math.exp(log_prob - max_log_prob) for log_prob in raw_label_posteriors.values()),
+        max_log_joint_prob = max(class_log_joint_probs.values())
+        log_evidence = max_log_joint_prob + math.log(
+            sum(math.exp(log_joint_prob - max_log_joint_prob) for log_joint_prob in class_log_joint_probs.values()),
         )
-        label_posteriors = {
-            label: raw_posterior - logsumexp_prob for label, raw_posterior in raw_label_posteriors.items()
+        class_log_posteriors = {
+            label: log_joint_prob - log_evidence for label, log_joint_prob in class_log_joint_probs.items()
         }
-        return label_posteriors
+        return class_log_posteriors
 
     @abstractmethod
-    def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
+    def _log_likelihood(self, sample: list[float]) -> dict[int, float]:
         raise NotImplementedError
 
 
@@ -106,20 +106,20 @@ class GaussianNaiveBayes(BaseNaiveBayes):
     """Use the unbiased variance estimation or not. Default is True."""
     var_smoothing: float = 1e-9
     """Portion of the largest variance of all features that is added to variances for calculation stability."""
-    labels_: list[Class] = field(default_factory=list, init=False)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The labels in training dataset"""
     class_count_: int = field(default=0, init=False)
     """The number of classes in training dataset"""
-    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
+    class_prior_: dict[int, float] = field(default_factory=dict, init=False)
     """Class prior probabilities estimated from training label frequencies."""
-    means_: dict[Class, list[float]] = field(default_factory=dict, init=False)
+    means_: dict[int, list[float]] = field(default_factory=dict, init=False)
     """The means of each class in training dataset"""
-    variances_: dict[Class, list[float]] = field(default_factory=dict, init=False)
+    variances_: dict[int, list[float]] = field(default_factory=dict, init=False)
     """The variance of each class in training dataset"""
     epsilon_: float = field(default=0, init=False)
     """The absolute additive value to variances."""
 
-    def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> GaussianNaiveBayes:
+    def fit(self, dataset: list[list[float]], labels: list[int]) -> GaussianNaiveBayes:
         """Fit the Gaussian Naive Bayes classifier.
 
         Args:
@@ -136,28 +136,27 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         self.means_, self.variances_ = self._get_classes_means_variances(dataset, labels)
         return self
 
-    def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
-        """Calculate the likelihood of each sample in each class."""
-        label_likelihoods: dict[Class, float] = {}
+    def _log_likelihood(self, sample: list[float]) -> dict[int, float]:
+        """Calculate the log-likelihood of the sample for each class."""
+        class_log_likelihoods: dict[int, float] = {}
         for label in self.labels_:
             label_means = self.means_[label]
-            label_vars = self.variances_[label]
+            label_variances = self.variances_[label]
             log_likelihood = 0.0
-            for i, xi in enumerate(sample):
-                # calculate the log-likelihood
-                log_likelihood += -0.5 * math.log(2 * math.pi * label_vars[i]) - (
-                    (xi - label_means[i]) ** 2 / (2 * label_vars[i])
+            for feature_index, feature_value in enumerate(sample):
+                log_likelihood += -0.5 * math.log(2 * math.pi * label_variances[feature_index]) - (
+                    (feature_value - label_means[feature_index]) ** 2 / (2 * label_variances[feature_index])
                 )
-            label_likelihoods[label] = log_likelihood
-        return label_likelihoods
+            class_log_likelihoods[label] = log_likelihood
+        return class_log_likelihoods
 
     def _get_classes_means_variances(
         self,
-        dataset: list[list[FeatureValue]],
-        labels: list[Class],
-    ) -> tuple[dict[Class, list[float]], dict[Class, list[float]]]:
-        means: dict[Class, list[float]] = {}
-        variances: dict[Class, list[float]] = {}
+        dataset: list[list[float]],
+        labels: list[int],
+    ) -> tuple[dict[int, list[float]], dict[int, list[float]]]:
+        means: dict[int, list[float]] = {}
+        variances: dict[int, list[float]] = {}
         for label in self.labels_:
             label_samples = [
                 sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
@@ -167,15 +166,15 @@ class GaussianNaiveBayes(BaseNaiveBayes):
         return means, variances
 
     @staticmethod
-    def _dataset_column_means(dataset: list[list[FeatureValue]]) -> list[float]:
+    def _dataset_column_means(dataset: list[list[float]]) -> list[float]:
         """Calculate vectors mean."""
         return [statistics.mean(column) for column in zip(*dataset, strict=True)]
 
-    def _dataset_column_variances(self, dataset: list[list[FeatureValue]]) -> list[float]:
-        """Calculate vectors(every column) standard variance."""
+    def _dataset_column_variances(self, dataset: list[list[float]]) -> list[float]:
+        """Calculate the smoothed variance of each feature."""
         return [self._variance(column) + self.epsilon_ for column in zip(*dataset, strict=True)]
 
-    def _variance(self, xs: list[FeatureValue] | tuple[FeatureValue, ...]) -> float:
+    def _variance(self, xs: list[float] | tuple[float, ...]) -> float:
         n = len(xs)
         mean = statistics.mean(xs)
         ss = sum((x - mean) ** 2 for x in xs)
@@ -206,18 +205,18 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
 
     alpha: float = 1.0
     """Additive (Laplace/Lidstone) smoothing parameter"""
-    labels_: list[Class] = field(default_factory=list, init=False)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The labels in training dataset"""
     class_count_: int = field(default=0, init=False)
     """The number of classes in training dataset"""
-    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
+    class_prior_: dict[int, float] = field(default_factory=dict, init=False)
     """The prior probability of each class in training dataset"""
-    class_feature_count_: dict[Class, list[int]] = field(default_factory=dict, init=False)
-    """The feature value counts of each class in training dataset"""
-    class_feature_log_prob_: dict[Class, list[float]] = field(default_factory=dict, init=False)
-    """The feature value probability of each class in training dataset"""
+    class_feature_count_: dict[int, list[float]] = field(default_factory=dict, init=False)
+    """Feature counts with additive smoothing for each class."""
+    class_feature_log_prob_: dict[int, list[float]] = field(default_factory=dict, init=False)
+    """Feature conditional log probabilities for each class."""
 
-    def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> MultinomialNaiveBayes:
+    def fit(self, dataset: list[list[float]], labels: list[int]) -> MultinomialNaiveBayes:
         """Fit the Multinomial Naive Bayes classifier.
 
         Args:
@@ -232,39 +231,40 @@ class MultinomialNaiveBayes(BaseNaiveBayes):
         self.class_count_ = len(set(labels))
         # get the prior from training dataset labels
         self.class_prior_ = {label: count / len(dataset) for label, count in Counter(labels).items()}
-        self.class_feature_count_, self.class_feature_log_prob_ = self._get_classes_feature_count_prob(dataset, labels)
+        self.class_feature_count_, self.class_feature_log_prob_ = self._get_classes_feature_counts_log_probs(
+            dataset, labels
+        )
         return self
 
-    def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
-        """Calculate the likelihood of each sample in each class."""
-        label_likelihoods: dict[int, float] = {}
+    def _log_likelihood(self, sample: list[float]) -> dict[int, float]:
+        """Calculate the log-likelihood of the sample for each class."""
+        class_log_likelihoods: dict[int, float] = {}
         for label in self.labels_:
-            likelihood = 0.0
-            for i, xi in enumerate(sample):
-                # calculate the log-likelihood
-                likelihood += xi * self.class_feature_log_prob_[label][i]
-            label_likelihoods[label] = likelihood
-        return label_likelihoods
+            log_likelihood = 0.0
+            for feature_index, feature_value in enumerate(sample):
+                log_likelihood += feature_value * self.class_feature_log_prob_[label][feature_index]
+            class_log_likelihoods[label] = log_likelihood
+        return class_log_likelihoods
 
-    def _get_classes_feature_count_prob(
+    def _get_classes_feature_counts_log_probs(
         self,
-        dataset: list[list[FeatureValue]],
-        labels: list[Class],
-    ) -> tuple[dict[Class, list[int]], dict[Class, list[float]]]:
-        feature_count: dict[Class, list[int]] = {}
-        feature_prob: dict[Class, list[float]] = {}
+        dataset: list[list[float]],
+        labels: list[int],
+    ) -> tuple[dict[int, list[float]], dict[int, list[float]]]:
+        feature_count: dict[int, list[float]] = {}
+        feature_log_probs: dict[int, list[float]] = {}
         for label in self.labels_:
             label_samples = [
                 sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
             ]
             counts = self._dataset_feature_counts(label_samples)
             feature_count[label] = counts
-            feature_prob[label] = [math.log(value_count / sum(counts)) for value_count in counts]
+            feature_log_probs[label] = [math.log(value_count / sum(counts)) for value_count in counts]
 
-        return feature_count, feature_prob
+        return feature_count, feature_log_probs
 
-    def _dataset_feature_counts(self, dataset: list[list[FeatureValue]]) -> list[int]:
-        """Calculate feature value counts."""
+    def _dataset_feature_counts(self, dataset: list[list[float]]) -> list[float]:
+        """Calculate feature counts with additive smoothing."""
         return [sum(column) + self.alpha for column in zip(*dataset, strict=True)]
 
 
@@ -284,22 +284,18 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
 
     alpha: float = 1.0
     """Additive (Laplace/Lidstone) smoothing parameter"""
-    labels_: list[Class] = field(default_factory=list, init=False)
+    labels_: list[int] = field(default_factory=list, init=False)
     """The labels in training dataset"""
     class_count_: int = field(default=0, init=False)
     """The number of classes in training dataset"""
-    class_prior_: dict[Class, float] = field(default_factory=dict, init=False)
+    class_prior_: dict[int, float] = field(default_factory=dict, init=False)
     """The prior probability of each class in training dataset"""
-    class_feature_count_: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = field(
-        default_factory=dict, init=False
-    )
-    """The feature value counts of each class in training dataset"""
-    class_feature_log_prob_: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = field(
-        default_factory=dict, init=False
-    )
-    """The feature value probability of each class in training dataset"""
+    class_feature_count_: dict[int, dict[int, dict[float, float]]] = field(default_factory=dict, init=False)
+    """Smoothed counts indexed by class label, feature index, then feature value."""
+    class_feature_log_prob_: dict[int, dict[int, dict[float, float]]] = field(default_factory=dict, init=False)
+    """Conditional log probabilities indexed by class label, feature index, then feature value."""
 
-    def fit(self, dataset: list[list[FeatureValue]], labels: list[Class]) -> CategoricalNaiveBayes:
+    def fit(self, dataset: list[list[float]], labels: list[int]) -> CategoricalNaiveBayes:
         """Fit the Categorical Naive Bayes classifier.
 
         Args:
@@ -313,58 +309,61 @@ class CategoricalNaiveBayes(BaseNaiveBayes):
         self.class_count_ = len(set(labels))
         # get the prior from training dataset labels
         self.class_prior_ = {label: count / len(dataset) for label, count in Counter(labels).items()}
-        self.class_feature_count_, self.class_feature_log_prob_ = self._get_classes_feature_count_prob(dataset, labels)
+        self.class_feature_count_, self.class_feature_log_prob_ = self._get_classes_feature_counts_log_probs(
+            dataset, labels
+        )
         return self
 
-    def _log_likelihood(self, sample: list[FeatureValue]) -> dict[Class, float]:
-        """Calculate the likelihood of each sample in each class."""
-        label_likelihoods: dict[Class, float] = {}
+    def _log_likelihood(self, sample: list[float]) -> dict[int, float]:
+        """Calculate the log-likelihood of the sample for each class."""
+        class_log_likelihoods: dict[int, float] = {}
         for label in self.labels_:
-            likelihood = 0.0
-            for i, xi in enumerate(sample):
-                # calculate the log-likelihood
-                likelihood += self.class_feature_log_prob_[label][i].get(xi, 0)
-            label_likelihoods[label] = likelihood
-        return label_likelihoods
+            log_likelihood = 0.0
+            for feature_index, feature_value in enumerate(sample):
+                log_likelihood += self.class_feature_log_prob_[label][feature_index].get(feature_value, 0)
+            class_log_likelihoods[label] = log_likelihood
+        return class_log_likelihoods
 
-    def _get_classes_feature_count_prob(
+    def _get_classes_feature_counts_log_probs(
         self,
-        dataset: list[list[FeatureValue]],
-        labels: list[Class],
+        dataset: list[list[float]],
+        labels: list[int],
     ) -> tuple[
-        dict[Class, dict[Dimension, dict[FeatureValue, float]]],
-        dict[Class, dict[Dimension, dict[FeatureValue, float]]],
+        dict[int, dict[int, dict[float, float]]],
+        dict[int, dict[int, dict[float, float]]],
     ]:
-        feature_smooth_count: dict[Dimension, dict[FeatureValue, float]] = {}
-        for dim, column in enumerate(zip(*dataset, strict=False)):
-            feature_smooth_count[dim] = dict.fromkeys(set(column), self.alpha)
+        smoothed_feature_counts: dict[int, dict[float, float]] = {}
+        for feature_index, column in enumerate(zip(*dataset, strict=False)):
+            smoothed_feature_counts[feature_index] = dict.fromkeys(set(column), self.alpha)
 
-        feature_count: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
-        feature_prob: dict[Class, dict[Dimension, dict[FeatureValue, float]]] = {}
+        feature_count: dict[int, dict[int, dict[float, float]]] = {}
+        feature_log_probs: dict[int, dict[int, dict[float, float]]] = {}
         for label in self.labels_:
             label_samples = [
                 sample for (sample, sample_label) in zip(dataset, labels, strict=False) if sample_label == label
             ]
-            counts = self._dataset_feature_counts(label_samples, feature_smooth_count)
+            counts = self._dataset_feature_counts(label_samples, smoothed_feature_counts)
             feature_count[label] = counts
-            feature_prob[label] = {}
-            for dim, feature_value_count in counts.items():
-                feature_prob[label][dim] = {
+            feature_log_probs[label] = {}
+            for feature_index, feature_value_count in counts.items():
+                feature_log_probs[label][feature_index] = {
                     feature_value: math.log(count / sum(feature_value_count.values()))
                     for feature_value, count in feature_value_count.items()
                 }
 
-        return feature_count, feature_prob
+        return feature_count, feature_log_probs
 
     @staticmethod
     def _dataset_feature_counts(
-        dataset: list[list[FeatureValue]],
-        feature_smooth_count: dict[Dimension, dict[FeatureValue, float]],
-    ) -> dict[Dimension, dict[FeatureValue, float]]:
-        """Calculate feature value counts."""
+        dataset: list[list[float]],
+        smoothed_feature_counts: dict[int, dict[float, float]],
+    ) -> dict[int, dict[float, float]]:
+        """Calculate feature counts with additive smoothing."""
         # Each class owns its per-feature counts; numeric keys and counts can be shared.
-        feature_value_count = {dim: counts.copy() for dim, counts in feature_smooth_count.items()}
-        for dim, column in enumerate(zip(*dataset, strict=True)):
+        feature_value_count = {
+            feature_index: counts.copy() for feature_index, counts in smoothed_feature_counts.items()
+        }
+        for feature_index, column in enumerate(zip(*dataset, strict=True)):
             for value, count in Counter(column).items():
-                feature_value_count[dim][value] += count
+                feature_value_count[feature_index][value] += count
         return feature_value_count
