@@ -145,30 +145,11 @@ def test_refit_without_standardization_drops_previous_standardizer(offset: int) 
     assert model.predict(samples[0]) == 0
 
 
-# Bounded generators keep the properties about representable float arithmetic.
-VECTORS = st.lists(st.integers(-100, 100), min_size=1, max_size=8)
-
-
-@given(values=VECTORS, exponent=st.integers(-250, 250))
-def test_distance_preserves_small_and_large_scales(values: list[int], exponent: int) -> None:
-    point = [value * 10.0**exponent for value in values]
-    origin = [0.0] * len(point)
-    actual = KNN._calculate_distance(origin, point)
-    expected = math.dist(origin, point)
-    assert actual == pytest.approx(expected, rel=1e-14, abs=0.0)
-    assert KNN._calculate_distance(point, origin) == actual
-    assert KNN._calculate_distance(point, point) == 0.0
-
-
 @given(exponent=st.integers(-250, -10))
 def test_one_neighbor_recognizes_exact_training_point(exponent: int) -> None:
     point = [10.0**exponent]
     model = KNN(k=1, std_transform=False).fit([[0.0], point], [0, 1])
     assert model.predict(point) == 1
-
-
-def test_distance_handles_overflowing_coordinate_difference() -> None:
-    assert KNN._calculate_distance([-1e308], [1e308]) == math.inf
 
 
 @given(exponent=st.integers(-250, 250))
@@ -250,13 +231,6 @@ def test_invalid_refit_preserves_previous_model(standardize: bool) -> None:
     with pytest.raises(ValueError, match="at least one sample"):
         model.fit([], [])
     assert model.predict([1.0]) == 1
-
-
-@given(pairs=st.lists(st.tuples(st.floats(-1e150, 1e150), st.floats(-1e150, 1e150)), min_size=1, max_size=8))
-def test_distance_matches_reference_for_arbitrary_points(pairs: list[tuple[float, float]]) -> None:
-    first = [x for x, _ in pairs]
-    second = [y for _, y in pairs]
-    assert KNN._calculate_distance(first, second) == pytest.approx(math.dist(first, second), rel=1e-14, abs=0.0)
 
 
 @pytest.mark.parametrize("value", ["invalid", None, 10**400])

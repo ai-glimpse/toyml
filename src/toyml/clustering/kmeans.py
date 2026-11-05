@@ -6,6 +6,8 @@ import random
 from dataclasses import dataclass, field
 from typing import Literal
 
+from toyml._distance import euclidean_distance
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,6 +81,7 @@ class KMeans:
         Returns:
             self.
         """
+        self._validate_input(dataset)
         # Replay integer-seeded fits; unseeded instances keep advancing their private stream.
         if self.random_seed is not None:
             self.random_state.seed(self.random_seed)
@@ -90,11 +93,42 @@ class KMeans:
             self._iter_step(dataset)
             if self._is_converged(prev_centroids):
                 break
+        # Expose assignments to the final centers, including after an iteration limit.
+        self.clusters_ = self._get_clusters(dataset)
+        self.labels_ = self._predict_dataset_labels(dataset)
+        nonempty = sum(bool(cluster) for cluster in self.clusters_.values())
+        if nonempty < self.k:
+            logger.warning("Found %d non-empty clusters, fewer than requested k=%d", nonempty, self.k)
         return self
+
+    def _validate_input(self, dataset: list[list[float]]) -> None:
+        if not dataset or not dataset[0]:
+            msg = "The dataset must contain at least one sample and one feature"
+            raise ValueError(msg)
+        if isinstance(self.k, bool) or not isinstance(self.k, int) or not 1 <= self.k <= len(dataset):
+            msg = "k must be an integer between 1 and the sample count"
+            raise ValueError(msg)
+        if isinstance(self.max_iter, bool) or not isinstance(self.max_iter, int) or self.max_iter < 1:
+            msg = "max_iter must be a positive integer"
+            raise ValueError(msg)
+        if not isinstance(self.tol, (int, float)) or not math.isfinite(self.tol) or self.tol < 0:
+            msg = "tol must be finite and non-negative"
+            raise ValueError(msg)
+        if any(len(row) != len(dataset[0]) for row in dataset):
+            msg = "All samples must have the same dimension"
+            raise ValueError(msg)
+        try:
+            finite = all(isinstance(x, (int, float)) and math.isfinite(x) for row in dataset for x in row)
+        except OverflowError:
+            finite = False
+        if not finite:
+            msg = "Features must be finite numeric values"
+            raise ValueError(msg)
 
     def _iter_step(self, dataset: list[list[float]]) -> None:
         """Can be used to control the fitting process step by step."""
         self.clusters_ = self._get_clusters(dataset)
+        self._relocate_empty_clusters(dataset)
         self.centroids_ = self._get_centroids(dataset)
         self.labels_ = self._predict_dataset_labels(dataset)
 
@@ -125,9 +159,12 @@ class KMeans:
         return self._get_point_centroid_label(point, self.centroids_)
 
     def _calc_distance(self, x: list[float], y: list[float]) -> float:
-        assert len(x) == len(y), f"{x} and {y} have different length!"
         if self.distance_metric == "euclidean":
-            return math.sqrt(sum(pow(x[i] - y[i], 2) for i in range(len(x))))
+            distance = euclidean_distance(x, y)
+            if not math.isfinite(distance):
+                msg = "Distance exceeds the floating-point range"
+                raise ValueError(msg)
+            return distance
         msg = f"Distance metric {self.distance_metric} not supported!"
         raise ValueError(msg)
 
@@ -174,7 +211,7 @@ class KMeans:
         Returns:
             The initial centroids
         """
-        data_points = self.random_state.sample(dataset, self.k)
+        data_points = [point.copy() for point in self.random_state.sample(dataset, self.k)]
         centroids = dict(enumerate(data_points))
         return centroids
 
@@ -187,28 +224,21 @@ class KMeans:
         Returns:
             The initial centroids
         """
-        self.centroids_ = {}
-        self.centroids_[0] = self.random_state.choice(dataset)
+        centroids = {0: self.random_state.choice(dataset).copy()}
         for i in range(1, self.k):
-            min_distances = [self._get_min_square_distance(point) for point in dataset]
-            total_dist = sum(min_distances)
-            weights = [dist / total_dist for dist in min_distances]
-            self.centroids_[i] = self.random_state.choices(dataset, weights)[0]
-        return self.centroids_
+            distances = [min(self._calc_distance(point, center) for center in centroids.values()) for point in dataset]
+            centroids[i] = self._sample_next_centroid(dataset, distances).copy()
+        return centroids
 
-    def _get_min_square_distance(self, point: list[float]) -> float:
-        """Get the minimum square distance from the point to current centroids.
-
-        Args:
-            point: The point to calculate the distance.
-
-        Returns:
-            The minimum square distance
-        """
-        return min(
-            (self._calc_distance(point, centroid) ** 2 for centroid in self.centroids_.values() if centroid),
-            default=math.inf,
-        )
+    def _sample_next_centroid(self, dataset: list[list[float]], distances: list[float]) -> list[float]:
+        """Sample proportional to squared distance, with a fallback for fully covered data."""
+        scale = max(distances)
+        if scale == 0.0:
+            # All locations are covered; remaining centers may coincide with existing ones.
+            return self.random_state.choice(dataset)
+        # A common scale cancels in probabilities and avoids squaring raw extreme distances.
+        weights = [(distance / scale) ** 2 for distance in distances]
+        return self.random_state.choices(dataset, weights)[0]
 
     def _get_point_centroid_label(self, point: list[float], centroids: dict[int, list[float]]) -> int:
         """Get the label of the centroid, which is closest to the point."""
@@ -223,9 +253,51 @@ class KMeans:
         return clusters
 
     def _get_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        centroids: dict[int, list[float]] = {i: [] for i in range(self.k)}
-        for cluster_i, cluster in self.clusters_.items():
-            cluster_points = [dataset[i] for i in cluster]
-            centroid = [sum(t) / len(cluster) for t in zip(*cluster_points, strict=False)]
-            centroids[cluster_i] = centroid
-        return centroids
+        centroids = {
+            label: [self._mean(column) for column in zip(*(dataset[i] for i in members), strict=True)]
+            for label, members in self.clusters_.items()
+            if members
+        }
+        return self._fill_empty_centroids(centroids)
+
+    @staticmethod
+    def _mean(values: tuple[float, ...]) -> float:
+        """Average finite coordinates with accurate summation and a scaled overflow fallback."""
+        try:
+            return math.fsum(values) / len(values)
+        except OverflowError:
+            # Normalize only on overflow; the common path preserves subnormal coordinates.
+            scale = max(abs(value) for value in values)
+            return (math.fsum(value / scale for value in values) / len(values)) * scale
+
+    def _relocate_empty_clusters(self, dataset: list[list[float]]) -> None:
+        """Seed empty clusters with farthest samples, leaving every donor nonempty."""
+        empty = [label for label, members in self.clusters_.items() if not members]
+        if not empty:
+            return
+        candidates = iter(
+            sorted(
+                (
+                    (self._calc_distance(dataset[i], self.centroids_[label]), i, label)
+                    for label, members in self.clusters_.items()
+                    for i in members
+                ),
+                key=lambda candidate: candidate[0],
+                reverse=True,
+            )
+        )
+        for label in empty:
+            for distance, index, donor in candidates:
+                if distance == 0.0:
+                    return  # Moving an already represented location cannot separate centers.
+                if len(self.clusters_[donor]) > 1:
+                    self.clusters_[donor].remove(index)
+                    self.clusters_[label].append(index)
+                    break
+
+    def _fill_empty_centroids(self, centroids: dict[int, list[float]]) -> dict[int, list[float]]:
+        """Keep valid coordinates for empty clusters remaining after relocation."""
+        largest = max(centroids, key=lambda label: len(self.clusters_[label]))
+        return {
+            label: centroids[label] if label in centroids else centroids[largest].copy() for label in self.clusters_
+        }

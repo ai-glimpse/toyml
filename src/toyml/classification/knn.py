@@ -6,6 +6,8 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
+from toyml._distance import euclidean_distance
+
 
 def _validate_dataset(dataset: list[list[float]], dimension: int | None = None) -> int:
     """Validate finite, non-empty numeric rows, optionally against a fitted dimension."""
@@ -134,37 +136,13 @@ class KNN:
                 msg = "Cannot find the standardization!"
                 raise ValueError(msg)
             x = self.standardizer_.transform([x])[0]
-        distances = [self._calculate_distance(x, point) for point in self.dataset_]
+        distances = [euclidean_distance(x, point) for point in self.dataset_]
         # get k-nearest neighbors' label
         k_nearest_labels = [
             label for _, label in sorted(zip(distances, self.labels_, strict=True), key=lambda x: x[0])
         ][: self.k]
         label = Counter(k_nearest_labels).most_common(1)[0][0]
         return label
-
-    @staticmethod
-    def _calculate_distance(x: list[float], y: list[float]) -> float:
-        r"""Compute a scaled Euclidean norm for validated finite coordinates.
-
-        With $d_i = |x_i - y_i|$ and finite $s = \max_i d_i > 0$:
-
-        $$
-        \sqrt{\sum_i d_i^2}
-        = \sqrt{s^2 \sum_i (d_i / s)^2}
-        = s \sqrt{\sum_i (d_i / s)^2}.
-        $$
-
-        Scaling keeps the largest squared term at one; fsum reduces summation error.
-        Zero distance is handled before division. An overflowing coordinate difference
-        returns infinity rather than evaluating inf / inf.
-        """
-        differences = [abs(xi - yi) for xi, yi in zip(x, y, strict=True)]
-        scale = max(differences, default=0.0)
-        if scale == 0.0:
-            return 0.0
-        if math.isinf(scale):
-            return math.inf
-        return scale * math.sqrt(math.fsum((difference / scale) ** 2 for difference in differences))
 
 
 @dataclass
