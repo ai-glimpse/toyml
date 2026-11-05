@@ -34,7 +34,7 @@ When changing Python compatibility or dependencies, test the supported Python ve
 listed in `pyproject.toml`:
 
 ```sh
-MPLBACKEND=Agg uv run --locked --python 3.11 pytest
+MPLBACKEND=Agg uv run --locked --python 3.15 pytest
 ```
 
 ## Model and test conventions

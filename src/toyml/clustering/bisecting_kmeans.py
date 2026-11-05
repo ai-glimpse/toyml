@@ -1,8 +1,9 @@
-from __future__ import annotations
-
 import math
 import statistics
 from dataclasses import dataclass, field
+
+lazy import matplotlib.pyplot as plt
+lazy import networkx as nx
 
 from toyml.clustering.kmeans import KMeans
 
@@ -68,8 +69,6 @@ class ClusterTree:
 
     def plot(self) -> None:  # pragma: no cover
         """Plot the cluster tree with adaptive node sizes."""
-        import matplotlib.pyplot as plt
-        import networkx as nx
 
         def _build_graph(
             node: ClusterTree,

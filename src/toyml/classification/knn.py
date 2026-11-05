@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import math
 import statistics
 from collections import Counter

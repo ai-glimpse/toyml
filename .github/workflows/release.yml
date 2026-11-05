@@ -19,6 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.15"
       - name: Check the release version
         run: test "${GITHUB_REF_NAME#v}" = "$(uv version --short)"
       - name: Build the package

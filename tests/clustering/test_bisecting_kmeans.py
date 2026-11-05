@@ -1,10 +1,9 @@
-from __future__ import annotations
-
 from pathlib import Path
 
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+lazy import matplotlib.pyplot as plt
 
 from toyml.clustering.bisecting_kmeans import BisectingKMeans, ClusterTree
 
@@ -108,8 +107,6 @@ class TestClusterTree:
         assert leaf_cluster_nodes[2].cluster == [4, 5]
 
     def test_plot(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-        import matplotlib.pyplot as plt
-
         monkeypatch.chdir(tmp_path)
         monkeypatch.setattr(plt, "show", lambda: None)
         tree = ClusterTree(cluster=[0, 1])
