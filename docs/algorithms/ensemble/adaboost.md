@@ -12,8 +12,10 @@ as a simple weak learner.
 - Pass non-empty numeric feature lists and one binary label (`-1` or `1`) per observation.
 - `OneDimensionClassifier` uses only the first feature; use one-dimensional samples for this learner.
 - Choose a positive `n_weak_learner`. Custom learners must implement the `BaseWeakLearner` interface.
-- A weak learner with zero training error currently causes division by zero. Use a dataset
-  that cannot be perfectly separated by a single threshold.
+- A weak learner with zero weighted training error is retained with a finite vote weight
+  of `1.0`, and training stops successfully.
+- A weak learner with weighted training error at least `0.5` is discarded and training
+  stops without a warning. If no weak learners have been retained, `fit` raises `ValueError`.
 - `predict` accepts one sample.
 
 ## Minimal example
