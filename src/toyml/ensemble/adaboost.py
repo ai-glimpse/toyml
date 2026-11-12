@@ -1,5 +1,4 @@
 import abc
-import logging
 import math
 from dataclasses import dataclass, field
 from enum import Enum
@@ -7,8 +6,6 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-
-logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -96,28 +93,35 @@ class AdaBoost:
         """Fit the AdaBoost model."""
         # for model training(Gm)
         self._n = len(labels)
-        self._weights: Any = [1.0 / self._n] * self._n
-        # we use -2 to initialize the class which can handle cases
-        # such as multi-classes(0, 1, 2, ...) and binary classes(-1, 1)
-        self._base_clf_labels = [[-2] * self._n for _ in range(self.n_weak_learner)]
+        self._weights = [1.0 / self._n] * self._n
+        self.predict_labels_ = None
+        self.training_error_rate_ = None
+        self._base_clf_labels = []
         # base clf models
         self._weak_learner_predicts: list[Callable[..., int]] = []
-        self._alphas = [0.0] * self.n_weak_learner
+        self._alphas = []
 
-        for m in range(self.n_weak_learner):
+        for _ in range(self.n_weak_learner):
             model = self.weak_learner().fit(dataset, self._weights, labels)
-            self._base_clf_labels[m] = model.get_predict_labels()
-            self._weak_learner_predicts.append(model.predict)
             error_rate = model.get_error_rate()
-            # Warning when the error rate is too large
-            if error_rate > 0.5:
-                logger.warning(f"Weak learner error rate = {error_rate} < 0.5")  # noqa: G004
+            if error_rate >= 0.5:
+                if not self._weak_learner_predicts:
+                    msg = "Weak learner error rate must be less than 0.5 to fit AdaBoost."
+                    raise ValueError(msg)
+                break
+            predictions = model.get_predict_labels()
+            self._base_clf_labels.append(predictions)
+            self._weak_learner_predicts.append(model.predict)
+            if error_rate == 0:
+                # Use a finite vote and stop before dividing by zero, as in sklearn.
+                self._alphas.append(1.0)
+                break
             alpha = 0.5 * math.log((1 - error_rate) / error_rate)
-            self._alphas[m] = alpha
+            self._alphas.append(alpha)
             # update the weights
             weights = [0.0] * self._n
             for i in range(self._n):
-                weights[i] = self._weights[i] * math.exp(-alpha * labels[i] * self._base_clf_labels[m][i])
+                weights[i] = self._weights[i] * math.exp(-alpha * labels[i] * predictions[i])
             self._weights = [weight / sum(weights) for weight in weights]
         # collect training dataset result
         self.predict_labels_ = [self.predict(x) for x in dataset]
@@ -130,9 +134,8 @@ class AdaBoost:
             msg = "The model is not fitted yet!"
             raise ValueError(msg)
         ensemble_predict = 0
-        for m in range(self.n_weak_learner):
-            model_predict = self._weak_learner_predicts[m]
-            ensemble_predict += self._alphas[m] * model_predict(x)
+        for alpha, model_predict in zip(self._alphas, self._weak_learner_predicts, strict=True):
+            ensemble_predict += alpha * model_predict(x)
         if ensemble_predict >= 0:
             return 1
         return -1
