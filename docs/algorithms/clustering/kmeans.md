@@ -21,7 +21,12 @@ centroids from those assignments. Initialization affects which local solution is
 - Duplicate locations can produce fewer non-empty clusters than `k`, with a warning log.
   All `k` centers retain valid coordinates.
 - Set `random_seed` to an integer for reproducible fits.
-- `predict` accepts one sample; `fit_predict` returns one label per training observation.
+- `predict` accepts one finite sample with the training feature dimension. Assignment uses floating-point Euclidean
+  distances. When two computed distances round to the same value, the lowest label wins.
+  Fitted centroids use floats, so large integer queries can also lose precision during coordinate subtraction.
+- Training labels correspond to the nearest final centers, including when training stops at `max_iter`.
+  `fit_predict` returns a copy of these labels.
+- A failed refit preserves the previous fitted result.
 
 ## Minimal example
 

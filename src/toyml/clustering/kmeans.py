@@ -1,10 +1,9 @@
 import logging
 import math
 import random
+import statistics
 from dataclasses import dataclass, field
 from typing import Literal
-
-from toyml._distance import euclidean_distance
 
 logger = logging.getLogger(__name__)
 
@@ -47,16 +46,19 @@ class KMeans:
       - Bisecting K-means algorithm: [toyml.clustering.bisecting_kmeans][kmeans-bisect]
     """
 
+    type _Centroids = dict[int, list[float]]
+    type _Clusters = dict[int, list[int]]
+
     k: int
     """The number of clusters, specified by user."""
     max_iter: int = 500
     """The number of iterations the algorithm will run for if it does not converge before that."""
     tol: float = 1e-5
-    """The tolerance for convergence."""
+    """Stop when every centroid coordinate moves by at most this amount."""
     centroids_init_method: Literal["random", "kmeans++"] = "random"
     """The method to initialize the centroids."""
     random_seed: int | None = None
-    """Integer seeds reproduce each fit; None keeps an independent random stream."""
+    """Each fit uses a fresh generator. An integer seed reproduces the initialization."""
     distance_metric: Literal["euclidean"] = "euclidean"
     """The distance metric to use.(For now we only support euclidean)."""
     iter_: int = field(default=0, init=False)
@@ -67,39 +69,129 @@ class KMeans:
     labels_: list[int] = field(default_factory=list, init=False)
     """The cluster labels of the dataset."""
 
-    def __post_init__(self) -> None:
-        self.random_state = random.Random(self.random_seed)
-
     def fit(self, dataset: list[list[float]]) -> KMeans:
-        """Fit the dataset with K-means algorithm.
+        """Fit the model. A failed fit preserves the previous fitted result."""
+        self._validate_fit(dataset)
+        initial = self._initial_centroids(dataset, random.Random(self.random_seed))
+        centroids, iterations = self._lloyd(dataset, initial)
 
-        Args:
-            dataset: the set of data points for clustering
-
-        Returns:
-            self.
-        """
-        self._validate_input(dataset)
-        # Replay integer-seeded fits; unseeded instances keep advancing their private stream.
-        if self.random_seed is not None:
-            self.random_state.seed(self.random_seed)
-        self.iter_ = 0
-        self.centroids_ = self._get_initial_centroids(dataset)
-        for _ in range(self.max_iter):
-            self.iter_ += 1
-            prev_centroids = self.centroids_
-            self._iter_step(dataset)
-            if self._is_converged(prev_centroids):
-                break
-        # Expose assignments to the final centers, including after an iteration limit.
-        self.clusters_ = self._get_clusters(dataset)
-        self.labels_ = self._predict_dataset_labels(dataset)
-        nonempty = sum(bool(cluster) for cluster in self.clusters_.values())
+        # Even at the iteration limit, report assignments to the final centroids.
+        labels = self._assign(dataset, centroids)
+        clusters = self._group_by_label(labels)
+        self.centroids_, self.iter_ = centroids, iterations
+        self.labels_, self.clusters_ = labels, clusters
+        nonempty = sum(bool(members) for members in clusters.values())
         if nonempty < self.k:
             logger.warning("Found %d non-empty clusters, fewer than requested k=%d", nonempty, self.k)
         return self
 
-    def _validate_input(self, dataset: list[list[float]]) -> None:
+    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
+        """Fit the model and return a copy of its training labels."""
+        return self.fit(dataset).labels_.copy()
+
+    def predict(self, point: list[float]) -> int:
+        """Choose the lowest label among centroids with the smallest computed float distance."""
+        if not self.centroids_:
+            msg = "The model is not fitted yet"
+            raise ValueError(msg)
+        self._validate_point(point, len(self.centroids_[0]))
+        return self._nearest(point, self.centroids_)
+
+    def _lloyd(self, dataset: list[list[float]], centroids: _Centroids) -> tuple[_Centroids, int]:
+        """Run Lloyd iterations from the given centroids."""
+        for iteration in range(1, self.max_iter + 1):
+            labels = self._assign(dataset, centroids)
+            clusters = self._group_by_label(labels)
+            self._relocate_empty_clusters(dataset, centroids, clusters)
+            next_centroids = self._centroids(dataset, clusters)
+            if self._converged(centroids, next_centroids):
+                return next_centroids, iteration
+            centroids = next_centroids
+        return centroids, self.max_iter
+
+    def _initial_centroids(self, dataset: list[list[float]], rng: random.Random) -> _Centroids:
+        if self.centroids_init_method == "random":
+            return dict(enumerate(rng.sample(dataset, self.k)))
+
+        # K-means++ samples proportional to the squared distance to the nearest centroid.
+        centroids = [rng.choice(dataset)]
+        while len(centroids) < self.k:
+            distances = [min(self._distance(point, centroid) for centroid in centroids) for point in dataset]
+            centroids.append(self._sample_next_centroid(dataset, distances, rng))
+        return dict(enumerate(centroids))
+
+    @staticmethod
+    def _sample_next_centroid(dataset: list[list[float]], distances: list[float], rng: random.Random) -> list[float]:
+        scale = max(distances)
+        if scale == 0.0:  # Every distinct location is already covered.
+            return rng.choice(dataset)
+        weights = [(distance / scale) ** 2 for distance in distances]
+        return rng.choices(dataset, weights)[0]
+
+    def _assign(self, dataset: list[list[float]], centroids: _Centroids) -> list[int]:
+        return [self._nearest(point, centroids) for point in dataset]
+
+    def _nearest(self, point: list[float], centroids: _Centroids) -> int:
+        return min(range(len(centroids)), key=lambda label: self._distance(point, centroids[label]))
+
+    def _group_by_label(self, labels: list[int]) -> _Clusters:
+        clusters: KMeans._Clusters = {label: [] for label in range(self.k)}
+        for index, label in enumerate(labels):
+            clusters[label].append(index)
+        return clusters
+
+    def _relocate_empty_clusters(self, dataset: list[list[float]], centroids: _Centroids, clusters: _Clusters) -> None:
+        """Move the farthest positive-distance samples into the initially empty clusters."""
+        empty = [label for label, members in clusters.items() if not members]
+        if not empty:
+            return
+        candidates = [
+            (self._distance(dataset[i], centroids[label]), i, label)
+            for label, members in clusters.items()
+            for i in members
+        ]
+        candidates.sort(key=lambda candidate: candidate[0], reverse=True)
+        for label, (distance, index, donor) in zip(empty, candidates, strict=False):
+            if distance == 0.0:
+                break
+            clusters[donor].remove(index)
+            clusters[label].append(index)
+
+    def _centroids(self, dataset: list[list[float]], clusters: _Clusters) -> _Centroids:
+        centroids = {
+            label: [self._mean(column) for column in zip(*(dataset[i] for i in members), strict=True)]
+            for label, members in clusters.items()
+            if members
+        }
+        # Give any empty cluster a copy of the largest cluster's center.
+        largest = max(clusters, key=lambda label: len(clusters[label]))
+        return {
+            label: centroids[label] if members else centroids[largest].copy() for label, members in clusters.items()
+        }
+
+    def _converged(self, previous: _Centroids, updated: _Centroids) -> bool:
+        return all(
+            abs(a - b) <= self.tol for label in previous for a, b in zip(previous[label], updated[label], strict=True)
+        )
+
+    def _distance(self, x: list[float], y: list[float]) -> float:
+        match self.distance_metric:
+            case "euclidean":
+                distance = self._euclidean_distance(x, y)
+            case _:
+                msg = f"Distance metric {self.distance_metric} not supported!"
+                raise ValueError(msg)
+
+        if not math.isfinite(distance):
+            msg = "Distance exceeds the floating-point range"
+            raise ValueError(msg)
+        return distance
+
+    @staticmethod
+    def _mean(values: tuple[float, ...]) -> float:
+        return float(statistics.mean(values))
+
+    def _validate_fit(self, dataset: list[list[float]]) -> None:
         if not dataset or not dataset[0]:
             msg = "The dataset must contain at least one sample and one feature"
             raise ValueError(msg)
@@ -109,193 +201,42 @@ class KMeans:
         if isinstance(self.max_iter, bool) or not isinstance(self.max_iter, int) or self.max_iter < 1:
             msg = "max_iter must be a positive integer"
             raise ValueError(msg)
-        if not isinstance(self.tol, (int, float)) or not math.isfinite(self.tol) or self.tol < 0:
+        if not self._finite_number(self.tol) or self.tol < 0:
             msg = "tol must be finite and non-negative"
             raise ValueError(msg)
-        if any(len(row) != len(dataset[0]) for row in dataset):
+        if self.random_seed is not None and not isinstance(self.random_seed, int):
+            msg = "random_seed must be an integer or None"
+            raise ValueError(msg)
+        if self.centroids_init_method not in ("random", "kmeans++"):
+            msg = f"Invalid centroids initialization method: {self.centroids_init_method}"
+            raise ValueError(msg)
+        if self.distance_metric != "euclidean":
+            msg = f"Distance metric {self.distance_metric} not supported!"
+            raise ValueError(msg)
+        dimension = len(dataset[0])
+        for point in dataset:
+            self._validate_point(point, dimension)
+
+    def _validate_point(self, point: list[float], dimension: int) -> None:
+        if len(point) != dimension:
             msg = "All samples must have the same dimension"
             raise ValueError(msg)
-        try:
-            finite = all(isinstance(x, (int, float)) and math.isfinite(x) for row in dataset for x in row)
-        except OverflowError:
-            finite = False
-        if not finite:
+        if not all(self._finite_number(value) for value in point):
             msg = "Features must be finite numeric values"
             raise ValueError(msg)
 
-    def _iter_step(self, dataset: list[list[float]]) -> None:
-        """Can be used to control the fitting process step by step."""
-        self.clusters_ = self._get_clusters(dataset)
-        self._relocate_empty_clusters(dataset)
-        self.centroids_ = self._get_centroids(dataset)
-        self.labels_ = self._predict_dataset_labels(dataset)
-
-    def fit_predict(self, dataset: list[list[float]]) -> list[int]:
-        """Fit and predict the cluster label of the dataset.
-
-        Args:
-            dataset: the set of data points for clustering
-
-        Returns:
-            Cluster labels of the dataset samples.
-        """
-        return self.fit(dataset).labels_.copy()
-
-    def predict(self, point: list[float]) -> int:
-        """Predict the label of the point.
-
-        Args:
-            point: The data point to predict.
-
-        Returns:
-            The label of the point.
-
-        """
-        if len(self.centroids_) == 0:
-            msg = "The model is not fitted yet"
-            raise ValueError(msg)
-        return self._get_point_centroid_label(point, self.centroids_)
-
-    def _calc_distance(self, x: list[float], y: list[float]) -> float:
-        if self.distance_metric == "euclidean":
-            distance = euclidean_distance(x, y)
-            if not math.isfinite(distance):
-                msg = "Distance exceeds the floating-point range"
-                raise ValueError(msg)
-            return distance
-        msg = f"Distance metric {self.distance_metric} not supported!"
-        raise ValueError(msg)
-
-    def _predict_dataset_labels(self, dataset: list[list[float]]) -> list[int]:
-        labels = [-1] * len(dataset)
-        for cluster_label, cluster in self.clusters_.items():
-            for data_point_index in cluster:
-                labels[data_point_index] = cluster_label
-        return labels
-
-    def _get_initial_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        """Get initial centroids by a simple random selection."""
-        if self.centroids_init_method == "random":
-            return self._get_initial_centroids_random(dataset)
-        if self.centroids_init_method == "kmeans++":
-            return self._get_initial_centroids_kmeans_plus(dataset)
-        msg = f"Invalid centroids initialization method: {self.centroids_init_method}"
-        raise ValueError(msg)
-
-    def _is_converged(self, prev_centroids: dict[int, list[float]]) -> bool:
-        """Check if the centroids converged.
-
-        Args:
-            prev_centroids: previous centroids
-
-        Returns:
-            Whether the centroids converged.
-        """
-        # check every centroid
-        for i, centroid in self.centroids_.items():
-            prev_centroid = prev_centroids[i]
-            # check every dimension
-            for j in range(len(prev_centroid)):
-                if abs(prev_centroid[j] - centroid[j]) > self.tol:
-                    return False
-        return True
-
-    def _get_initial_centroids_random(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        """Get initial centroids by a simple random selection.
-
-        Args:
-            dataset: The dataset for clustering
-
-        Returns:
-            The initial centroids
-        """
-        data_points = [point.copy() for point in self.random_state.sample(dataset, self.k)]
-        centroids = dict(enumerate(data_points))
-        return centroids
-
-    def _get_initial_centroids_kmeans_plus(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        """Get initial centroids by k-means++ algorithm.
-
-        Args:
-            dataset: The dataset for clustering
-
-        Returns:
-            The initial centroids
-        """
-        centroids = {0: self.random_state.choice(dataset).copy()}
-        for i in range(1, self.k):
-            distances = [min(self._calc_distance(point, center) for center in centroids.values()) for point in dataset]
-            centroids[i] = self._sample_next_centroid(dataset, distances).copy()
-        return centroids
-
-    def _sample_next_centroid(self, dataset: list[list[float]], distances: list[float]) -> list[float]:
-        """Sample proportional to squared distance, with a fallback for fully covered data."""
-        scale = max(distances)
-        if scale == 0.0:
-            # All locations are covered; remaining centers may coincide with existing ones.
-            return self.random_state.choice(dataset)
-        # A common scale cancels in probabilities and avoids squaring raw extreme distances.
-        weights = [(distance / scale) ** 2 for distance in distances]
-        return self.random_state.choices(dataset, weights)[0]
-
-    def _get_point_centroid_label(self, point: list[float], centroids: dict[int, list[float]]) -> int:
-        """Get the label of the centroid, which is closest to the point."""
-        distances = [(i, self._calc_distance(point, centroid)) for i, centroid in centroids.items()]
-        return min(distances, key=lambda x: x[1])[0]
-
-    def _get_clusters(self, dataset: list[list[float]]) -> dict[int, list[int]]:
-        clusters: dict[int, list[int]] = {i: [] for i in range(self.k)}
-        for i, point in enumerate(dataset):
-            centroid_label = self._get_point_centroid_label(point, self.centroids_)
-            clusters[centroid_label].append(i)
-        return clusters
-
-    def _get_centroids(self, dataset: list[list[float]]) -> dict[int, list[float]]:
-        centroids = {
-            label: [self._mean(column) for column in zip(*(dataset[i] for i in members), strict=True)]
-            for label, members in self.clusters_.items()
-            if members
-        }
-        return self._fill_empty_centroids(centroids)
+    @staticmethod
+    def _finite_number(value: object) -> bool:
+        try:
+            return isinstance(value, (float, int)) and math.isfinite(value)
+        except OverflowError:  # An integer too large for a float.
+            return False
 
     @staticmethod
-    def _mean(values: tuple[float, ...]) -> float:
-        """Average finite coordinates with accurate summation and a scaled overflow fallback."""
+    def _euclidean_distance(x: list[float], y: list[float]) -> float:
+        """Compute the floating-point Euclidean norm of the coordinate differences."""
         try:
-            return math.fsum(values) / len(values)
+            return math.hypot(*(a - b for a, b in zip(x, y, strict=True)))
         except OverflowError:
-            # Normalize only on overflow; the common path preserves subnormal coordinates.
-            scale = max(abs(value) for value in values)
-            return (math.fsum(value / scale for value in values) / len(values)) * scale
-
-    def _relocate_empty_clusters(self, dataset: list[list[float]]) -> None:
-        """Seed empty clusters with farthest samples, leaving every donor nonempty."""
-        empty = [label for label, members in self.clusters_.items() if not members]
-        if not empty:
-            return
-        candidates = iter(
-            sorted(
-                (
-                    (self._calc_distance(dataset[i], self.centroids_[label]), i, label)
-                    for label, members in self.clusters_.items()
-                    for i in members
-                ),
-                key=lambda candidate: candidate[0],
-                reverse=True,
-            )
-        )
-        for label in empty:
-            for distance, index, donor in candidates:
-                if distance == 0.0:
-                    return  # Moving an already represented location cannot separate centers.
-                if len(self.clusters_[donor]) > 1:
-                    self.clusters_[donor].remove(index)
-                    self.clusters_[label].append(index)
-                    break
-
-    def _fill_empty_centroids(self, centroids: dict[int, list[float]]) -> dict[int, list[float]]:
-        """Keep valid coordinates for empty clusters remaining after relocation."""
-        largest = max(centroids, key=lambda label: len(self.clusters_[label]))
-        return {
-            label: centroids[label] if label in centroids else centroids[largest].copy() for label in self.clusters_
-        }
+            # A difference between two valid integers can be too large to convert to float.
+            return math.inf
