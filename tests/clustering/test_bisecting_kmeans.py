@@ -11,6 +11,21 @@ from toyml.clustering.bisecting_kmeans import BisectingKMeans, ClusterTree
 class TestBisectingKMeans:
     """Test the k-means algorithm completely."""
 
+    def test_identical_samples_remain_in_one_leaf(self) -> None:
+        """An empty child leaves the parent intact, even when two clusters were requested."""
+        samples = [[1.0], [1.0]]
+        model = BisectingKMeans(k=2)
+        assert model.fit_predict(samples) == [0, 0]
+        assert model.cluster_tree_.is_leaf()
+        assert model.predict(samples) == [0, 0]
+
+    def test_unsplittable_leaf_does_not_block_other_splits(self) -> None:
+        """Keep the duplicates together and continue splitting the two distinct neighbors."""
+        samples = [[0.0], [0.0], [10.0], [11.0]]
+        model = BisectingKMeans(k=4).fit(samples)
+        assert sorted(model.cluster_tree_.get_clusters()) == [[0, 1], [2], [3]]
+        assert model.predict(samples) == model.labels_
+
     @pytest.mark.parametrize("k", [1, 2, 3, 4, 5, 6, 7, 8])
     def test_fit(
         self,
