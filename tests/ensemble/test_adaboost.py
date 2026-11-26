@@ -1,3 +1,5 @@
+from dataclasses import fields
+
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -123,3 +125,23 @@ def test_unfitted_weak_learner_accessors_fail_explicitly() -> None:
         model.get_error_rate()
     with pytest.raises(ValueError, match="not fitted"):
         model.get_predict_labels()
+
+
+@pytest.mark.parametrize("model", [AdaBoost(OneDimensionClassifier), OneDimensionClassifier()])
+def test_constructor_excludes_training_state(model: AdaBoost | OneDimensionClassifier) -> None:
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@pytest.mark.parametrize("model", [AdaBoost(OneDimensionClassifier), OneDimensionClassifier()])
+@given(value=st.integers(-10, 10))
+def test_unfitted_model_inference_fails(model: AdaBoost | OneDimensionClassifier, value: int) -> None:
+    with pytest.raises(ValueError, match="not.*fitted"):
+        model.predict([float(value)])
+
+
+@pytest.mark.xfail(strict=True, raises=ZeroDivisionError, reason="AdaBoost divides by zero for a perfect weak learner")
+def test_adaboost_handles_perfect_weak_classifier() -> None:
+    samples = [[0.0], [1.0], [2.0], [3.0]]
+    labels = [-1, -1, 1, 1]
+    model = AdaBoost(weak_learner=OneDimensionClassifier, n_weak_learner=1).fit(samples, labels)
+    assert [model.predict(sample) for sample in samples] == labels

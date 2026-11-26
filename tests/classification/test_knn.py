@@ -1,12 +1,18 @@
 import math
+from dataclasses import asdict, fields
 
 import numpy as np
 import pytest
-from hypothesis import given
+from hypothesis import example, given, settings
 from hypothesis import strategies as st
 from sklearn.neighbors import KNeighborsClassifier
 
 from toyml.classification.knn import KNN, Standardizer, euclidean_distance
+
+TRAINING_DATA = st.lists(st.integers(1, 30), min_size=4, max_size=8, unique=True).map(
+    lambda xs: [[float(x), float(x % 5)] for x in xs]
+)
+PROPERTY = settings(max_examples=30, deadline=None, derandomize=True, database=None)
 
 
 class TestKNN:
@@ -68,10 +74,13 @@ class TestKNN:
         prediction = knn.predict(test_point)
         assert prediction == expected_label
 
-    def test_knn_not_fitted(self) -> None:
-        knn = KNN(k=3)
+    @PROPERTY
+    @given(point=st.lists(st.integers(-10, 10).map(float), min_size=1, max_size=2))
+    @example(point=[1.0, 2.0])
+    def test_knn_not_fitted(self, point: list[float]) -> None:
+        knn = KNN(k=1)
         with pytest.raises(ValueError, match="The model is not fitted yet!"):
-            knn.predict([1.0, 2.0])
+            knn.predict(point)
 
 
 class TestStandardizer:
@@ -124,10 +133,13 @@ class TestStandardizer:
         transformed = standardizer.fit_transform(dataset)
         np.testing.assert_array_almost_equal(transformed, expected_output)
 
-    def test_not_fitted(self) -> None:
+    @PROPERTY
+    @given(point=st.lists(st.integers(-10, 10).map(float), min_size=1, max_size=2))
+    @example(point=[1.0, 2.0])
+    def test_not_fitted(self, point: list[float]) -> None:
         standardizer = Standardizer()
         with pytest.raises(ValueError, match="The model is not fitted yet!"):
-            standardizer.transform([[1.0, 2.0]])
+            standardizer.transform([point])
 
     def test_inconsistent_dimensions(self) -> None:
         standardizer = Standardizer()
@@ -320,3 +332,101 @@ def test_distance_matches_reference_for_arbitrary_points(pairs: list[tuple[float
     first = [x for x, _ in pairs]
     second = [y for _, y in pairs]
     assert euclidean_distance(first, second) == pytest.approx(math.dist(first, second), rel=1e-14, abs=0.0)
+
+
+@PROPERTY
+@given(first=TRAINING_DATA, second=TRAINING_DATA)
+def test_knn_refit_preserves_configuration_and_replaces_state(
+    first: list[list[float]], second: list[list[float]]
+) -> None:
+    model = KNN(k=1)
+    fresh = KNN(k=1)
+    model.fit(first, [i % 2 for i in range(len(first))])
+    model.fit(second, [i % 2 for i in range(len(second))])
+    for field in fields(model):
+        if field.init:
+            assert getattr(model, field.name) == getattr(fresh, field.name)
+    fresh.fit(second, [i % 2 for i in range(len(second))])
+    assert asdict(model) == asdict(fresh)
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_knn_fit_owns_its_data(data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = KNN(k=1)
+    model.fit(data, [i % 2 for i in range(len(data))])
+    assert data == original
+    trained = asdict(model)
+    data[0][0] += 100
+    data.clear()
+    assert asdict(model) == trained
+
+
+@PROPERTY
+@given(first=TRAINING_DATA, second=TRAINING_DATA)
+def test_standardizer_refit_preserves_configuration_and_replaces_state(
+    first: list[list[float]], second: list[list[float]]
+) -> None:
+    model = Standardizer()
+    fresh = Standardizer()
+    model.fit(first)
+    model.fit(second)
+    for field in fields(model):
+        if field.init:
+            assert getattr(model, field.name) == getattr(fresh, field.name)
+    fresh.fit(second)
+    assert asdict(model) == asdict(fresh)
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_standardizer_fit_owns_its_data(data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = Standardizer()
+    model.fit(data)
+    assert data == original
+    trained = asdict(model)
+    data[0][0] += 100
+    data.clear()
+    assert asdict(model) == trained
+
+
+@pytest.mark.parametrize("model", [KNN(k=1), Standardizer()])
+def test_constructor_excludes_training_state(model: KNN | Standardizer) -> None:
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@pytest.mark.parametrize("standardize", [True, False])
+@PROPERTY
+@given(data=TRAINING_DATA, query=st.tuples(st.integers(1, 30), st.integers(0, 4)))
+def test_knn_owns_training_data_and_preserves_queries(
+    standardize: bool, data: list[list[float]], query: tuple[int, int]
+) -> None:
+    original = [row.copy() for row in data]
+    labels = [i % 2 for i in range(len(data))]
+    model = KNN(k=1, std_transform=standardize).fit(data, labels)
+    point = [float(x) for x in query]
+    prediction = model.predict(point)
+    assert data == original
+    assert point == list(query)
+    data[0][0] += 1000
+    data.append([99.0, 99.0])
+    labels[:] = [99] * len(labels)
+    assert model.predict(point) == prediction
+    assert model.dataset_ is not data
+    assert model.labels_ is not labels
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_standardizer_returns_independent_values(data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = Standardizer().fit(data)
+    expected_state = asdict(model)
+    first = model.transform(data)
+    assert data == original
+    first[0][0] += 100
+    assert model.transform(data) != first
+    assert asdict(model) == expected_state
+    assert data == original

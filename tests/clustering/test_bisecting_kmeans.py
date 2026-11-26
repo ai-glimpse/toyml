@@ -1,11 +1,17 @@
+from dataclasses import fields
 from pathlib import Path
 
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 lazy import matplotlib.pyplot as plt
 
 from toyml.clustering.bisecting_kmeans import BisectingKMeans, ClusterTree
+
+TRAINING_DATA = st.lists(st.integers(1, 30), min_size=4, max_size=8, unique=True).map(
+    lambda xs: [[float(x), float(x % 5)] for x in xs]
+)
+PROPERTY = settings(max_examples=30, deadline=None, derandomize=True, database=None)
 
 
 class TestBisectingKMeans:
@@ -167,3 +173,31 @@ def test_refit_rebuilds_tree_for_shorter_data(offset: int) -> None:
         assert node.centroid is not None
         centroids.append(node.centroid)
     assert sorted(centroids) == second
+
+
+def test_constructor_excludes_training_state() -> None:
+    model = BisectingKMeans(k=2)
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@given(value=st.integers(-10, 10))
+def test_unfitted_bisecting_kmeans_inference_fails(value: int) -> None:
+    with pytest.raises(ValueError, match="not.*fitted"):
+        BisectingKMeans(k=2).predict([[float(value)]])
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_fit_predict_returns_independent_labels(data: list[list[float]]) -> None:
+    model = BisectingKMeans(k=2)
+    labels = model.fit_predict(data)
+    original = model.labels_.copy()
+    labels[:] = [99] * len(labels)
+    assert model.labels_ == original
+
+
+def test_fit_preserves_input() -> None:
+    samples = [[0.0], [0.1], [4.0], [4.1]]
+    original = [row.copy() for row in samples]
+    BisectingKMeans(k=2).fit(samples)
+    assert samples == original

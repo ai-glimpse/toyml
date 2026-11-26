@@ -1,10 +1,21 @@
 import math
+import random
+from collections.abc import Generator
+from contextlib import contextmanager
+from dataclasses import asdict, fields
+from random import Random
+from typing import Literal
 
 import pytest
-from hypothesis import given
+from hypothesis import given, note, settings
 from hypothesis import strategies as st
 
 from toyml.ensemble.isolation_forest import IsolationForest, IsolationTree
+
+TRAINING_DATA = st.lists(st.integers(1, 30), min_size=4, max_size=8, unique=True).map(
+    lambda xs: [[float(x), float(x % 5)] for x in xs]
+)
+PROPERTY = settings(max_examples=30, deadline=None, derandomize=True, database=None)
 
 
 class TestIsolationTree:
@@ -166,3 +177,182 @@ def test_tree_refit_to_leaf_discards_previous_splits(value: int, count: int) -> 
     assert model.right_ is None
     assert model.split_at_ is None
     assert model.split_value_ is None
+
+
+Model = IsolationForest | IsolationTree
+ModelKind = Literal["isolation_forest", "isolation_tree"]
+MODEL_KINDS = ("isolation_forest", "isolation_tree")
+SEEDS = st.integers(0, 2**32 - 1)
+DATASETS = st.lists(st.tuples(st.integers(-20, 20), st.integers(-20, 20)), min_size=4, max_size=8, unique=True).map(
+    lambda rows: [[float(x), float(y)] for x, y in rows]
+)
+PROPERTY_SETTINGS = settings(max_examples=50, derandomize=True, database=None, deadline=None)
+
+
+@contextmanager
+def random_environment(entropy_seed: int) -> Generator[None]:
+    """Make implicit seeding replayable without changing explicit seeds."""
+    # Hypothesis must replay a failing case while shrinking it; real OS entropy would make that flaky.
+    entropy = Random(entropy_seed)
+    global_state = random.getstate()
+    original_seed = random.seed
+
+    def make_random(seed: int | None = None) -> Random:
+        return Random(entropy.getrandbits(64) if seed is None else seed)
+
+    def seed_global(seed: int | None = None) -> None:
+        original_seed(entropy.getrandbits(64) if seed is None else seed)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(random, "Random", make_random)
+        patch.setattr(random, "seed", seed_global)
+        try:
+            yield
+        finally:
+            random.setstate(global_state)
+
+
+def make_model(kind: ModelKind, seed: int | None, *, max_samples: int | None = None) -> Model:
+    if kind == "isolation_forest":
+        return IsolationForest(n_itree=3, max_samples=max_samples, random_seed=seed)
+    return IsolationTree(max_height=4, random_seed=seed)
+
+
+def fitted_result(model: Model, samples: list[list[float]]) -> object:
+    model.fit(samples)
+    # Dataclass fields include fitted structures, not the identity of the RNG object.
+    result = asdict(model)
+    if isinstance(model, IsolationForest):
+        result["scores"] = [model.score(sample) for sample in samples]
+        result["predictions"] = [model.predict(sample) for sample in samples]
+    else:
+        result["path_lengths"] = [model.get_sample_path_length(sample) for sample in samples]
+    return result
+
+
+@pytest.mark.parametrize("kind", MODEL_KINDS)
+@PROPERTY_SETTINGS
+@given(samples=DATASETS, model_seed=SEEDS, entropy_seed=SEEDS)
+def test_fixed_seed_reproduces_fresh_and_repeated_fits(
+    kind: ModelKind, samples: list[list[float]], model_seed: int, entropy_seed: int
+) -> None:
+    with random_environment(entropy_seed):
+        first = make_model(kind, model_seed)
+        expected = fitted_result(first, samples)
+    with random_environment(entropy_seed + 1):
+        note("Comparing fresh instances with the same explicit seed and different ambient entropy")
+        assert fitted_result(make_model(kind, model_seed), samples) == expected
+        note("Comparing a repeated fit on the original instance")
+        assert fitted_result(first, samples) == expected
+
+
+@pytest.mark.parametrize("kind", MODEL_KINDS)
+@pytest.mark.parametrize("same_seed", [True, False])
+@PROPERTY_SETTINGS
+@given(
+    samples=DATASETS,
+    other_samples=DATASETS,
+    model_seed=st.one_of(st.none(), SEEDS),
+    other_kind=st.sampled_from(MODEL_KINDS),
+    entropy_seed=SEEDS,
+    other_fits=st.integers(1, 3),
+)
+def test_model_instances_do_not_affect_each_other(
+    kind: ModelKind,
+    same_seed: bool,
+    samples: list[list[float]],
+    other_samples: list[list[float]],
+    model_seed: int | None,
+    other_kind: ModelKind,
+    entropy_seed: int,
+    other_fits: int,
+) -> None:
+    with random_environment(entropy_seed):
+        expected = fitted_result(make_model(kind, model_seed), samples)
+    with random_environment(entropy_seed):
+        target = make_model(kind, model_seed)
+        other_seed = model_seed if same_seed else (0 if model_seed is None else model_seed + 1)
+        # Keep the target's entropy identical even when it draws a new seed at fit time.
+        with random_environment(entropy_seed + 1):
+            for _ in range(other_fits):
+                fitted_result(make_model(other_kind, other_seed), other_samples)
+        assert fitted_result(target, samples) == expected
+
+
+@pytest.mark.parametrize("kind", MODEL_KINDS)
+@PROPERTY_SETTINGS
+@given(samples=DATASETS, model_seed=st.one_of(st.none(), SEEDS), entropy_seed=SEEDS)
+def test_model_does_not_change_global_random_state(
+    kind: ModelKind, samples: list[list[float]], model_seed: int | None, entropy_seed: int
+) -> None:
+    with random_environment(entropy_seed):
+        before = random.getstate()
+        fitted_result(make_model(kind, model_seed), samples)
+        assert random.getstate() == before
+
+
+@pytest.mark.parametrize("kind", MODEL_KINDS)
+@PROPERTY
+@given(first=TRAINING_DATA, second=TRAINING_DATA)
+def test_isolation_model_refit_preserves_configuration_and_replaces_state(
+    kind: ModelKind, first: list[list[float]], second: list[list[float]]
+) -> None:
+    model = make_model(kind, seed=0, max_samples=6)
+    fresh = make_model(kind, seed=0, max_samples=6)
+    model.fit(first)
+    model.fit(second)
+    for field in fields(model):
+        if field.init:
+            assert getattr(model, field.name) == getattr(fresh, field.name)
+    fresh.fit(second)
+    assert asdict(model) == asdict(fresh)
+
+
+@pytest.mark.parametrize("kind", MODEL_KINDS)
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_isolation_model_fit_owns_its_data(kind: ModelKind, data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = make_model(kind, seed=0, max_samples=6)
+    model.fit(data)
+    assert data == original
+    trained = asdict(model)
+    data[0][0] += 100
+    data.clear()
+    assert asdict(model) == trained
+
+
+@pytest.mark.parametrize(
+    "model", [IsolationForest(n_itree=3, max_samples=6, random_seed=0), IsolationTree(max_height=4, random_seed=0)]
+)
+def test_constructor_excludes_training_state(model: IsolationForest | IsolationTree) -> None:
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@given(value=st.integers(-10, 10))
+def test_unfitted_forest_inference_fails(value: int) -> None:
+    with pytest.raises(ValueError, match="not.*fitted"):
+        IsolationForest().predict([float(value)])
+
+
+@given(value=st.integers(-10, 10))
+def test_unfitted_tree_inference_fails(value: int) -> None:
+    with pytest.raises(ValueError, match="not.*fitted"):
+        IsolationTree(max_height=2).get_sample_path_length([float(value)])
+
+
+def test_fit_preserves_input() -> None:
+    samples = [[0.0], [0.1], [4.0], [4.1]]
+    original = [row.copy() for row in samples]
+    IsolationForest(n_itree=5, random_seed=42).fit(samples)
+    assert samples == original
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=ZeroDivisionError,
+    reason="IsolationForest accepts one sample and divides by zero during scoring",
+)
+def test_isolation_forest_rejects_single_sample() -> None:
+    with pytest.raises(ValueError, match="at least two samples"):
+        IsolationForest(random_seed=42).fit_predict([[1.0]])
