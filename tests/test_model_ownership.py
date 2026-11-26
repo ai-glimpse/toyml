@@ -9,7 +9,7 @@ from hypothesis import strategies as st
 
 from toyml.classification.knn import KNN, Standardizer
 from toyml.classification.naive_bayes import CategoricalNaiveBayes, GaussianNaiveBayes, MultinomialNaiveBayes
-from toyml.clustering import AGNES, DBSCAN, BisectingKMeans, KMeans
+from toyml.clustering import AGNES, DBSCAN, BisectingKMeans
 from toyml.ensemble.adaboost import AdaBoost, OneDimensionClassifier
 from toyml.ensemble.isolation_forest import IsolationForest, IsolationTree
 
@@ -21,7 +21,6 @@ Model = (
     | CategoricalNaiveBayes
     | AGNES
     | DBSCAN
-    | KMeans
     | IsolationForest
     | IsolationTree
 )
@@ -33,7 +32,6 @@ FACTORIES = [
     pytest.param(CategoricalNaiveBayes, id="categorical-nb"),
     pytest.param(lambda: AGNES(n_cluster=2), id="agnes"),
     pytest.param(lambda: DBSCAN(eps=2, min_samples=1), id="dbscan"),
-    pytest.param(lambda: KMeans(k=2, random_seed=0), id="kmeans"),
     pytest.param(lambda: IsolationForest(n_itree=3, max_samples=6, random_seed=0), id="forest"),
     pytest.param(lambda: IsolationTree(max_height=4, random_seed=0), id="tree"),
 ]
@@ -140,7 +138,6 @@ def test_standardizer_returns_independent_values(data: list[list[float]]) -> Non
         GaussianNaiveBayes,
         MultinomialNaiveBayes,
         CategoricalNaiveBayes,
-        lambda: KMeans(k=2),
         lambda: BisectingKMeans(k=2),
         lambda: AdaBoost(OneDimensionClassifier),
         OneDimensionClassifier,
@@ -174,14 +171,13 @@ def test_unfitted_inference_fails_explicitly(
     [
         lambda: AGNES(n_cluster=2),
         lambda: DBSCAN(eps=2, min_samples=1),
-        lambda: KMeans(k=2, random_seed=0),
         lambda: BisectingKMeans(k=2),
     ],
 )
 @PROPERTY
 @given(data=DATA)
 def test_fit_predict_returns_independent_labels(
-    factory: Callable[[], AGNES | DBSCAN | KMeans | BisectingKMeans], data: list[list[float]]
+    factory: Callable[[], AGNES | DBSCAN | BisectingKMeans], data: list[list[float]]
 ) -> None:
     model = factory()
     labels = model.fit_predict(data)

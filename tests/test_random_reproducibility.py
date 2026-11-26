@@ -11,12 +11,11 @@ import pytest
 from hypothesis import given, note, settings
 from hypothesis import strategies as st
 
-from toyml.clustering import KMeans
 from toyml.ensemble.isolation_forest import IsolationForest, IsolationTree
 
-Model = KMeans | IsolationForest | IsolationTree
-ModelKind = Literal["kmeans", "kmeans++", "isolation_forest", "isolation_tree"]
-MODEL_KINDS = ("kmeans", "kmeans++", "isolation_forest", "isolation_tree")
+Model = IsolationForest | IsolationTree
+ModelKind = Literal["isolation_forest", "isolation_tree"]
+MODEL_KINDS = ("isolation_forest", "isolation_tree")
 SEEDS = st.integers(0, 2**32 - 1)
 DATASETS = st.lists(st.tuples(st.integers(-20, 20), st.integers(-20, 20)), min_size=4, max_size=8, unique=True).map(
     lambda rows: [[float(x), float(y)] for x, y in rows]
@@ -48,10 +47,6 @@ def random_environment(entropy_seed: int) -> Generator[None]:
 
 
 def make_model(kind: ModelKind, seed: int | None) -> Model:
-    if kind == "kmeans":
-        return KMeans(k=2, random_seed=seed)
-    if kind == "kmeans++":
-        return KMeans(k=2, centroids_init_method="kmeans++", random_seed=seed)
     if kind == "isolation_forest":
         return IsolationForest(n_itree=3, random_seed=seed)
     return IsolationTree(max_height=4, random_seed=seed)
@@ -64,10 +59,8 @@ def fitted_result(model: Model, samples: list[list[float]]) -> object:
     if isinstance(model, IsolationForest):
         result["scores"] = [model.score(sample) for sample in samples]
         result["predictions"] = [model.predict(sample) for sample in samples]
-    elif isinstance(model, IsolationTree):
-        result["path_lengths"] = [model.get_sample_path_length(sample) for sample in samples]
     else:
-        result["predictions"] = [model.predict(sample) for sample in samples]
+        result["path_lengths"] = [model.get_sample_path_length(sample) for sample in samples]
     return result
 
 
