@@ -37,23 +37,6 @@ listed in `pyproject.toml`:
 MPLBACKEND=Agg uv run --locked --python 3.15 pytest
 ```
 
-## Model and test conventions
-
-- Constructors accept configuration; fitted/internal dataclass fields use `init=False`.
-- Fitting preserves configuration and replaces fitted state.
-- Methods preserve caller inputs. Copy containers according to their structure;
-  reserve `deepcopy` for complex mutable object graphs that require recursive isolation.
-- Returned label lists are independent containers. Public fitted attributes remain mutable.
-- Inference before fitting raises `ValueError`.
-- Integer seeds reproduce fits within the same implementation and environment.
-  Instances own their random streams; `None` does not promise reproducibility.
-
-Use pytest and Hypothesis. Compare cluster partitions rather than arbitrary label numbers.
-Keep shared contracts in `tests/test_model_ownership.py` and
-`tests/test_random_reproducibility.py`, and model-specific properties with the model's tests.
-Deferred bugs live in `tests/test_known_issues.py` with strict xfail markers; replace them
-with passing regression tests when fixed.
-
 ## Documentation
 
 Edit algorithm guides in `docs/`; API references are generated from source docstrings.

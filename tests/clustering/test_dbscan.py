@@ -1,12 +1,18 @@
 import math
+from dataclasses import asdict, fields
 
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.metrics import adjusted_rand_score
 
 from toyml.clustering.dbscan import DBSCAN, Dataset
+
+TRAINING_DATA = st.lists(st.integers(1, 30), min_size=4, max_size=8, unique=True).map(
+    lambda xs: [[float(x), float(x % 5)] for x in xs]
+)
+PROPERTY = settings(max_examples=30, deadline=None, derandomize=True, database=None)
 
 
 @pytest.fixture
@@ -59,3 +65,60 @@ def test_refit_to_all_noise_replaces_previous_clusters(offset: int, count: int) 
     assert model.fit_predict(samples) == [-1] * count
     assert model.clusters_ == []
     assert model.noises_ == list(range(count))
+
+
+@PROPERTY
+@given(first=TRAINING_DATA, second=TRAINING_DATA)
+def test_dbscan_refit_preserves_configuration_and_replaces_state(
+    first: list[list[float]], second: list[list[float]]
+) -> None:
+    model = DBSCAN(eps=2, min_samples=1)
+    fresh = DBSCAN(eps=2, min_samples=1)
+    model.fit(first)
+    model.fit(second)
+    for field in fields(model):
+        if field.init:
+            assert getattr(model, field.name) == getattr(fresh, field.name)
+    fresh.fit(second)
+    assert asdict(model) == asdict(fresh)
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_dbscan_fit_owns_its_data(data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = DBSCAN(eps=2, min_samples=1)
+    model.fit(data)
+    assert data == original
+    trained = asdict(model)
+    data[0][0] += 100
+    data.clear()
+    assert asdict(model) == trained
+
+
+def test_constructor_excludes_training_state() -> None:
+    model = DBSCAN(eps=2, min_samples=1)
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_fit_predict_returns_independent_labels(data: list[list[float]]) -> None:
+    model = DBSCAN(eps=2, min_samples=1)
+    labels = model.fit_predict(data)
+    original = model.labels_.copy()
+    labels[:] = [99] * len(labels)
+    assert model.labels_ == original
+
+
+def test_fit_preserves_input() -> None:
+    samples = [[0.0], [0.1], [4.0], [4.1]]
+    original = [row.copy() for row in samples]
+    DBSCAN(eps=0.2, min_samples=2).fit(samples)
+    assert samples == original
+
+
+@pytest.mark.xfail(strict=True, raises=AssertionError, reason="DBSCAN records non-core border points as noise")
+def test_dbscan_noise_excludes_border_points() -> None:
+    model = DBSCAN(eps=0.21, min_samples=4).fit([[0.0], [0.1], [0.2], [0.3], [0.6]])
+    assert model.noises_ == [i for i, label in enumerate(model.labels_) if label == -1]

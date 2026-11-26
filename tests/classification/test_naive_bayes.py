@@ -1,16 +1,23 @@
 import math
+from dataclasses import asdict, fields
 
 import numpy as np
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 from sklearn.naive_bayes import CategoricalNB, GaussianNB, MultinomialNB
 
 from toyml.classification.naive_bayes import (
+    BaseNaiveBayes,
     CategoricalNaiveBayes,
     GaussianNaiveBayes,
     MultinomialNaiveBayes,
 )
+
+TRAINING_DATA = st.lists(st.integers(1, 30), min_size=4, max_size=8, unique=True).map(
+    lambda xs: [[float(x), float(x % 5)] for x in xs]
+)
+PROPERTY = settings(max_examples=30, deadline=None, derandomize=True, database=None)
 
 
 @pytest.fixture
@@ -192,3 +199,49 @@ def test_categorical_counts_own_nested_dictionaries(rows: list[tuple[int, int]])
     first[1].clear()
     assert second == expected
     assert all(count == 1.0 for counts in template.values() for count in counts.values())
+
+
+NAIVE_BAYES_MODELS = (GaussianNaiveBayes, MultinomialNaiveBayes, CategoricalNaiveBayes)
+
+
+@pytest.mark.parametrize("model_type", NAIVE_BAYES_MODELS)
+@PROPERTY
+@given(first=TRAINING_DATA, second=TRAINING_DATA)
+def test_naive_bayes_refit_preserves_configuration_and_replaces_state(
+    model_type: type[BaseNaiveBayes], first: list[list[float]], second: list[list[float]]
+) -> None:
+    model = model_type()
+    fresh = model_type()
+    model.fit(first, [i % 2 for i in range(len(first))])
+    model.fit(second, [i % 2 for i in range(len(second))])
+    for field in fields(model):
+        if field.init:
+            assert getattr(model, field.name) == getattr(fresh, field.name)
+    fresh.fit(second, [i % 2 for i in range(len(second))])
+    assert asdict(model) == asdict(fresh)
+
+
+@pytest.mark.parametrize("model_type", NAIVE_BAYES_MODELS)
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_naive_bayes_fit_owns_its_data(model_type: type[BaseNaiveBayes], data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = model_type()
+    model.fit(data, [i % 2 for i in range(len(data))])
+    assert data == original
+    trained = asdict(model)
+    data[0][0] += 100
+    data.clear()
+    assert asdict(model) == trained
+
+
+@pytest.mark.parametrize("model", [model_type() for model_type in NAIVE_BAYES_MODELS])
+def test_constructor_excludes_training_state(model: BaseNaiveBayes) -> None:
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@pytest.mark.parametrize("model_type", NAIVE_BAYES_MODELS)
+@given(value=st.integers(-10, 10))
+def test_unfitted_naive_bayes_inference_fails(model_type: type[BaseNaiveBayes], value: int) -> None:
+    with pytest.raises(ValueError, match="not.*fitted"):
+        model_type().predict([float(value)])

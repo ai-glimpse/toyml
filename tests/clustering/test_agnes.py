@@ -1,8 +1,16 @@
+from dataclasses import fields, is_dataclass
 from pathlib import Path
 
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from toyml.clustering.agnes import AGNES, ClusterTree
+
+TRAINING_DATA = st.lists(st.integers(1, 30), min_size=4, max_size=8, unique=True).map(
+    lambda xs: [[float(x), float(x % 5)] for x in xs]
+)
+PROPERTY = settings(max_examples=30, deadline=None, derandomize=True, database=None)
 
 
 class TestAGNES:
@@ -102,3 +110,65 @@ class TestAGNES:
         for cluster in agnes.clusters_:
             all_indices.update(cluster.sample_indices)
         assert all_indices == set(range(len(sample_dataset)))
+
+
+def tree_state(value: object) -> object:
+    """Compare fitted trees without following their parent links back into cycles."""
+    if is_dataclass(value) and not isinstance(value, type):
+        return {f.name: tree_state(getattr(value, f.name)) for f in fields(value) if f.name != "parent"}
+    if isinstance(value, list):
+        return [tree_state(item) for item in value]
+    if isinstance(value, dict):
+        return {key: tree_state(item) for key, item in value.items()}
+    return value
+
+
+@PROPERTY
+@given(first=TRAINING_DATA, second=TRAINING_DATA)
+def test_agnes_refit_preserves_configuration_and_replaces_state(
+    first: list[list[float]], second: list[list[float]]
+) -> None:
+    model = AGNES(n_cluster=2)
+    fresh = AGNES(n_cluster=2)
+    model.fit(first)
+    model.fit(second)
+    for field in fields(model):
+        if field.init:
+            assert getattr(model, field.name) == getattr(fresh, field.name)
+    fresh.fit(second)
+    assert tree_state(model) == tree_state(fresh)
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_agnes_fit_owns_its_data(data: list[list[float]]) -> None:
+    original = [row.copy() for row in data]
+    model = AGNES(n_cluster=2)
+    model.fit(data)
+    assert data == original
+    trained = tree_state(model)
+    data[0][0] += 100
+    data.clear()
+    assert tree_state(model) == trained
+
+
+def test_constructor_excludes_training_state() -> None:
+    model = AGNES(n_cluster=2)
+    assert all(not f.init for f in fields(model) if f.name.endswith("_") or f.name.startswith("_"))
+
+
+@PROPERTY
+@given(data=TRAINING_DATA)
+def test_fit_predict_returns_independent_labels(data: list[list[float]]) -> None:
+    model = AGNES(n_cluster=2)
+    labels = model.fit_predict(data)
+    original = model.labels_.copy()
+    labels[:] = [99] * len(labels)
+    assert model.labels_ == original
+
+
+def test_fit_preserves_input() -> None:
+    samples = [[0.0], [0.1], [4.0], [4.1]]
+    original = [row.copy() for row in samples]
+    AGNES(n_cluster=2).fit(samples)
+    assert samples == original
