@@ -4,8 +4,6 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
-from toyml._distance import euclidean_distance
-
 
 def _validate_dataset(dataset: list[list[float]], dimension: int | None = None) -> int:
     """Validate finite, non-empty numeric rows, optionally against a fitted dimension."""
@@ -250,6 +248,11 @@ class Standardizer:
     def _dataset_column_stds(dataset: list[list[float]]) -> list[float]:
         """Compute sample standard deviations, using zero for a single observation."""
         return [statistics.stdev(column) if len(column) > 1 else 0.0 for column in zip(*dataset, strict=True)]
+
+
+def euclidean_distance(x: list[float], y: list[float]) -> float:
+    """Take the scaled Euclidean norm of the coordinate differences."""
+    return math.hypot(*(a - b for a, b in zip(x, y, strict=True)))
 
 
 if __name__ == "__main__":
