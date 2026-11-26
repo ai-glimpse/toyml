@@ -70,7 +70,21 @@ class KMeans:
     """The cluster labels of the dataset."""
 
     def fit(self, dataset: list[list[float]]) -> KMeans:
-        """Fit the model. A failed fit preserves the previous fitted result."""
+        """Fit the centroids and assign each sample to its nearest final centroid.
+
+        A failed fit preserves the previous fitted result.
+
+        Args:
+            dataset: One sample per row, with at least `k` rows. Each row must have
+                the same positive number of features, all with finite numeric values.
+
+        Returns:
+            The fitted instance (`self`).
+
+        Raises:
+            ValueError: If the dataset or model parameters are invalid, or a
+                distance exceeds the floating-point range.
+        """
         self._validate_fit(dataset)
         initial = self._initial_centroids(dataset, random.Random(self.random_seed))
         centroids, iterations = self._lloyd(dataset, initial)
@@ -86,11 +100,38 @@ class KMeans:
         return self
 
     def fit_predict(self, dataset: list[list[float]]) -> list[int]:
-        """Fit the model and return a copy of its training labels."""
+        """Fit the model and return the cluster label for each training sample.
+
+        Args:
+            dataset: Training samples satisfying the same requirements as
+                [`fit`][toyml.clustering.kmeans.KMeans.fit].
+
+        Returns:
+            A copy of `labels_` in input row order. Each label identifies the
+            nearest final centroid, even when fitting stops at `max_iter`.
+
+        Raises:
+            ValueError: If the dataset or model parameters are invalid, or a
+                distance exceeds the floating-point range.
+        """
         return self.fit(dataset).labels_.copy()
 
     def predict(self, point: list[float]) -> int:
-        """Choose the lowest label among centroids with the smallest computed float distance."""
+        """Assign one sample to its nearest fitted centroid.
+
+        Args:
+            point: A sample with finite numeric values and the same number of
+                features as the training samples.
+
+        Returns:
+            The nearest centroid's label. If computed floating-point distances
+            tie for the minimum, the lowest label wins.
+
+        Raises:
+            ValueError: If the model is unfitted, the point is invalid, the
+                distance metric is unsupported, or a distance exceeds the
+                floating-point range.
+        """
         if not self.centroids_:
             msg = "The model is not fitted yet"
             raise ValueError(msg)
