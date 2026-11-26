@@ -26,7 +26,7 @@ print(model.predict([0.1]))
 
 ## Numerical stability
 
-::: toyml._distance.euclidean_distance
+::: toyml.classification.knn.euclidean_distance
     options:
         show_source: true
 
