@@ -185,12 +185,10 @@ class BisectingKMeans:
                 # If the cluster cannot be split further, skip it
                 if len(cluster_data) < 2:
                     continue
-                # Bisect by kmeans with k=2
-                cluster_unsplit_error, cluster_split_error, (cluster1, cluster2) = self._bisect_by_kmeans(
-                    cluster_data,
-                    cluster_node,
-                    dataset,
-                )
+                candidate = self._bisect_by_kmeans(cluster_data, cluster_node, dataset)
+                if candidate is None:
+                    continue
+                cluster_unsplit_error, cluster_split_error, (cluster1, cluster2) = candidate
                 new_total_error = total_error - cluster_unsplit_error + cluster_split_error
                 if new_total_error < total_error:
                     total_error = new_total_error
@@ -255,10 +253,12 @@ class BisectingKMeans:
         cluster_data: list[list[float]],
         cluster_node: ClusterTree,
         dataset: list[list[float]],
-    ) -> tuple[float, float, tuple[list[int], list[int]]]:
+    ) -> tuple[float, float, tuple[list[int], list[int]]] | None:
+        """Return a scored split when both children contain samples."""
         kmeans = KMeans(k=2).fit(cluster_data)
-        assert kmeans.clusters_ is not None
         cluster1, cluster2 = kmeans.clusters_[0], kmeans.clusters_[1]
+        if not cluster1 or not cluster2:
+            return None
         # Note: map the cluster's inner index to the truth index in dataset
         cluster1 = [cluster_node.cluster[i] for i in cluster1]
         cluster2 = [cluster_node.cluster[i] for i in cluster2]

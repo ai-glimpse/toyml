@@ -10,7 +10,8 @@ cluster tree.
 
 - Pass a non-empty rectangular list of numeric observations and `1 <= k <= len(samples)`.
 - The implementation uses Euclidean distance and random K-means initialization.
-- Splitting stops when no candidate reduces the error, so fewer than `k` clusters may result.
+- A leaf stays intact if a split produces an empty child. Other leaves can still split.
+  Splitting stops when no valid candidate reduces the error, so fewer than `k` clusters may result.
 - `predict` accepts a list of samples.
 - Tree plotting needs the optional `toyml[plot]` dependencies.
 
