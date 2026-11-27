@@ -275,11 +275,3 @@ class Standardizer:
         if not finite:
             msg = "Features must be finite numeric values"
             raise ValueError(msg)
-
-
-if __name__ == "__main__":
-    dataset: list[list[float]] = [[0.0], [1], [2], [3]]
-    labels: list[Any] = [0, 0, 1, 1]
-    knn = KNN(3).fit(dataset, labels)
-    print(knn.labels_)
-    print(knn.predict([1.1]))
