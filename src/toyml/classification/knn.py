@@ -15,6 +15,7 @@ class KNN:
     After changing a hyperparameter, call `fit` again before using `predict`.
 
     Examples:
+        >>> from toyml.classification import KNN
         >>> dataset = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
         >>> labels = ["A", "A", "B", "B"]
         >>> knn = KNN(k=3, std_transform=True).fit(dataset, labels)
@@ -81,9 +82,10 @@ class KNN:
             x: Finite numeric features in training order, with the same width as a training row.
 
         Returns:
-            The most frequent label among the nearest `k` samples. Equal distances
-            retain training order. Tied votes favor the label encountered first
-            among the selected neighbors, from nearest to farthest.
+            The most frequent label among the nearest `k` samples. Samples whose
+            distances round to the same float retain training order. Tied votes
+            favor the label encountered first among the selected neighbors, from
+            nearest to farthest.
 
         Raises:
             ValueError: If the model is unfitted or the query has invalid features

@@ -121,10 +121,11 @@ class TestPredict:
         model.fit(samples, labels)
         assert model.predict([0.1]) == "A"
 
-    def test_equal_distances_at_cutoff_keep_training_order(self) -> None:
-        """Both points are one unit away and only the first training row gets a vote."""
-        model = KNN(1, False).fit([[1.0], [-1.0]], ["Z", "A"])
-        assert model.predict([0.0]) == "Z"
+    @pytest.mark.parametrize("first_point", [[-1.0, 0.0], [1.0, 2**-27]], ids=["exact-tie", "rounded-tie"])
+    def test_equal_distances_at_cutoff_keep_training_order(self, first_point: list[float]) -> None:
+        """Both computed distances are 1.0, even when the first point's squared distance is 1 + 2⁻⁵⁴."""
+        model = KNN(1, False).fit([first_point, [1.0, 0.0]], ["Z", "A"])
+        assert model.predict([0.0, 0.0]) == "Z"
 
     def test_vote_tie_favors_first_label_in_distance_order(self) -> None:
         """Each label gets one vote. Z is nearer even though A was fitted first."""
