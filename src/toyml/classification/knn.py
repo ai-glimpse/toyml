@@ -21,16 +21,6 @@ class KNN:
         >>> knn.predict([2.5, 3.5])
         'A'
 
-    Args:
-        k: Positive number of neighbors to include in the vote.
-        std_transform: Whether to standardize features using the training samples.
-        distance_metric: Distance used to rank neighbors. Currently supports `"euclidean"`.
-
-    Attributes:
-        dataset_: Training samples in the feature space used for prediction.
-        labels_: Training labels in the same order as the samples.
-        standardizer_: Fitted standardizer when standardization is enabled.
-
     References:
         1. Li Hang
         2. Tan
@@ -40,11 +30,17 @@ class KNN:
     """
 
     k: int
+    """Number of neighbors in the vote, from one to the training sample count."""
     std_transform: bool = True
+    """Whether to standardize features using the training means and sample standard deviations."""
     distance_metric: Literal["euclidean"] = field(default="euclidean", kw_only=True)
+    """Distance used to rank neighbors. Currently supports `"euclidean"`."""
     dataset_: list[list[float]] | None = field(default=None, init=False)
+    """Training samples in the feature space used for neighbor searches."""
     labels_: list[Any] | None = field(default=None, init=False)
+    """Training labels in the same order as the samples."""
     standardizer_: Standardizer | None = field(default=None, init=False)
+    """Standardizer fitted to the training data when standardization is enabled."""
 
     def fit(self, dataset: list[list[float]], labels: list[Any]) -> KNN:
         """Store the labeled samples. A failed refit preserves the previous fitted attributes.
@@ -177,6 +173,7 @@ class Standardizer:
     """
 
     _column_stats: list[tuple[float, float]] = field(default_factory=list, init=False)
+    """Fitted (mean, scale) pairs in training column order."""
 
     def fit(self, dataset: list[list[float]]) -> Standardizer:
         """Fit the standardization model to the given dataset.
