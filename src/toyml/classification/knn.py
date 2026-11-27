@@ -174,8 +174,8 @@ class Standardizer:
     in a single step.
     """
 
-    _column_stats: list[tuple[float, float]] = field(default_factory=list, init=False)
-    """Fitted (mean, scale) pairs in training column order."""
+    _column_stats: list[tuple[float, float, float]] = field(default_factory=list, init=False)
+    """Fitted (mean, scale, unit) per column. Mean and scale are expressed in that unit."""
 
     def fit(self, dataset: list[list[float]]) -> Standardizer:
         """Fit the standardization model to the given dataset.
@@ -190,18 +190,11 @@ class Standardizer:
             ValueError: If features are empty, inconsistent, non-finite, or cannot be scaled.
         """
         self._validate_dataset(dataset)
-        column_stats: list[tuple[float, float]] = []
         try:
-            for column in zip(*dataset, strict=True):
-                mean = statistics.mean(column)
-                # A single sample or a constant column uses unit scale, so new values are only centered.
-                std = statistics.stdev(column) if len(column) > 1 else 0.0
-                scale = std if std != 0.0 else 1.0
-                column_stats.append((mean, scale))
+            self._column_stats = [self._fit_column(column) for column in zip(*dataset, strict=True)]
         except OverflowError as exc:
             msg = "Standardization statistics exceed the floating-point range"
             raise ValueError(msg) from exc
-        self._column_stats = column_stats
         return self
 
     def transform(self, dataset: list[list[float]]) -> list[list[float]]:
@@ -237,15 +230,28 @@ class Standardizer:
         self.fit(dataset)
         return self._transform(dataset)
 
+    @staticmethod
+    def _fit_column(column: tuple[float, ...]) -> tuple[float, float, float]:
+        unit = 1.0
+        std = statistics.stdev(column) if len(column) > 1 else 0.0
+        if std < sys.float_info.min and any(value != column[0] for value in column):
+            # Measuring in units of 2**-1022 makes even the smallest float step a normal number.
+            unit = sys.float_info.min
+            column = tuple(value / unit for value in column)
+            std = statistics.stdev(column)
+        return statistics.mean(column), std or 1.0, unit
+
     def _transform(self, dataset: list[list[float]]) -> list[list[float]]:
         """Apply training statistics to rows already validated by fit or transform."""
         return [
-            [self._zscore(value, mean, scale) for value, (mean, scale) in zip(row, self._column_stats, strict=True)]
+            [self._zscore(value, *stats) for value, stats in zip(row, self._column_stats, strict=True)]
             for row in dataset
         ]
 
     @staticmethod
-    def _zscore(value: float, mean: float, scale: float) -> float:
+    def _zscore(value: float, mean: float, scale: float, unit: float) -> float:
+        if unit != 1.0:
+            value /= unit
         difference = value - mean
         # Opposite extremes can overflow during centering even when their score fits.
         score = difference / scale if abs(difference) <= sys.float_info.max else value / scale - mean / scale

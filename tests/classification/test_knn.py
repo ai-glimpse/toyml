@@ -164,6 +164,15 @@ class TestPredict:
 
 
 class TestStandardizer:
+    @pytest.mark.parametrize("step", [math.ulp(0.0), 2 * math.ulp(0.0)], ids=["rounds-to-zero", "subnormal"])
+    def test_tiny_variation_keeps_its_training_scale(self, step: float) -> None:
+        """Four zeros and one step have mean step/5 and sample deviation step/sqrt(5)."""
+        scaler = Standardizer()
+        scores = scaler.fit_transform([[0.0], [0.0], [0.0], [0.0], [step]])
+        root_five = math.sqrt(5)
+        assert [row[0] for row in scores] == pytest.approx([-1 / root_five] * 4 + [4 / root_five])
+        assert scaler.transform([[2 * step]])[0][0] == pytest.approx(9 / root_five)
+
     @pytest.mark.parametrize("magnitude", [1.6e308, 16 * 10**307])
     def test_recovers_finite_scores_when_centering_overflows(self, magnitude: float) -> None:
         """The last deviation is -1.5 times the magnitude, but its z-score is just -1.5."""

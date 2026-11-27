@@ -36,8 +36,15 @@ print(model.predict([0.1]))
 
 ## Numerical stability
 
-The standardizer stores a mean and scale per feature. If subtracting the mean would
-overflow, it divides both operands by the scale before subtracting. A standardized
+If a varying feature's sample standard deviation rounds to zero or is subnormal,
+the standardizer divides that column by the smallest positive normal float
+(`2**-1022`) and computes the mean and standard deviation in that unit. It uses the
+same unit for later queries. For the training column `[0, 0, 0, 0, 5e-324]`,
+the four zeros have a standard score of about `-0.4472` and the last value scores
+`1.7889`. A new value of `1e-323` scores about `4.0249`.
+
+If subtracting the mean would overflow, the standardizer divides both operands
+by the scale before subtracting. A standardized
 value outside the floating-point range raises `ValueError`. The standardizer's
 `fit_transform` saves the fitted statistics before transforming the training rows.
 Large integers can lose precision during centering. For a training column containing
